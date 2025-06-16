@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6"/>
+	<Project>
+		<Option title="untitled"/>
+		<Option makefile_is_custom="1"/>
+		<Option compiler="gcc"/>
+		<Option virtualFolders="CMake Files\;"/>
+		<Build>
+			<Target title="all">
+				<Option working_dir="/home/xshx/CLionProjects/untitled/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/gmake -j20 -f &quot;/home/xshx/CLionProjects/untitled/cmake-build-debug/Makefile&quot;  VERBOSE=1 all"/>
+					<CompileFile command="/usr/bin/gmake -j20 -f &quot;/home/xshx/CLionProjects/untitled/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -j20 -f &quot;/home/xshx/CLionProjects/untitled/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -j20 -f &quot;/home/xshx/CLionProjects/untitled/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="rebuild_cache">
+				<Option working_dir="/home/xshx/CLionProjects/untitled/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/gmake -j20 -f &quot;/home/xshx/CLionProjects/untitled/cmake-build-debug/Makefile&quot;  VERBOSE=1 rebuild_cache"/>
+					<CompileFile command="/usr/bin/gmake -j20 -f &quot;/home/xshx/CLionProjects/untitled/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -j20 -f &quot;/home/xshx/CLionProjects/untitled/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -j20 -f &quot;/home/xshx/CLionProjects/untitled/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="edit_cache">
+				<Option working_dir="/home/xshx/CLionProjects/untitled/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/gmake -j20 -f &quot;/home/xshx/CLionProjects/untitled/cmake-build-debug/Makefile&quot;  VERBOSE=1 edit_cache"/>
+					<CompileFile command="/usr/bin/gmake -j20 -f &quot;/home/xshx/CLionProjects/untitled/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -j20 -f &quot;/home/xshx/CLionProjects/untitled/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -j20 -f &quot;/home/xshx/CLionProjects/untitled/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="untitled">
+				<Option output="/home/xshx/CLionProjects/untitled/cmake-build-debug/untitled" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/xshx/CLionProjects/untitled/cmake-build-debug"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/usr/include/c++/11"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/11"/>
+					<Add directory="/usr/include/c++/11/backward"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/11/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/gmake -j20 -f &quot;/home/xshx/CLionProjects/untitled/cmake-build-debug/Makefile&quot;  VERBOSE=1 untitled"/>
+					<CompileFile command="/usr/bin/gmake -j20 -f &quot;/home/xshx/CLionProjects/untitled/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -j20 -f &quot;/home/xshx/CLionProjects/untitled/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -j20 -f &quot;/home/xshx/CLionProjects/untitled/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="untitled/fast">
+				<Option output="/home/xshx/CLionProjects/untitled/cmake-build-debug/untitled" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/xshx/CLionProjects/untitled/cmake-build-debug"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/usr/include/c++/11"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/11"/>
+					<Add directory="/usr/include/c++/11/backward"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/11/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/gmake -j20 -f &quot;/home/xshx/CLionProjects/untitled/cmake-build-debug/Makefile&quot;  VERBOSE=1 untitled/fast"/>
+					<CompileFile command="/usr/bin/gmake -j20 -f &quot;/home/xshx/CLionProjects/untitled/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -j20 -f &quot;/home/xshx/CLionProjects/untitled/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -j20 -f &quot;/home/xshx/CLionProjects/untitled/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+		</Build>
+		<Unit filename="/home/xshx/CLionProjects/untitled/ include/EventHub.h">
+			<Option target="untitled"/>
+		</Unit>
+		<Unit filename="/home/xshx/CLionProjects/untitled/main.cpp">
+			<Option target="untitled"/>
+		</Unit>
+		<Unit filename="/home/xshx/CLionProjects/untitled/mangmi/InputFilter.cpp">
+			<Option target="untitled"/>
+		</Unit>
+		<Unit filename="/home/xshx/CLionProjects/untitled/mangmi/InputFilter.h">
+			<Option target="untitled"/>
+		</Unit>
+		<Unit filename="/home/xshx/CLionProjects/untitled/mangmi/Macro.h">
+			<Option target="untitled"/>
+		</Unit>
+		<Unit filename="/home/xshx/CLionProjects/untitled/mangmi/MangmiFlinger.cpp">
+			<Option target="untitled"/>
+		</Unit>
+		<Unit filename="/home/xshx/CLionProjects/untitled/mangmi/MangmiFlinger.h">
+			<Option target="untitled"/>
+		</Unit>
+		<Unit filename="/home/xshx/CLionProjects/untitled/mangmi/MangmiIntercepter.cpp">
+			<Option target="untitled"/>
+		</Unit>
+		<Unit filename="/home/xshx/CLionProjects/untitled/mangmi/MangmiIntercepter.h">
+			<Option target="untitled"/>
+		</Unit>
+		<Unit filename="/home/xshx/CLionProjects/untitled/mangmi/MangmiPolicy.cpp">
+			<Option target="untitled"/>
+		</Unit>
+		<Unit filename="/home/xshx/CLionProjects/untitled/mangmi/MangmiPolicy.h">
+			<Option target="untitled"/>
+		</Unit>
+		<Unit filename="/home/xshx/CLionProjects/untitled/mangmi/json/jsoncpp.cpp">
+			<Option target="untitled"/>
+		</Unit>
+		<Unit filename="/home/xshx/CLionProjects/untitled/mangmi/utils/MangmiSocketClient.cpp">
+			<Option target="untitled"/>
+		</Unit>
+		<Unit filename="/home/xshx/CLionProjects/untitled/mangmi/utils/MangmiSocketClient.h">
+			<Option target="untitled"/>
+		</Unit>
+		<Unit filename="/home/xshx/CLionProjects/untitled/mangmi/utils/MangmiUtils.cpp">
+			<Option target="untitled"/>
+		</Unit>
+		<Unit filename="/home/xshx/CLionProjects/untitled/mangmi/utils/MangmiUtils.h">
+			<Option target="untitled"/>
+		</Unit>
+		<Unit filename="/home/xshx/CLionProjects/untitled/mangmi/utils/MiThreadPool.cpp">
+			<Option target="untitled"/>
+		</Unit>
+		<Unit filename="/home/xshx/CLionProjects/untitled/mangmi/utils/MiThreadPool.h">
+			<Option target="untitled"/>
+		</Unit>
+		<Unit filename="/home/xshx/CLionProjects/untitled/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\"/>
+		</Unit>
+	</Project>
+</CodeBlocks_project_file>

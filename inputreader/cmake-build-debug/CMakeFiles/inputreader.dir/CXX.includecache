@@ -1,0 +1,112 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/xshx/CLionProjects/inputreader/ include/EventHub.h
+cstdint
+-
+
+/home/xshx/CLionProjects/inputreader/mangmi/InputFilter.h
+pthread.h
+-
+set
+-
+../ include/EventHub.h
+/home/xshx/CLionProjects/inputreader/ include/EventHub.h
+
+/home/xshx/CLionProjects/inputreader/mangmi/Macro.h
+cstdio
+-
+
+/home/xshx/CLionProjects/inputreader/mangmi/MangmiFlinger.cpp
+MangmiFlinger.h
+/home/xshx/CLionProjects/inputreader/mangmi/MangmiFlinger.h
+MangmiPolicy.h
+/home/xshx/CLionProjects/inputreader/mangmi/MangmiPolicy.h
+utils/MangmiUtils.h
+/home/xshx/CLionProjects/inputreader/mangmi/utils/MangmiUtils.h
+InputFilter.h
+/home/xshx/CLionProjects/inputreader/mangmi/InputFilter.h
+
+/home/xshx/CLionProjects/inputreader/mangmi/MangmiFlinger.h
+map
+-
+vector
+-
+utils/MangmiUtils.h
+/home/xshx/CLionProjects/inputreader/mangmi/utils/MangmiUtils.h
+Macro.h
+/home/xshx/CLionProjects/inputreader/mangmi/Macro.h
+../ include/EventHub.h
+/home/xshx/CLionProjects/inputreader/ include/EventHub.h
+utils/MiThreadPool.h
+/home/xshx/CLionProjects/inputreader/mangmi/utils/MiThreadPool.h
+MangmiPolicy.h
+/home/xshx/CLionProjects/inputreader/mangmi/MangmiPolicy.h
+
+/home/xshx/CLionProjects/inputreader/mangmi/MangmiPolicy.h
+string
+-
+vector
+-
+Macro.h
+/home/xshx/CLionProjects/inputreader/mangmi/Macro.h
+../ include/EventHub.h
+/home/xshx/CLionProjects/inputreader/ include/EventHub.h
+utils/MangmiSocketClient.h
+/home/xshx/CLionProjects/inputreader/mangmi/utils/MangmiSocketClient.h
+utils/MangmiConfig.h
+/home/xshx/CLionProjects/inputreader/mangmi/utils/MangmiConfig.h
+
+/home/xshx/CLionProjects/inputreader/mangmi/utils/MangmiConfig.h
+string
+-
+vector
+-
+map
+-
+
+/home/xshx/CLionProjects/inputreader/mangmi/utils/MangmiSocketClient.h
+string
+-
+thread
+-
+mutex
+-
+condition_variable
+-
+../Macro.h
+/home/xshx/CLionProjects/inputreader/mangmi/Macro.h
+
+/home/xshx/CLionProjects/inputreader/mangmi/utils/MangmiUtils.h
+map
+-
+time.h
+-
+string
+-
+
+/home/xshx/CLionProjects/inputreader/mangmi/utils/MiThreadPool.h
+MiThreadPool.h
+/home/xshx/CLionProjects/inputreader/mangmi/utils/MiThreadPool.h
+deque
+-
+string
+-
+iostream
+-
+pthread.h
+-
+functional
+-
+tuple
+-
+utility
+-
+../Macro.h
+/home/xshx/CLionProjects/inputreader/mangmi/Macro.h
+
