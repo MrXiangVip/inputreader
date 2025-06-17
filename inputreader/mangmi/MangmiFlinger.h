@@ -32,8 +32,6 @@ private:
     static std::vector<RawEvent> eventKeys; //
     static std::vector<RawEvent> eventAxis;//
 
-
-
 };
 
 

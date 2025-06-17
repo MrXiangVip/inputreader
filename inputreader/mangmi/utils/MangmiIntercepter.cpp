@@ -18,6 +18,15 @@ std::set<InterceptKey> MangmiIntercepter::interceptKeySet; // 定义
 std::set<int> MangmiIntercepter::keySet;
 std::set<int> MangmiIntercepter::axisSet;
 
+MangmiIntercepter *MangmiIntercepter::instance;
+MangmiIntercepter *MangmiIntercepter::getInstance() {
+    if( instance ==NULL){
+        instance = new MangmiIntercepter();
+    }
+    return instance;
+}
+
+
 int MangmiIntercepter::insertInterceptEventKey(InterceptKey key) {
     ALOGD("%s, evCode:%d, serialNo:%d, type:%d\n", __func__, key.evCode, key.serialNo, key.type);
     interceptKeySet.insert( key );
@@ -156,7 +165,18 @@ void MangmiIntercepter::buildIntercepterByConfigs( GamepadConfig& gamepadConfig,
         ALOGD("ERROR SERIAL NO %d",serialNo);
     }
 }
+int MangmiIntercepter::updateInterceptPolicy() {
+    ALOGD("updateInterceptPolicy");
+    std::set<int> keySet;
+    std::set<int> axisSet;
 
+    MangmiIntercepter::eraseInterceptEventBySerialNo(1180);
+
+//    更新拦截策略
+    //    mangmi::InputFilter::setInputsFilter(keySet, axisSet);
+
+    return 0;
+}
 
 void MangmiIntercepter::toString() {
     ALOGD("toString size:%d\n", interceptKeySet.size());

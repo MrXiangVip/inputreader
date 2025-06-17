@@ -38,6 +38,7 @@ struct InterceptKey {
 class MangmiIntercepter{
 
 public:
+    static MangmiIntercepter *getInstance();
     static int eraseInterceptEventBySerialNo(int serialNo );
     static int eraseInterceptEventKeyByInterceptKey( InterceptKey key );
     static int  insertInterceptEventKey( InterceptKey key);
@@ -55,7 +56,11 @@ public:
     static void toString();
     static int clearInputFilter();
     static void enableInputFilter( const std::set<int>& keyCodes, const std::set<int>& axisCodes);
+
+    int updateInterceptPolicy();
+
 private:
+    static MangmiIntercepter *instance;
     static std::set<InterceptKey> interceptKeySet;
 
 
