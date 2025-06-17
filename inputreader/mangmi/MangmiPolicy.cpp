@@ -31,8 +31,8 @@ std::vector<int> MangmiPolicy::jsRightSlotId;//
 std::vector<IdConfig> MangmiPolicy::idConfigs;//
 int MangmiPolicy::mWidth;
 int MangmiPolicy::mHeight;
-//bool MangmiPolicy::isLeftDown = false;
-//int MangmiPolicy::leftJoysStatus =TOUCH_NONE;
+std::atomic<bool>  MangmiPolicy::AtomicComboThreadExit;//
+MiThreadPool MangmiPolicy::mangmiPool;
 
 socketReply::socketReply(int mRequestId,int mInputId){
     requestId = mRequestId;
@@ -41,6 +41,9 @@ socketReply::socketReply(int mRequestId,int mInputId){
 
 MangmiPolicy::MangmiPolicy() {
     ALOGD("init");
+    mangmiPool.setThreadCount(6); // set threadpool num is 6
+    mangmiPool.createPool();
+    AtomicComboThreadExit.store(false);
 }
 
 MangmiPolicy* MangmiPolicy::getInstance( ){
@@ -59,8 +62,7 @@ pthread_t MangmiPolicy::startSocketServerThread( ){
 
 }
 
-
- void* MangmiPolicy::startMangmiSocket(void *args) {
+void* MangmiPolicy::startMangmiSocket(void *args) {
     ALOGD("startMangmiSocket");
     MangmiPolicy *self = static_cast<MangmiPolicy*>(args);
     running = true;
@@ -100,7 +102,6 @@ void MangmiPolicy::runServer() {
         ALOGI("listen failed");
         return;
     }
-
     ALOGI("Server is listening on port %d", PORT);
 
     while (running) {
@@ -136,7 +137,6 @@ void MangmiPolicy::runServer() {
     close(server_fd);
     server_fd = -1;
 }
-
 
 int MangmiPolicy::dealReceivedData(std::string receivedData) {
     ALOGD("dealReceivedData %s", receivedData.c_str());
@@ -199,9 +199,6 @@ int MangmiPolicy::dealReceivedData(std::string receivedData) {
     return iRet;
 }
 
-
-
-
 int MangmiPolicy::updateIdConfigs( ){
     ALOGD("updateIdConfigs");
 //
@@ -253,7 +250,6 @@ int MangmiPolicy::assignIdConfig(std::string str, int idAddType){
     idconfig.id = idAddType;
     idconfig.slot = iSlotId;
     idconfig.configStr = str;
-
     idConfigs.push_back(idconfig);
 }
 
@@ -287,6 +283,18 @@ void MangmiPolicy::assignKeySlotConfig(int inputId, int type)
     kSlotConfigs.push_back(slotconfig);
 }
 
+std::vector<int> MangmiPolicy::getSlotIdFromKeySlotConfig(int inputId, int type) {
+    ALOGD("getSlotIdFromKeySlotConfig %d, %d", inputId, type);
+    std::vector<int> keySlots;
+    for (size_t i = 0; i < kSlotConfigs.size(); ++i) {
+        if ((kSlotConfigs[i].id == inputId) &&
+            (kSlotConfigs[i].type == type))
+        {
+            keySlots.push_back(kSlotConfigs[i].slot);
+        }
+    }
+    return keySlots;
+}
 
 int MangmiPolicy::replyData( std::string requestId, std::string data){
     ALOGD("replyData ");
@@ -598,18 +606,6 @@ void MangmiPolicy::convertToStandardTouchClick( RawEvent &event,int type, std::v
     }
 }
 
-std::vector<int> MangmiPolicy::getSlotIdFromKeySlotConfig(int inputId, int type) {
-    ALOGD("getSlotIdFromKeySlotConfig %d, %d", inputId, type);
-    std::vector<int> keySlots;
-    for (size_t i = 0; i < kSlotConfigs.size(); ++i) {
-        if ((kSlotConfigs[i].id == inputId) &&
-            (kSlotConfigs[i].type == type))
-        {
-            keySlots.push_back(kSlotConfigs[i].slot);
-        }
-    }
-    return keySlots;
-}
 
 void MangmiPolicy::convertToStandardKeyboardClick( RawEvent &event,int type, std::vector<KeyConfig> keyConfigs) {
     ALOGD("convertToStandardKeyboardClick ");
@@ -629,6 +625,29 @@ void MangmiPolicy::convertToStandardKeyboardClick( RawEvent &event,int type, std
 
 void MangmiPolicy::convertToStandardKeyboardComboClick( RawEvent &event, int type, std::vector<KeyConfig> keyConfigs){
     ALOGD("convertToStandardKeyboardComboClick");
-    
+    for(auto keyConfig :keyConfigs ){
+        if( event.value ==1 ){
+            AtomicComboThreadExit.store(false);
+            mangmiPool.push_task( keyBoardComboClick, event , keyConfig);
+        }else if( event.value ==0){
+            AtomicComboThreadExit.store(true);
+        }
+    }
+
     return;
+}
+
+void MangmiPolicy::keyBoardComboClick( RawEvent rawEvent, KeyConfig keyConfig){
+    ALOGD("keyBoardComboClick");
+    while(1){
+        RawEvent downEvent =generateEvent( rawEvent.deviceId, rawEvent.type, keyConfig.targetCode, 1);
+        InputFilter::getInstance()->pushSoftEvent( downEvent);
+        std::this_thread::sleep_for( std::chrono::milliseconds(keyConfig.duration) );
+
+        RawEvent  upEvent = generateEvent(rawEvent.deviceId, rawEvent.type, keyConfig.targetCode, 0);
+        InputFilter::getInstance()->pushSoftEvent( upEvent);
+        if( AtomicComboThreadExit.load() ){
+            break;
+        }
+    }
 }

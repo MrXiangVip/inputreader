@@ -12,7 +12,6 @@
 
 
 MangmiFlinger *MangmiFlinger::instance= nullptr;
-MiThreadPool MangmiFlinger::mangmiPool;
 std::vector<RawEvent> MangmiFlinger::eventKeys; //
 std::vector<RawEvent> MangmiFlinger::eventAxis;//
 
@@ -24,8 +23,7 @@ MangmiFlinger* MangmiFlinger::getInstance() {
     return  instance;
 }
 MangmiFlinger::MangmiFlinger( ){
-    mangmiPool.setThreadCount(6); // set threadpool num is 6
-    mangmiPool.createPool();
+
     MangmiUtils::initInputIdMaps();
 }
 

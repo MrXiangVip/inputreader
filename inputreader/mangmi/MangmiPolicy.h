@@ -7,10 +7,12 @@
 
 #include <string>
 #include <vector>
+#include <atomic>
 #include "Macro.h"
 #include "../ include/EventHub.h"
 #include "utils/MangmiSocketClient.h"
 #include "utils/MangmiConfig.h"
+#include "utils/MiThreadPool.h"
 
 #define PORT 8080
 #define BUFFER_SIZE 1024 * 64 //64k
@@ -66,6 +68,7 @@ private:
     static MangmiPolicy *instance;
     int server_fd;// 套接字fd
     static bool running;//
+    static MiThreadPool mangmiPool;
 
     static MangmiSocketClient key_socket_client;//
     static std::vector<socketReply> vectorReply;//
@@ -78,6 +81,7 @@ private:
     static int mWidth;
     static int mHeight;
 
+    static std::atomic<bool>  AtomicComboThreadExit;
     int assignIdConfig(std::string str, int idAddType);
     void assignKeySlotConfig(int inputId, int type);
 
@@ -104,6 +108,8 @@ private:
     void convertToStandardKeyboardClick(RawEvent &event, int type, std::vector<KeyConfig> keyConfigs);
 
     void convertToStandardKeyboardComboClick(RawEvent &event, int type, std::vector<KeyConfig> keyConfigs);
+
+    static void keyBoardComboClick(RawEvent rawEvent, KeyConfig keyConfig);
 };
 
 
