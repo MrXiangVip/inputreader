@@ -169,3 +169,13 @@ std::map<int , std::vector<KeyConfig>> MangmiConfig::getKeyConfigsMap() {
     }
     return keyConfigMap;
 }
+
+std::map<int, std::vector<KeyConfig>> MangmiConfig::getKeyConfigsMapByInputId(int inputId){
+    std::map<int, std::vector<KeyConfig>>  keyConfigMap;
+    for(const auto& keyConfig: gamePadConfig.keyConfigs){
+        if( keyConfig.id == inputId){
+            keyConfigMap[keyConfig.type].push_back(keyConfig);
+        }
+    }
+    return keyConfigMap;
+}

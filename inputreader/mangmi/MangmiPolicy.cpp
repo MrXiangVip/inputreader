@@ -392,7 +392,8 @@ int MangmiPolicy::replyClient(int requestId, std::string data){
 void MangmiPolicy::buildKeyEvent( RawEvent event){
     ALOGD("新生成一个事件 deviceId:%d, type:%d, code:%d, value:%d", event.deviceId, event.type, event.code, event.value);
 
-    std::map<int, std::vector<KeyConfig>> keyConfigMap =MangmiConfig::getInstance()->getKeyConfigsMap();
+    int inputId = MangmiUtils::getInputIdFromEvcode( event.code);
+    std::map<int, std::vector<KeyConfig>> keyConfigMap =MangmiConfig::getInstance()->getKeyConfigsMapByInputId(inputId);
 
 //  根据当前接到的配置 选择一个策略 来生成新的事件
     for( auto it=keyConfigMap.begin();it!=keyConfigMap.end();++it){
@@ -402,14 +403,20 @@ void MangmiPolicy::buildKeyEvent( RawEvent event){
         switch(type ){
             case KEY_CATEGORY_GAMEPAD://
                 break;
+            case KEY_TYPE_GAMEPAD_CLICK_STANDARD:// 处理成物理按键 按击事件
+                convertToStandardKeyboardClick(event, KEY_TYPE_GAMEPAD_CLICK_STANDARD, keyConfigs);
+                break;
+            case KEY_TYPE_GAMEPAD_CLICK_TURBO: // 处理成物理按键 连续按击事件
+                convertToStandardKeyboardComboClick( event, KEY_TYPE_GAMEPAD_CLICK_TURBO, keyConfigs);
+                break;
             case KEY_CATEGORY_KEYBOARD://
                 break;
             case KEY_CATEGORY_MOUSE:
                 break;
             case KEY_CATEGORY_TOUCHSCREEN:
                 break;
-            case KEY_TYPE_TOUCHSCREEN_CLICK_STANDARD:
-                convertToStandardClick(event, keyConfigs);
+            case KEY_TYPE_TOUCHSCREEN_CLICK_STANDARD:// 处理成在屏幕上的点击事件
+                convertToStandardTouchClick(event, KEY_TYPE_TOUCHSCREEN_CLICK_STANDARD,keyConfigs);
                 break;
             case KEY_CATEGORY_MOBA://
                 break;
@@ -422,7 +429,7 @@ void MangmiPolicy::buildKeyEvent( RawEvent event){
 }
 void MangmiPolicy::buildAxisEvent( RawEvent event) {
     ALOGD("build new Event");
-//  摇杆就只有左右摇杆的 event.code
+//  方向键， L2,R2，左右摇杆 都是abs事件
     switch( event.code ){
         case ABS_X:
         case ABS_Y:
@@ -513,48 +520,50 @@ void MangmiPolicy::rightJoystick(RawEvent event) {
     return;
 }
 
-void MangmiPolicy::absHatXY(RawEvent &event){
+void MangmiPolicy::absHatXY(RawEvent &event) {
     ALOGD("absHatXY deviceId:%d, type:%d, code:%d, value:%d", event.deviceId, event.type, event.code, event.value);
-    std::vector<int> inputId = MangmiUtils::getInputIdFromEvcode( event.code);// 这里有问题, 一个inputID 对应一个evCode, 但 一个evCode 可能有多个 inputID
-    int inputId0 = inputId[0];
-    std::vector<KeyConfig> keyConfigs= MangmiConfig::getInstance()->getKeyConfigsByInputId( inputId0 );
-    if( keyConfigs.empty() ){return;}
-    for(auto keyConfig:keyConfigs){
-        RawEvent event;
-        if( event.code==ABS_HAT0X && event.value==1 ){// 轴右键
-            event =generateEvent( event.deviceId, EV_KEY, KEY_RIGHT,1);
-        }else if( event.code = ABS_HAT0X && event.value ==-1 ){//横轴左键
-            event =generateEvent(  event.deviceId, EV_KEY, KEY_LEFT, 1);
-        }else if( event.code ==ABS_HAT0X && event.value ==0 ){//
-            if( inputId0 == INPUT_ID_LEFT){
-                event= generateEvent(  event.deviceId, EV_KEY, KEY_LEFT, 0);
-            }else if( inputId0 == INPUT_ID_RIGHT ){
-                event =generateEvent(  event.deviceId, EV_KEY, KEY_RIGHT, 0);
-            }
-        }else if( event.code ==ABS_HAT0Y && event.value ==1 ){
-            event =generateEvent(  event.deviceId, EV_KEY, KEY_DOWN, 1);
-        }else if( event.code ==ABS_HAT0Y && event.value ==-1){
-            event =generateEvent(  event.deviceId, EV_KEY, KEY_UP, 1);
-        }else if( event.code ==ABS_HAT0Y && event.value ==0){
-            if( inputId0 == INPUT_ID_UP){
-                event =generateEvent(  event.deviceId, EV_KEY, KEY_UP, 0);
-            }else if( inputId0 == INPUT_ID_DOWN){
-                event =generateEvent(  event.deviceId, EV_KEY, KEY_DOWN, 0);
-            }
+    int currentKey = 0;
+
+    RawEvent newEvent;
+    if (event.code == ABS_HAT0X && event.value == 1) {// 轴右键
+        currentKey = DPAD_RIGHT;
+        newEvent = generateEvent(event.deviceId, EV_KEY, DPAD_RIGHT, 1);
+    } else if (event.code = ABS_HAT0X && event.value == -1) {//横轴左键
+        currentKey = DPAD_LEFT;
+        newEvent = generateEvent(event.deviceId, EV_KEY, DPAD_LEFT, 1);
+    } else if (event.code == ABS_HAT0X && event.value == 0) {//
+        if (currentKey == DPAD_LEFT) {
+            newEvent = generateEvent(event.deviceId, EV_KEY, DPAD_LEFT, 0);
+        } else if (currentKey == DPAD_RIGHT) {
+            newEvent = generateEvent(event.deviceId, EV_KEY, DPAD_RIGHT, 0);
         }
-        buildKeyEvent( event);
+        currentKey==0;
+    } else if (event.code == ABS_HAT0Y && event.value == 1) {
+        currentKey = DPAD_DOWN;
+        newEvent = generateEvent(event.deviceId, EV_KEY, DPAD_DOWN, 1);
+    } else if (event.code == ABS_HAT0Y && event.value == -1) {
+        currentKey = DPAD_UP;
+        newEvent = generateEvent(event.deviceId, EV_KEY, DPAD_UP, 1);
+    } else if (event.code == ABS_HAT0Y && event.value == 0) {
+        if (currentKey == DPAD_DOWN) {
+            newEvent = generateEvent(event.deviceId, EV_KEY, DPAD_UP, 0);
+        } else if (currentKey == DPAD_UP) {
+            newEvent = generateEvent(event.deviceId, EV_KEY, DPAD_DOWN, 0);
+        }
+        currentKey=0;
     }
+    buildKeyEvent(newEvent);
 }
 
 void MangmiPolicy::absGas(RawEvent &event){
-
+    ALOGD("absGas ");
 }
 
 void MangmiPolicy::absBreak(RawEvent &event){
-
+    ALOGD("absBreak");
 }
 
-RawEvent& MangmiPolicy::generateEvent( int32_t deviceId, int type, int keyCode, int32_t value) {
+RawEvent MangmiPolicy::generateEvent( int32_t deviceId, int type, int keyCode, int32_t value) {
     ALOGD("generateEvent");
     RawEvent event;
     event.deviceId = deviceId;
@@ -570,21 +579,56 @@ RawEvent& MangmiPolicy::generateEvent( int32_t deviceId, int type, int keyCode, 
 
 
 
-void MangmiPolicy::convertToStandardClick( RawEvent &event, std::vector<KeyConfig> keyConfig){
+void MangmiPolicy::convertToStandardTouchClick( RawEvent &event,int type, std::vector<KeyConfig> keyConfigs){
+    ALOGD("convertToStandardTouchClick deviceId:%d, type:%d, code:%d, value:%d, sizeof keyConfig:%d", event.deviceId, event.type, event.code, event.value, keyConfigs.size());
+    int tmpInputId= MangmiUtils::getInputIdFromEvcode( event.code);
+    if( tmpInputId==0){return ;}
+    std::vector<int>  slotIds =getSlotIdFromKeySlotConfig( tmpInputId, type );
+    if( slotIds.size()==0){return;}
+    for(int i=0; i<keyConfigs.size();i++){
+        const auto &keyConfig = keyConfigs[i];
+        float centerX = keyConfig.centerX;
+        float centerY = keyConfig.centerY;
+        if( event.value == 1){
 
-//    int tmpInputId= MangmiUtils::getInputIdFromEvcode( event.code);
-//    float centerX = keyConfig.centerX;
-//    float centerY = keyConfig.centerY;
-//    std::vector<int>  slotIds =getSlotIdFromKeySlotConfig( tmpInputId, keyConfig.type );
-//    if( event.value == 1){
-//        InputFilter::getInstance()->pushSoftEvent(id, TOUCH_DOWN, centerX, centerY);
-//    }else if( event.value == 0){
-//        InputFilter::getInstance()->pushSoftEvent(id, TOUCH_UP, centerX, centerY);
-//    }
-
+            InputFilter::getInstance()->pushSoftEvent(slotIds[i], TOUCH_DOWN, centerX, centerY);
+        }else if( event.value == 0){
+            InputFilter::getInstance()->pushSoftEvent(slotIds[i], TOUCH_UP, centerX, centerY);
+        }
+    }
 }
 
-std::vector<int> MangmiPolicy::getSlotIdFromKeySlotConfig(int id, int type) {
-    return std::vector<int>();
+std::vector<int> MangmiPolicy::getSlotIdFromKeySlotConfig(int inputId, int type) {
+    ALOGD("getSlotIdFromKeySlotConfig %d, %d", inputId, type);
+    std::vector<int> keySlots;
+    for (size_t i = 0; i < kSlotConfigs.size(); ++i) {
+        if ((kSlotConfigs[i].id == inputId) &&
+            (kSlotConfigs[i].type == type))
+        {
+            keySlots.push_back(kSlotConfigs[i].slot);
+        }
+    }
+    return keySlots;
 }
 
+void MangmiPolicy::convertToStandardKeyboardClick( RawEvent &event,int type, std::vector<KeyConfig> keyConfigs) {
+    ALOGD("convertToStandardKeyboardClick ");
+    RawEvent  newEvent;
+
+    for(const auto& keyconfig :keyConfigs){
+        if( event.value ==1){
+            newEvent = generateEvent(event.deviceId, EV_KEY, keyconfig.targetCode, event.value);
+        }else if( event.value ==0){
+            newEvent =generateEvent(event.deviceId, EV_KEY, keyconfig.targetCode, event.value);
+        }
+        InputFilter::getInstance()->pushSoftEvent( newEvent);
+    }
+
+    return;
+}
+
+void MangmiPolicy::convertToStandardKeyboardComboClick( RawEvent &event, int type, std::vector<KeyConfig> keyConfigs){
+    ALOGD("convertToStandardKeyboardComboClick");
+    
+    return;
+}

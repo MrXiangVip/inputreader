@@ -58,8 +58,7 @@ protected:
     int updateInterceptPolicy( );
     static int replyClient(int requestId, std::string data);
 
-    static void key_CG_Standard( RawEvent event, std::vector<KeyConfig> ctsKConfigs );
-    static RawEvent& generateEvent( int32_t deviceId, int i, int code, int32_t value);
+    static RawEvent generateEvent( int32_t deviceId, int i, int code, int32_t value);
 
     int updateIdConfigs( );
 private:
@@ -98,9 +97,13 @@ private:
 
     void handleKey(RawEvent &event);
 
-    void convertToStandardClick(RawEvent &event, std::vector<KeyConfig> keyConfig);
+    void convertToStandardTouchClick(RawEvent &event, int type, std::vector<KeyConfig> keyConfig);
 
     std::vector<int> getSlotIdFromKeySlotConfig(int id, int type);
+
+    void convertToStandardKeyboardClick(RawEvent &event, int type, std::vector<KeyConfig> keyConfigs);
+
+    void convertToStandardKeyboardComboClick(RawEvent &event, int type, std::vector<KeyConfig> keyConfigs);
 };
 
 

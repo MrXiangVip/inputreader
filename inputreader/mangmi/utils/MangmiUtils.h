@@ -49,18 +49,12 @@
 #define INPUT_ID_M4 1004
 
 
-#define KEY_UP 100
-#define KEY_DOWN 100
-#define KEY_LEFT 100
-#define KEY_RIGHT 100
-#define BTN_A 100
-#define BTN_B 100
-#define BTN_C 100
-#define BTN_X 100
-#define BTN_Y 100
-#define BTN_Z 100
-#define BTN_TL 100
-#define BTN_TL2 100
+#define DPAD_UP     103
+#define DPAD_DOWN   108
+#define DPAD_LEFT   105
+#define DPAD_RIGHT  106
+#define BUTTON_L1 310
+#define BUTTON_L2 312
 #define BTN_THUMBL 100
 #define BTN_TR 100
 #define BTN_TR2 100
@@ -81,8 +75,10 @@
 //从frameworks/base/data/keyboards/Generic.kl 得到的
 #define BUTTON_A 304
 #define BUTTON_B 305
+#define BUTTON_C 306
 #define BUTTON_X 307
 #define BUTTON_Y 308
+#define BUTTON_Z 309
 
 
 //////////////////////////////////////////////////////////////////////
@@ -171,7 +167,7 @@ public :
     static int  getScanCodeFromKeyCode(int keyCode);
 
     static int initInputIdMaps();
-    static std::vector<int> getInputIdFromEvcode(int evCode);
+    static int getInputIdFromEvcode(int evCode);
     static int getEvcodeFromInputId(int inputId);
     static long long getSystemTimePosix();
 

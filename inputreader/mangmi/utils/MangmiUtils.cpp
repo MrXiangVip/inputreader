@@ -39,19 +39,19 @@ int MangmiUtils::getScanCodeFromKeyCode( int keyCode){
 int MangmiUtils::initInputIdMaps( ){
     ALOGD("initInputIdMaps");
     inputIdMaps.clear();
-    inputIdMaps.insert({INPUT_ID_UP, ABS_HAT0Y});
-    inputIdMaps.insert({INPUT_ID_DOWN, ABS_HAT0Y});
-    inputIdMaps.insert({INPUT_ID_LEFT, ABS_HAT0X});
-    inputIdMaps.insert({INPUT_ID_RIGHT, ABS_HAT0X});
+    inputIdMaps.insert({INPUT_ID_UP, DPAD_UP});
+    inputIdMaps.insert({INPUT_ID_DOWN, DPAD_DOWN});
+    inputIdMaps.insert({INPUT_ID_LEFT, DPAD_LEFT});
+    inputIdMaps.insert({INPUT_ID_RIGHT, DPAD_RIGHT});
 
-    inputIdMaps.insert({INPUT_ID_A, BTN_A});
-    inputIdMaps.insert({INPUT_ID_B, BTN_B});
-    inputIdMaps.insert({INPUT_ID_C, BTN_C});
-    inputIdMaps.insert({INPUT_ID_X, BTN_X});
-    inputIdMaps.insert({INPUT_ID_Y, BTN_Y});
-    inputIdMaps.insert({INPUT_ID_Z, BTN_Z});
-    inputIdMaps.insert({INPUT_ID_L1, BTN_TL});
-    inputIdMaps.insert({INPUT_ID_L2, BTN_TL2});
+    inputIdMaps.insert({INPUT_ID_A, BUTTON_A});
+    inputIdMaps.insert({INPUT_ID_B, BUTTON_B});
+    inputIdMaps.insert({INPUT_ID_C, BUTTON_C});
+    inputIdMaps.insert({INPUT_ID_X, BUTTON_X});
+    inputIdMaps.insert({INPUT_ID_Y, BUTTON_Y});
+    inputIdMaps.insert({INPUT_ID_Z, BUTTON_Z});
+    inputIdMaps.insert({INPUT_ID_L1, BUTTON_L1});
+    inputIdMaps.insert({INPUT_ID_L2, BUTTON_L2});
     inputIdMaps.insert({INPUT_ID_L3, BTN_THUMBL});
 
     inputIdMaps.insert({INPUT_ID_R1, BTN_TR});
@@ -67,20 +67,19 @@ int MangmiUtils::initInputIdMaps( ){
  }
 
 
- std::vector<int>  MangmiUtils::getInputIdFromEvcode(int evCode ){
-     std::vector<int> inputIds;
+ int  MangmiUtils::getInputIdFromEvcode(int evCode ){
+     int inputIds=0;
      if( inputIdMaps.size() ==0){return inputIds;}
      for( const auto&pair : inputIdMaps){
          if( pair.second == evCode ){
-             inputIds.push_back(  pair.first);
+             inputIds =  pair.first;
+             return inputIds;
          }
      }
      return inputIds;
  }
 
  int MangmiUtils::getEvcodeFromInputId(int inputId){
-
-
      ALOGD("getInputIdFromEvcode %d", inputId);
      auto it = inputIdMaps.find(inputId);
      if( it != inputIdMaps.end() ){

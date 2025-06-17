@@ -42,12 +42,20 @@ void *InputFilter::inputEventMonitor( void *args){
     InputFilter *self = static_cast<InputFilter*>(args);
     int value=0;
     while( true){
+/* 按下横轴右键
         RawEvent event;
         event.deviceId=1;
         event.type=EV_ABS;
-        event.code = 16;
+        event.code = ABS_HAT0X;
         event.value =1;
+*/
 
+/*  A键*/
+        RawEvent event;
+        event.deviceId =1;
+        event.type=EV_KEY;
+        event.code=BUTTON_A;
+        event.value=1;
         self->inputRawEvent( event);
         sleep(10);// 每隔5秒钟发送一次事件
     }
@@ -109,10 +117,13 @@ void InputFilter::pushEvent(const RawEvent& event){
 
 void InputFilter::pushSoftEvent(int id, int action, int x, int y)
 {
-
+    ALOGD("pushSoftEvent id:%d, action:%d, x:%d, y:%d", id, action, x, y);
 //    filter.postSoftEvent(id, action, x, y);
 }
 
+void InputFilter::pushSoftEvent(RawEvent event) {
+    ALOGD("pushSoftEvent id:%d,  type:%d, code:%d,value:%d", event.deviceId, event.type, event.code, event.value);
+}
 void InputFilter::pullInputEvents(std::vector<RawEvent>& keys, std::vector<RawEvent>& axes, int millisecond)
 {
     pullEvents(keys, axes, millisecond);

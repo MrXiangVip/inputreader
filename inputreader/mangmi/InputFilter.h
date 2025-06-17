@@ -16,6 +16,7 @@ public:
     pthread_t startInputMonitor();
     void pullInputEvents(std::vector<RawEvent>& keys, std::vector<RawEvent>& axes, int millisecond);
     void pushSoftEvent(int id, int action, int x, int y);
+    void pushSoftEvent(RawEvent event);
     void setInputsFilter(const std::set<int>& keyCodes, const std::set<int>& axisCodes);
     static InputFilter *getInstance( );
 protected:

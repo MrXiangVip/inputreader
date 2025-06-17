@@ -73,6 +73,7 @@ public:
     std::vector<KeyConfig>  getKeyConfigsByInputIdAndType(int inputId, int type);
 
     std::map<int, std::vector<KeyConfig>> getKeyConfigsMap();// 将全部配置按照 type 归类
+    std::map<int, std::vector<KeyConfig>> getKeyConfigsMapByInputId(int inputId);//  将全部配置 先按照inputId 再按照type分类
 
 private:
     GamepadConfig  gamePadConfig;

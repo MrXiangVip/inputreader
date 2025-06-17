@@ -26,6 +26,7 @@ MangmiFlinger* MangmiFlinger::getInstance() {
 MangmiFlinger::MangmiFlinger( ){
     mangmiPool.setThreadCount(6); // set threadpool num is 6
     mangmiPool.createPool();
+    MangmiUtils::initInputIdMaps();
 }
 
 pthread_t MangmiFlinger::startFlingerThread( ){
@@ -62,7 +63,7 @@ void* MangmiFlinger::start(void *args) {
 }
 
 void MangmiFlinger::handleKeyEvents(std::vector<RawEvent>& events){
-    ALOGD("处理按键事件s ");
+    ALOGD("处理按键事件 ");
     unsigned int size = events.size();
     for (unsigned int i = 0; i < size; i++)
     {
@@ -73,8 +74,8 @@ void MangmiFlinger::handleKeyEvents(std::vector<RawEvent>& events){
 }
 void MangmiFlinger::handleKeyEvent(RawEvent event) {
     ALOGD("处理按键事件 deviceId:%d, type:%d,code:%d,value:%d ",event.deviceId, event.type, event.code,event.value);
-    std::vector<int> inputId = MangmiUtils::getInputIdFromEvcode(event.code);
-    MangmiPolicy::getInstance()->replyPolicy(inputId[0], event );
+    int inputId = MangmiUtils::getInputIdFromEvcode(event.code);
+    MangmiPolicy::getInstance()->replyPolicy(inputId, event );
     MangmiPolicy::getInstance()->buildKeyEvent( event);
     ALOGD("处理按键事件 over \n\n");
 }
@@ -92,11 +93,11 @@ void MangmiFlinger::handleAxisEvents(std::vector<RawEvent>& events){
 
 void MangmiFlinger::handleAxisEvent(RawEvent event) {
     ALOGD("处理摇杆事件");
-    std::vector<int> inputId = MangmiUtils::getInputIdFromEvcode( event.code);
-    if( inputId.size()==0){
-        return;
-    }
-    MangmiPolicy::getInstance()->replyPolicy(inputId[0], event);
+//    std::vector<int> inputId = MangmiUtils::getInputIdFromEvcode( event.code);
+//    if( inputId.size()==0){
+//        return;
+//    }
+//    MangmiPolicy::getInstance()->replyPolicy(inputId[0], event);
     MangmiPolicy::getInstance()->buildAxisEvent(event);
-    ALOGD("处理摇杆事件 over");
+    ALOGD("处理摇杆事件 over \n\n");
 }
