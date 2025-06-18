@@ -12,7 +12,6 @@ class MangmiSocketServer {
 
 public:
     static MangmiSocketServer* getInstance();
-    int runServer();
 
     bool running;
 

@@ -108,68 +108,8 @@ GamepadConfig& MangmiConfig::getGamepadConfig( ) {
     return gamePadConfig;
 }
 
-std::vector<JoystickConfig> MangmiConfig::getJoystickConfigsFromId( int inputId ){
-    std::vector<JoystickConfig> configs;
-    int iJS = 0;
 
-    iJS = gamePadConfig.joystickConfigs.size();
-    if(iJS <= 0)
-        return configs;
-
-    for(int i = 0; i < iJS; ++i) {
-        if(inputId == gamePadConfig.joystickConfigs[i].id) {
-            configs.push_back( gamePadConfig.joystickConfigs[i]);
-        }
-    }
-    //ALOGI("---getSlotIdFromIdConfig---ilen = %d", ilen);
-    return configs;
-}
-
-/* 查出全部inputID 对应的config, 存在 一个inputId 对应多个config 的情况 */
-std::vector<KeyConfig> MangmiConfig::getKeyConfigsByInputId(int inputId ){
-    std::vector<KeyConfig> keyConfigs;
-    for(auto& config :gamePadConfig.keyConfigs){
-        if( config.id == inputId ){
-            keyConfigs.push_back( config);
-        }
-    }
-    return  keyConfigs;
-}
-
-std::vector<KeyConfig> MangmiConfig::getKeyConfigsByInputIdAndType( int inputId, int type){
-    std::vector<KeyConfig>  retKeyConfig;
-    for(int i=0; i<gamePadConfig.keyConfigs.size(); i++){
-        if( inputId == gamePadConfig.keyConfigs[i].id &&
-            type == gamePadConfig.keyConfigs[i].type){
-            retKeyConfig.push_back( gamePadConfig.keyConfigs[i]);
-        }
-    }
-    return retKeyConfig;
-}
-
-std::vector<KeyConfig> MangmiConfig::getKeyConfigs( ){
-    ALOGD("getKeyConfigs");
-    std::vector<KeyConfig>   keyConfigs;
-    int iKey = gamePadConfig.keyConfigs.size();
-    if( iKey <=0 ){
-        return keyConfigs;
-    }
-    for(int i=0; i<iKey; i++){
-        keyConfigs.push_back( gamePadConfig.keyConfigs[i] );
-    }
-    return  keyConfigs;
-}
-
-
-std::map<int , std::vector<KeyConfig>> MangmiConfig::getKeyConfigsMap() {
-    std::map<int, std::vector<KeyConfig>>  keyConfigMap;
-
-    for(const auto& keyConfig: gamePadConfig.keyConfigs){
-        keyConfigMap[keyConfig.type].push_back(keyConfig);
-    }
-    return keyConfigMap;
-}
-
+/*  将inputId符合的keyConfig 按照type 为key ， keyconfig列表为值重新组合 */
 std::map<int, std::vector<KeyConfig>> MangmiConfig::getKeyConfigsMapByInputId(int inputId){
     std::map<int, std::vector<KeyConfig>>  keyConfigMap;
     for(const auto& keyConfig: gamePadConfig.keyConfigs){
@@ -179,3 +119,17 @@ std::map<int, std::vector<KeyConfig>> MangmiConfig::getKeyConfigsMapByInputId(in
     }
     return keyConfigMap;
 }
+
+/* 将inputId符合的JoystickConfig ,按照type 为key ， JoystickConfig 列表为值重新组合  */
+std::map<int, std::vector<JoystickConfig>> MangmiConfig::getJoystickConfigsMapByInputId(int inputId){
+    std::map<int, std::vector<JoystickConfig>> joystickConfigMap;
+    for(const auto &joystickConfig:gamePadConfig.joystickConfigs){
+        if(joystickConfig.id == inputId ){
+            joystickConfigMap[joystickConfig.type].push_back( joystickConfig);
+        }
+    }
+    return joystickConfigMap;
+}
+
+
+

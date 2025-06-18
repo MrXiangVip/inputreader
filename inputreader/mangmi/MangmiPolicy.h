@@ -49,15 +49,10 @@ public:
     void buildAxisEvent(RawEvent event);
     static MangmiPolicy* getInstance();
     int updateIdConfigs( );
-
     static std::vector<socketReply> vectorReply;
 protected:
-    void runServer();
     static void* startMangmiSocket(void *args);
-//    int dealReceivedData(std::string receivedData );
-//    int replyData(std::string requestId, std::string data);
 
-    int updateInterceptPolicy( );
     static int replyClient(int requestId, std::string data);
 
     static RawEvent generateEvent( int32_t deviceId, int i, int code, int32_t value);
@@ -66,8 +61,6 @@ protected:
 private:
     MangmiPolicy( );
     static MangmiPolicy *instance;
-    int server_fd;// 套接字fd
-//    static bool running;//
     static MiThreadPool mangmiPool;
 
     static MangmiSocketClient key_socket_client;//
@@ -86,7 +79,6 @@ private:
 
     void leftJoystick(RawEvent& event);
 
-    static std::vector<JoystickConfig> getJoystickConfigsFromId(int inputId);
 
     static int getSlotIdFromIdConfig(std::string str, int idAddType);
 
@@ -98,8 +90,6 @@ private:
 
     void absBreak(RawEvent &event);
 
-    void handleKey(RawEvent &event);
-
     void convertToStandardTouchClick(RawEvent &event, int type, std::vector<KeyConfig> keyConfig);
 
     std::vector<int> getSlotIdFromKeySlotConfig(int id, int type);
@@ -109,6 +99,8 @@ private:
     void convertToStandardKeyboardComboClick(RawEvent &event, int type, std::vector<KeyConfig> keyConfigs);
 
     static void keyBoardComboClick(RawEvent rawEvent, KeyConfig keyConfig);
+
+    void gamePadLeftJoystick(RawEvent event, int i, vector<JoystickConfig> joystickConfigs);
 };
 
 

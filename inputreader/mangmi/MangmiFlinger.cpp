@@ -91,11 +91,6 @@ void MangmiFlinger::handleAxisEvents(std::vector<RawEvent>& events){
 
 void MangmiFlinger::handleAxisEvent(RawEvent event) {
     ALOGD("处理摇杆事件");
-//    std::vector<int> inputId = MangmiUtils::getInputIdFromEvcode( event.code);
-//    if( inputId.size()==0){
-//        return;
-//    }
-//    MangmiPolicy::getInstance()->replyPolicy(inputId[0], event);
     MangmiPolicy::getInstance()->buildAxisEvent(event);
     ALOGD("处理摇杆事件 over \n\n");
 }

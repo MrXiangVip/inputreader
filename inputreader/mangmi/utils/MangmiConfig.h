@@ -67,13 +67,9 @@ public:
     static MangmiConfig *getInstance();
     bool parseJson(std::string  json);
     GamepadConfig& getGamepadConfig();
-    std::vector<KeyConfig> getKeyConfigs(); // 返回策略配置
-    std::vector<KeyConfig> getKeyConfigsByInputId(int inputId);
-    std::vector<JoystickConfig> getJoystickConfigsFromId(int inputId);
-    std::vector<KeyConfig>  getKeyConfigsByInputIdAndType(int inputId, int type);
 
-    std::map<int, std::vector<KeyConfig>> getKeyConfigsMap();// 将全部配置按照 type 归类
     std::map<int, std::vector<KeyConfig>> getKeyConfigsMapByInputId(int inputId);//  将全部配置 先按照inputId 再按照type分类
+    std::map<int, std::vector<JoystickConfig>> getJoystickConfigsMapByInputId(int inputId);
 
 private:
     GamepadConfig  gamePadConfig;

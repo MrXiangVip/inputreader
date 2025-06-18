@@ -24,7 +24,6 @@
 
 MangmiPolicy *MangmiPolicy::instance= nullptr;
 std::vector<socketReply> MangmiPolicy::vectorReply;//定义
-//bool MangmiPolicy::running = false;
 MangmiSocketClient MangmiPolicy::key_socket_client;//
 int MangmiPolicy::iSlotId=20;// iSlotId start from 20
 std::vector<int> MangmiPolicy::jsLeftSlotId; //
@@ -294,24 +293,15 @@ void MangmiPolicy::buildAxisEvent( RawEvent event) {
 
 void MangmiPolicy::leftJoystick(RawEvent& event){
     ALOGD("leftJoystick");
-    std::vector<JoystickConfig> jConfigs = MangmiConfig::getInstance()->getJoystickConfigsFromId( INPUT_ID_LEFT_JOYSTICK );// 一个左摇杆 可以配置多个策略
-    for( int i; i<jConfigs.size(); i++){
-        JoystickConfig config= jConfigs[i];
-        int axisX =0;
-        int axisY =0;
-        float fRadius = mWidth *config.radius;
-        float fSenX = config.sensitivityX;
-        float fSenY = config.sensitivityY;
-        float fCenterX = mWidth *config.centerY;
-        float fCenterY = mHeight - mHeight*config.centerX;
-        int x = (int)((double)axisX / 32768.0 * fRadius * fSenX + fCenterX);
-        int y = (int)((double)axisY / 32768.0 * fRadius * fSenY + fCenterY);
-        int slotId = getSlotIdFromIdConfig("joystickConfigs", i + config.id + config.type);
-
-        switch (config.type){// 每一个类型 对应一种处理方式
+    std::map<int, vector<JoystickConfig>> joystickMap = MangmiConfig::getInstance()->getJoystickConfigsMapByInputId( INPUT_ID_LEFT_JOYSTICK );// 一个左摇杆 可以配置多个策略
+    for( auto it=joystickMap.begin();it!=joystickMap.end();++it){
+        int type = it->first;
+        std::vector<JoystickConfig> joystickConfigs = it->second;
+        switch ( type){// 每一个类型 对应一种处理方式
             case JOYSTICK_CATEGORY_GAMEPAD:
                 break;
             case JOYSTICK_TYPE_GAMEPAD_LEFT_JOYSTICK:
+                gamePadLeftJoystick(event,JOYSTICK_TYPE_GAMEPAD_LEFT_JOYSTICK, joystickConfigs);
                 break;
             case JOYSTICK_TYPE_GAMEPAD_RIGHT_JOYSTICK:
                 break;
@@ -330,21 +320,11 @@ void MangmiPolicy::leftJoystick(RawEvent& event){
 
 void MangmiPolicy::rightJoystick(RawEvent event) {
     ALOGD("rightJoystick");
-    std::vector<JoystickConfig> jConfigs = MangmiConfig::getInstance()->getJoystickConfigsFromId( INPUT_ID_RIGHT_JOYSTICK );// 一个左摇杆 可以配置多个策略
-    for( int i; i<jConfigs.size(); i++){
-        JoystickConfig config= jConfigs[i];
-        int axisX =0;
-        int axisY =0;
-        float fRadius = mWidth *config.radius;
-        float fSenX = config.sensitivityX;
-        float fSenY = config.sensitivityY;
-        float fCenterX = mWidth *config.centerY;
-        float fCenterY = mHeight - mHeight*config.centerX;
-        int x = (int)((double)axisX / 32768.0 * fRadius * fSenX + fCenterX);
-        int y = (int)((double)axisY / 32768.0 * fRadius * fSenY + fCenterY);
-        int slotId = getSlotIdFromIdConfig("joystickConfigs", i + config.id + config.type);
-
-        switch (config.type){// 每一个类型 对应一种处理方式
+    std::map<int, vector<JoystickConfig>> joystickMap = MangmiConfig::getInstance()->getJoystickConfigsMapByInputId( INPUT_ID_RIGHT_JOYSTICK );// 一个左摇杆 可以配置多个策略
+    for( auto it=joystickMap.begin();it!=joystickMap.end();++it){
+        int type = it->first;
+        std::vector<JoystickConfig> joystickConfigs = it->second;
+        switch (type){// 每一个类型 对应一种处理方式
             case JOYSTICK_CATEGORY_GAMEPAD:
                 break;
             case JOYSTICK_CATEGORY_KEYBOARD:
@@ -358,6 +338,29 @@ void MangmiPolicy::rightJoystick(RawEvent event) {
         }
     }
     return;
+}
+
+bool isLeftDown =false;
+void MangmiPolicy::gamePadLeftJoystick(RawEvent event, int i, std::vector<JoystickConfig> joystickConfigs){
+    ALOGD("gamePadLeftJoystick");
+    for(int i=0; i<joystickConfigs.size();i++){
+        JoystickConfig joystickConfig = joystickConfigs[i];
+        int axisX = event.value;
+        int axisY = mWidth -event.value;
+        float fRadius = mWidth * joystickConfig.radius;
+        float fSenX = joystickConfig.sensitivityX;
+        float fSenY = joystickConfig.sensitivityY;
+        float fCenterX = mWidth * joystickConfig.centerY;
+        float fCenterY = mHeight - mHeight * joystickConfig.centerX;
+        int x = (int)((double)axisX / 32768.0 * fRadius * fSenX + fCenterX);
+        int y = (int)((double)axisY / 32768.0 * fRadius * fSenY + fCenterY);
+        int slotId = getSlotIdFromIdConfig("joystickConfigs", i + joystickConfig.id+ joystickConfig.type);
+
+        if( isLeftDown ==false ){
+            InputFilter::getInstance()->pushSoftEvent( slotId, TOUCH_DOWN, x, y);
+        }
+    }
+
 }
 
 void MangmiPolicy::absHatXY(RawEvent &event) {
