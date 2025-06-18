@@ -51,11 +51,16 @@ void *InputFilter::inputEventMonitor( void *args){
 */
 
 /*  A键*/
+//        RawEvent event;
+//        event.deviceId =1;
+//        event.type=EV_KEY;
+//        event.code=BUTTON_A;
+//        event.value=1;
         RawEvent event;
-        event.deviceId =1;
-        event.type=EV_KEY;
-        event.code=BUTTON_A;
-        event.value=1;
+        event.deviceId =2;
+        event.type=EV_ABS;
+        event.code=ABS_X;
+        event.value=100;
         self->inputRawEvent( event);
         sleep(10);// 每隔5秒钟发送一次事件
     }

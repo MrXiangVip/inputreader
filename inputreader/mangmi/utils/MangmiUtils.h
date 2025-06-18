@@ -55,6 +55,8 @@
 #define DPAD_RIGHT  106
 #define BUTTON_L1 310
 #define BUTTON_L2 312
+#define BUTTON_R1 311
+#define BUTTON_R2 313
 #define BTN_THUMBL 100
 #define BTN_TR 100
 #define BTN_TR2 100

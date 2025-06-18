@@ -300,7 +300,7 @@ void MangmiPolicy::leftJoystick(RawEvent& event){
         switch ( type){// 每一个类型 对应一种处理方式
             case JOYSTICK_CATEGORY_GAMEPAD:
                 break;
-            case JOYSTICK_TYPE_GAMEPAD_LEFT_JOYSTICK:
+            case JOYSTICK_TYPE_TOUCHSCREEN_JOYSTICK:
                 gamePadLeftJoystick(event,JOYSTICK_TYPE_GAMEPAD_LEFT_JOYSTICK, joystickConfigs);
                 break;
             case JOYSTICK_TYPE_GAMEPAD_RIGHT_JOYSTICK:
@@ -341,25 +341,74 @@ void MangmiPolicy::rightJoystick(RawEvent event) {
 }
 
 bool isLeftDown =false;
-void MangmiPolicy::gamePadLeftJoystick(RawEvent event, int i, std::vector<JoystickConfig> joystickConfigs){
-    ALOGD("gamePadLeftJoystick");
-    for(int i=0; i<joystickConfigs.size();i++){
-        JoystickConfig joystickConfig = joystickConfigs[i];
-        int axisX = event.value;
-        int axisY = mWidth -event.value;
-        float fRadius = mWidth * joystickConfig.radius;
-        float fSenX = joystickConfig.sensitivityX;
-        float fSenY = joystickConfig.sensitivityY;
-        float fCenterX = mWidth * joystickConfig.centerY;
-        float fCenterY = mHeight - mHeight * joystickConfig.centerX;
-        int x = (int)((double)axisX / 32768.0 * fRadius * fSenX + fCenterX);
-        int y = (int)((double)axisY / 32768.0 * fRadius * fSenY + fCenterY);
-        int slotId = getSlotIdFromIdConfig("joystickConfigs", i + joystickConfig.id+ joystickConfig.type);
+#define DEADZONE_CENTERPOINT 5
 
-        if( isLeftDown ==false ){
-            InputFilter::getInstance()->pushSoftEvent( slotId, TOUCH_DOWN, x, y);
+void MangmiPolicy::gamePadLeftJoystick(RawEvent event, int type, std::vector<JoystickConfig> joystickConfigs){
+    ALOGD("gamePadLeftJoystick");
+    int leftOrigX, leftOrigY;
+    int axisX, axisY;
+    int leftAxisX, leftAxisY;
+    if( event.code ==ABS_X){
+        leftOrigY = event.value;
+        axisY = mWidth - event.value; //swap x->y
+        leftAxisY = axisY;
+        axisX = leftAxisX;
+    }else if( event.code ==ABS_Y){
+        leftOrigX = event.value;
+        axisX = event.value; //swap y->x
+        leftAxisX = axisX;
+        axisY = leftAxisY;
+    }
+
+    /*当摇杆从非死区移动到死区位置，或回到中心位置时，生成抬起事件*/
+    if( (abs(leftOrigX)<DEADZONE_CENTERPOINT) && abs(leftOrigY)<DEADZONE_CENTERPOINT ){
+        leftOrigX =0;
+        leftOrigY =0;
+//        isAxisLeftDown =false;
+        isLeftDown =false;
+        for(int i=0; i<joystickConfigs.size(); i++){
+            int slotId = getSlotIdFromIdConfig("joystickConfigs", i + joystickConfigs[i].id+ joystickConfigs[i].type);
+            InputFilter::getInstance()->pushSoftEvent(slotId, TOUCH_UP, 0, 0);
+        }
+    }else{
+        if( isLeftDown ==false ){//
+            isLeftDown =true;
+
+            for(int i=0; i<joystickConfigs.size();i++){
+                JoystickConfig joystickConfig = joystickConfigs[i];
+                float fRadius = mWidth * joystickConfig.radius;
+                float fSenX = joystickConfig.sensitivityX;
+                float fSenY = joystickConfig.sensitivityY;
+                float fCenterX = mWidth * joystickConfig.centerY;
+                float fCenterY = mHeight - mHeight * joystickConfig.centerX;
+                int x = (int)((double)axisX / 32768.0 * fRadius * fSenX + fCenterX);
+                int y = (int)((double)axisY / 32768.0 * fRadius * fSenY + fCenterY);
+                int slotId = getSlotIdFromIdConfig("joystickConfigs", i + joystickConfig.id+ joystickConfig.type);
+
+                InputFilter::getInstance()->pushSoftEvent( slotId, TOUCH_DOWN, x, y);
+            }
+        }else{
+            if( isLeftDown == true){
+                for(int i=0; i<joystickConfigs.size();i++){
+                    JoystickConfig joystickConfig = joystickConfigs[i];
+                    int axisX = event.value;
+                    int axisY = mWidth -event.value;
+                    float fRadius = mWidth * joystickConfig.radius;
+                    float fSenX = joystickConfig.sensitivityX;
+                    float fSenY = joystickConfig.sensitivityY;
+                    float fCenterX = mWidth * joystickConfig.centerY;
+                    float fCenterY = mHeight - mHeight * joystickConfig.centerX;
+                    int x = (int)((double)axisX / 32768.0 * fRadius * fSenX + fCenterX);
+                    int y = (int)((double)axisY / 32768.0 * fRadius * fSenY + fCenterY);
+                    int slotId = getSlotIdFromIdConfig("joystickConfigs", i + joystickConfig.id+ joystickConfig.type);
+
+                    InputFilter::getInstance()->pushSoftEvent( slotId, TOUCH_MOVE, x, y);
+                }
+            }
         }
     }
+
+
 
 }
 
