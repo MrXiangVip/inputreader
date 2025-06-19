@@ -10,7 +10,8 @@
 #include <vector>
 #include "MangmiSocketClient.h"
 
-#define PORT 8080
+#define PORT 8088
+
 #define BUFFER_SIZE 1024 * 64 //64k
 
 MangmiSocketClient* MangmiSocketClient::instance=NULL;

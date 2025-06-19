@@ -19,6 +19,8 @@ public:
     void pushSoftEvent(RawEvent event);
     void setInputsFilter(const std::set<int>& keyCodes, const std::set<int>& axisCodes);
     static InputFilter *getInstance( );
+    static int mWidth, mHeight;
+
 protected:
     std::vector<RawEvent> inputRawEvent(RawEvent &events);
     std::vector<RawEvent> handleRawEvents(std::vector<RawEvent> &events);
@@ -37,7 +39,6 @@ private:
     //    Signal inputSignal;
     std::vector<RawEvent> keyEvents;
     std::vector<RawEvent> axisEvents;
-
 
 };
 

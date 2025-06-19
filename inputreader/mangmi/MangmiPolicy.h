@@ -15,7 +15,6 @@
 #include "utils/MangmiConfig.h"
 #include "utils/MiThreadPool.h"
 
-#define PORT 8080
 #define BUFFER_SIZE 1024 * 64 //64k
 
 #define KEY_CATEGORY_GAMEPAD 1000
@@ -72,6 +71,7 @@ private:
     static std::vector<int> jsRightSlotId;
     static int mWidth;
     static int mHeight;
+
 
     static std::atomic<bool>  AtomicComboThreadExit;
     int assignIdConfig(std::string str, int idAddType);

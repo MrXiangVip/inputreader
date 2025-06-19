@@ -15,6 +15,9 @@
 
 InputFilter* InputFilter::instance;
 
+int InputFilter::mWidth=800;
+int InputFilter::mHeight=640;
+
 InputFilter::InputFilter(){
 //    pthread_mutex_init(&mutex, NULL);
 //    pthread_cond_init(&condEvent, NULL);//
@@ -51,17 +54,20 @@ void *InputFilter::inputEventMonitor( void *args){
 */
 
 /*  A键*/
-//        RawEvent event;
-//        event.deviceId =1;
-//        event.type=EV_KEY;
-//        event.code=BUTTON_A;
-//        event.value=1;
         RawEvent event;
-        event.deviceId =2;
-        event.type=EV_ABS;
-        event.code=ABS_X;
-        event.value=100;
+        event.deviceId =1;
+        event.type=EV_KEY;
+        event.code=BUTTON_A;
+        event.value=1;
+        sleep(10);
         self->inputRawEvent( event);
+/* left yaogan */
+        RawEvent event2;
+        event2.deviceId =1;
+        event2.type=EV_ABS;
+        event2.code=ABS_X;
+        event2.value=100;
+        self->inputRawEvent( event2);
         sleep(10);// 每隔5秒钟发送一次事件
     }
 

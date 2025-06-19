@@ -40,8 +40,8 @@ socketReply::socketReply(int mRequestId,int mInputId){
 
 MangmiPolicy::MangmiPolicy() {
     ALOGD("init");
-    mWidth = 800;
-    mHeight =640;
+    mWidth = InputFilter::mWidth;
+    mHeight =InputFilter::mHeight;
     mangmiPool.setThreadCount(6); // set threadpool num is 6
     mangmiPool.createPool();
     AtomicComboThreadExit.store(false);
@@ -126,7 +126,6 @@ int MangmiPolicy::getSlotIdFromIdConfig(std::string str, int idAddType)
 {
     int iSlot = 0;
     ALOGI("---getSlotIdFromIdConfig---str = %s, idAddType = %d", str.c_str(), idAddType);
-    iSlot = -1;
     for (size_t i = 0; i < idConfigs.size(); ++i) {
         if ((idConfigs[i].id == idAddType) &&
             (idConfigs[i].configStr == str))
@@ -356,10 +355,12 @@ bool isLeftDown =false;
 #define DEADZONE_CENTERPOINT 5
 
 void MangmiPolicy::gamePadLeftJoystick(RawEvent event, int type, std::vector<JoystickConfig> joystickConfigs){
-    ALOGD("gamePadLeftJoystick");
+    ALOGD("gamePadLeftJoystick deviceId:%d, type:%d, code:%d, value:%d", event.deviceId, event.type, event.code, event.value);
     int leftOrigX, leftOrigY;
     int axisX, axisY;
     int leftAxisX, leftAxisY;
+    mWidth =InputFilter::mWidth;
+    mHeight = InputFilter::mHeight;
     if( event.code ==ABS_X){
         leftOrigY = event.value;
         axisY = mWidth - event.value; //swap x->y
@@ -380,6 +381,7 @@ void MangmiPolicy::gamePadLeftJoystick(RawEvent event, int type, std::vector<Joy
         isLeftDown =false;
         for(int i=0; i<joystickConfigs.size(); i++){
             int slotId = getSlotIdFromIdConfig("joystickConfigs", i + joystickConfigs[i].id+ joystickConfigs[i].type);
+            ALOGD("slotId%d, TOUCH_UP", slotId);
             InputFilter::getInstance()->pushSoftEvent(slotId, TOUCH_UP, 0, 0);
         }
     }else{
@@ -396,7 +398,7 @@ void MangmiPolicy::gamePadLeftJoystick(RawEvent event, int type, std::vector<Joy
                 int x = (int)((double)axisX / 32768.0 * fRadius * fSenX + fCenterX);
                 int y = (int)((double)axisY / 32768.0 * fRadius * fSenY + fCenterY);
                 int slotId = getSlotIdFromIdConfig("joystickConfigs", i + joystickConfig.id+ joystickConfig.type);
-
+                ALOGD("slotId%d, TOUCH_DOWN x:%d, y%d", slotId, x, y);
                 InputFilter::getInstance()->pushSoftEvent( slotId, TOUCH_DOWN, x, y);
             }
         }else{
@@ -413,7 +415,7 @@ void MangmiPolicy::gamePadLeftJoystick(RawEvent event, int type, std::vector<Joy
                     int x = (int)((double)axisX / 32768.0 * fRadius * fSenX + fCenterX);
                     int y = (int)((double)axisY / 32768.0 * fRadius * fSenY + fCenterY);
                     int slotId = getSlotIdFromIdConfig("joystickConfigs", i + joystickConfig.id+ joystickConfig.type);
-
+                    ALOGD("slotId%d, TOUCH_MOVE x:%d, y%d", slotId, x, y);
                     InputFilter::getInstance()->pushSoftEvent( slotId, TOUCH_MOVE, x, y);
                 }
             }

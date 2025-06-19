@@ -73,7 +73,7 @@ void MangmiFlinger::handleKeyEvents(std::vector<RawEvent>& events){
 void MangmiFlinger::handleKeyEvent(RawEvent event) {
     ALOGD("处理按键事件 deviceId:%d, type:%d,code:%d,value:%d ",event.deviceId, event.type, event.code,event.value);
     int inputId = MangmiUtils::getInputIdFromEvcode(event.code);
-    MangmiPolicy::getInstance()->replyApplication(inputId, event );
+//    MangmiPolicy::getInstance()->replyApplication(inputId, event );
     MangmiPolicy::getInstance()->buildKeyEvent( event);
     ALOGD("处理按键事件 over \n\n");
 }

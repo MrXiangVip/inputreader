@@ -11,6 +11,7 @@
 #include "../MangmiPolicy.h"
 #include "MangmiIntercepter.h"
 #define BUFFER_SIZE 1024 * 64 //64k
+#define PORT 8080
 
 MangmiSocketServer* MangmiSocketServer::instance;
 MangmiSocketServer * MangmiSocketServer::getInstance() {
