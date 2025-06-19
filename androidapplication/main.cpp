@@ -63,10 +63,10 @@ int main() {
 
 //    std::string message =buildMessage(  0,1880,info);
     AndroidClient* client = AndroidClient::getInstance( );
-    client->connectClientSocket();
-//    client->sendMessage( leftArrow );
+//    client->connectClientSocket();
+    client->sendMessage( leftArrow );
 //    client->sendMessage( originalMode );
-    client->sendMessage( towRightYaoGan );
+//    client->sendMessage( towRightYaoGan );
 //    client->sendMessage( yaogan );
 //    AndroidServer* server = AndroidServer::getInstance();
 //    server->createServer();

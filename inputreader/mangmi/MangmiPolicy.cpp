@@ -66,7 +66,8 @@ pthread_t MangmiPolicy::startSocketServerThread( ){
 void* MangmiPolicy::startMangmiSocket(void *args) {
     ALOGD("startMangmiSocket");
 //    MangmiPolicy *self = static_cast<MangmiPolicy*>(args);
-    MangmiSocketServer::getInstance()->startServer();
+    int sockfd =MangmiSocketServer::getInstance()->startServer();
+    if( sockfd ==-1){ALOGD("StartServer Failed");}
     return NULL;
 }
 

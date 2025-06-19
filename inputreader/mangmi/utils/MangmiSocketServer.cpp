@@ -27,6 +27,45 @@ MangmiSocketServer::MangmiSocketServer() {
 }
 
 int MangmiSocketServer::createSocketServer(){
+    ALOGD("createSocketServer");
+    std::string received_data;
+
+
+    signal(SIGPIPE, SIG_IGN);
+
+    sockfd = socket(AF_INET, SOCK_STREAM, 0);
+    if (sockfd == 0) {
+        ALOGI("socket failed");
+        return -1;
+    }
+
+    int opt = 1;
+    if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt))) {
+        ALOGI("setsockopt failed");
+        return -1;
+    }
+
+    struct sockaddr_in address;
+    address.sin_family = AF_INET;
+    address.sin_addr.s_addr = INADDR_ANY;
+    address.sin_port = htons(PORT);
+
+    if (::bind(sockfd, (struct sockaddr*)&address, sizeof(address)) < 0) {
+        ALOGI("bind failed");
+        close(sockfd);
+        return -1;
+    }
+
+    if (listen(sockfd, 3) < 0) {
+        ALOGI("listen failed");
+        close(sockfd);
+        return -1;
+    }
+    running = true;//
+    return 0;
+}
+
+int MangmiSocketServer::createLocalSocketServer(){
 
     sockfd = socket(AF_UNIX, SOCK_STREAM, 0);
     if( sockfd==-1){
@@ -37,8 +76,9 @@ int MangmiSocketServer::createSocketServer(){
     strncpy(addr.sun_path, SOCKET_PATH, sizeof(addr.sun_path));
 
     unlink(addr.sun_path);
-    if( bind(sockfd, (struct sockaddr*)&addr, sizeof(addr))==-1){
+    if( ::bind(sockfd, (struct sockaddr*)&addr, sizeof(addr))==-1){
         ALOGD("BIND ERROR");
+        return -1;
     }
     if( listen(sockfd,5)==-1){ALOGD("LISTEN ERROR");}
 
@@ -49,6 +89,7 @@ int MangmiSocketServer::createSocketServer(){
 int MangmiSocketServer::startServer( ){
     char buffer[BUFFER_SIZE] = {0};
     while (running) {
+        ALOGD("waiting client");
         int clientfd = accept(sockfd, nullptr, nullptr);
         if (clientfd < 0) {
             ALOGI("accept failed");
@@ -81,6 +122,7 @@ int MangmiSocketServer::startServer( ){
     }
     close(sockfd);
     sockfd = -1;
+    return sockfd;
 }
 int MangmiSocketServer::dealReceivedData(std::string receivedData) {
     ALOGD("dealReceivedData %s", receivedData.c_str());

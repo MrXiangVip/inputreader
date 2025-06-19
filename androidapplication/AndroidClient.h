@@ -16,13 +16,16 @@ class AndroidClient {
 public:
     static AndroidClient *getInstance();
     int connectClientSocket(  );
+    int connectLocalClientSocket();
+
     int closeClientSocket();
     int sendMessage( std::string message);
 
 private:
     int client_socket;
-//    sockaddr_in server_addr{};
+    struct sockaddr_in  addrIn;
     struct sockaddr_un  addr;
+
     static AndroidClient *client;
     AndroidClient();
 

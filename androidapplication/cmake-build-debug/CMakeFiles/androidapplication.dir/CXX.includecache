@@ -6,6 +6,20 @@
 
 #IncludeRegexTransform: 
 
+/home/xshx/CLionProjects/androidapplication/AndroidClient.cpp
+netdb.h
+-
+iostream
+-
+csignal
+-
+cstring
+-
+AndroidClient.h
+/home/xshx/CLionProjects/androidapplication/AndroidClient.h
+stdio.h
+-
+
 /home/xshx/CLionProjects/androidapplication/AndroidClient.h
 netinet/in.h
 -
