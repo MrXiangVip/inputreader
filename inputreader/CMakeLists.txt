@@ -12,4 +12,4 @@ add_executable(inputreader main.cpp
         mangmi/utils/MangmiUtils.cpp  mangmi/utils/MangmiUtils.h
         mangmi/json/jsoncpp.cpp mangmi/InputFilter.cpp mangmi/InputFilter.h
 #        mangmi/extend/ThreadPool.cpp mangmi/extend/ThreadPool.h
-        mangmi/utils/MangmiConfig.cpp mangmi/utils/MangmiConfig.h)
+        mangmi/utils/MangmiConfig.cpp mangmi/utils/MangmiConfig.h mangmi/utils/MangmiSocketServer.cpp mangmi/utils/MangmiSocketServer.h)
