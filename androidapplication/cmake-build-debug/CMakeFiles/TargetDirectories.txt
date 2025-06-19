@@ -1,0 +1,3 @@
+/home/xshx/CLionProjects/androidapplication/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/home/xshx/CLionProjects/androidapplication/cmake-build-debug/CMakeFiles/androidapplication.dir
+/home/xshx/CLionProjects/androidapplication/cmake-build-debug/CMakeFiles/edit_cache.dir

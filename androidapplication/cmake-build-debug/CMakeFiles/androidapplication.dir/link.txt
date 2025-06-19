@@ -1,0 +1,1 @@
+/usr/bin/c++  -g   CMakeFiles/androidapplication.dir/main.cpp.o CMakeFiles/androidapplication.dir/AndroidClient.cpp.o CMakeFiles/androidapplication.dir/AndroidServer.cpp.o  -o androidapplication 

@@ -1,0 +1,4 @@
+/home/xshx/devtools/CLion-2019.3.6/clion-2019.3.6/bin/cmake/linux/bin/cmake -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - Unix Makefiles" /home/xshx/CLionProjects/androidapplication
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /home/xshx/CLionProjects/androidapplication/cmake-build-debug
