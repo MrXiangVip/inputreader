@@ -6,7 +6,7 @@
 #include <csignal>
 #include <vector>
 #include "MangmiSocketServer.h"
-#include "../Macro.h"
+#include "../Macros.h"
 #include "MangmiConfig.h"
 #include "../MangmiPolicy.h"
 #include "MangmiIntercepter.h"
@@ -84,7 +84,7 @@ int MangmiSocketServer::startServer( ){
 }
 int MangmiSocketServer::dealReceivedData(std::string receivedData) {
     ALOGD("dealReceivedData %s", receivedData.c_str());
-    int iRet;
+    int iRet=0;
     size_t start_pos = 0;
     std::vector<std::string> data_segments;
 

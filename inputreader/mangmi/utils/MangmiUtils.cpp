@@ -4,7 +4,7 @@
 
 #include <vector>
 #include "MangmiUtils.h"
-#include "../Macro.h"
+#include "../Macros.h"
 
 std::map<int, int> MangmiUtils::keyCodeScanCodeMap; // 定义
 
@@ -54,8 +54,8 @@ int MangmiUtils::initInputIdMaps( ){
     inputIdMaps.insert({INPUT_ID_L2, BUTTON_L2});
     inputIdMaps.insert({INPUT_ID_L3, BTN_THUMBL});
 
-    inputIdMaps.insert({INPUT_ID_R1, BTN_TR});
-    inputIdMaps.insert({INPUT_ID_R2, BTN_TR2});
+//    inputIdMaps.insert({INPUT_ID_R1, BTN_TR});
+//    inputIdMaps.insert({INPUT_ID_R2, BTN_TR2});
     inputIdMaps.insert({INPUT_ID_R3, BTN_THUMBR});
 
     inputIdMaps.insert({INPUT_ID_SELECT, BTN_SELECT});

@@ -4,7 +4,7 @@
 
 #include "MangmiConfig.h"
 #include "../json/json.h"
-#include "../Macro.h"
+#include "../Macros.h"
 
 MangmiConfig* MangmiConfig::instance= NULL;
 

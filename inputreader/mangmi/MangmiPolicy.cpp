@@ -24,7 +24,6 @@
 
 MangmiPolicy *MangmiPolicy::instance= nullptr;
 std::vector<socketReply> MangmiPolicy::vectorReply;//定义
-MangmiSocketClient MangmiPolicy::key_socket_client;//
 int MangmiPolicy::iSlotId=20;// iSlotId start from 20
 std::vector<int> MangmiPolicy::jsLeftSlotId; //
 std::vector<int> MangmiPolicy::jsRightSlotId;//
@@ -41,6 +40,8 @@ socketReply::socketReply(int mRequestId,int mInputId){
 
 MangmiPolicy::MangmiPolicy() {
     ALOGD("init");
+    mWidth = 800;
+    mHeight =640;
     mangmiPool.setThreadCount(6); // set threadpool num is 6
     mangmiPool.createPool();
     AtomicComboThreadExit.store(false);
@@ -66,6 +67,7 @@ void* MangmiPolicy::startMangmiSocket(void *args) {
     ALOGD("startMangmiSocket");
 //    MangmiPolicy *self = static_cast<MangmiPolicy*>(args);
     MangmiSocketServer::getInstance()->startServer();
+    return NULL;
 }
 
 int MangmiPolicy::updateIdConfigs( ){
@@ -104,9 +106,6 @@ int MangmiPolicy::updateIdConfigs( ){
         kSlotConfigs.clear();
         for(int i=0; i<ilen; i++){
             assignKeySlotConfig( eventConfig.keyConfigs[i].id, eventConfig.keyConfigs[i].type );
-            if( KEY_TYPE_GAMEPAD_CLICK_STANDARD != eventConfig.keyConfigs[i].type ){
-                ALOGD("标准点击事件不拦截");
-            }
         }
     }
 }
@@ -165,7 +164,7 @@ std::vector<int> MangmiPolicy::getSlotIdFromKeySlotConfig(int inputId, int type)
     return keySlots;
 }
 
-int MangmiPolicy::replyPolicy(int inputId, RawEvent event){
+int MangmiPolicy::replyApplication(int inputId, RawEvent event){
     ALOGD("回复客户端");
     int ilen = vectorReply.size();
     std::string sData;
@@ -199,28 +198,32 @@ int MangmiPolicy::replyPolicy(int inputId, RawEvent event){
 int MangmiPolicy::replyClient(int requestId, std::string data){
     int iRet = 0;
 
-    RECONNECT:
-    if(false == key_socket_client.running)
-    {
-        // 客户端连接到服务器: 127.0.0.1 8088
-        key_socket_client.connectToServer("127.0.0.1");
-    }
-
-    // 发送消息到服务器
-    ALOGI("---%s---sendData = %s", __func__, data.c_str());
-    iRet = key_socket_client.sendMessage(data);
-    if(0 != iRet) {
-        ALOGI("---%s---iRet = %d, sendMessage error", __func__, iRet);
-        // 停止客户端
-        key_socket_client.stop();
-        goto RECONNECT;
-    }
-
-    iRet = key_socket_client.runClient(requestId);
-    ALOGI("---%s---iRet = %d", __func__, iRet);
-    if(-1 == iRet)
-        ALOGI("---%s---iRet = %d, requestId error", __func__, iRet);
-
+//    RECONNECT:
+//    if(false == key_socket_client.running)
+//    {
+//        // 客户端连接到服务器: 127.0.0.1 8088
+//        key_socket_client.connectToServer("127.0.0.1");
+//    }
+//
+//    // 发送消息到服务器
+//    ALOGI("---%s---sendData = %s", __func__, data.c_str());
+//    iRet = key_socket_client.sendMessage(data);
+//    if(0 != iRet) {
+//        ALOGI("---%s---iRet = %d, sendMessage error", __func__, iRet);
+//        // 停止客户端
+//        key_socket_client.stop();
+//        goto RECONNECT;
+//    }
+//
+//    iRet = key_socket_client.receiveMessage(requestId);
+//    ALOGI("---%s---iRet = %d", __func__, iRet);
+//    if(-1 == iRet)
+//        ALOGI("---%s---iRet = %d, requestId error", __func__, iRet);
+//
+//    return iRet;
+    MangmiSocketClient::getInstance()->connectToServer("127.0.0.1");
+    MangmiSocketClient::getInstance()->sendMessage(data);
+    iRet =MangmiSocketClient::getInstance()->receiveMessage( requestId);
     return iRet;
 }
 
@@ -250,10 +253,14 @@ void MangmiPolicy::buildKeyEvent( RawEvent event){
                 break;
             case KEY_CATEGORY_TOUCHSCREEN:
                 break;
-            case KEY_TYPE_TOUCHSCREEN_CLICK_STANDARD:// 处理成在屏幕上的点击事件
+            case KEY_TYPE_TOUCHSCREEN_CLICK_STANDARD:// 屏幕点击
                 convertToStandardTouchClick(event, KEY_TYPE_TOUCHSCREEN_CLICK_STANDARD,keyConfigs);
                 break;
-            case KEY_CATEGORY_MOBA://
+            case KEY_CATEGORY_MOBA:// 指向性技能
+                break;
+            case KEY_TYPE_MOBA_CANCEL_SKILL:// 取消技能
+                break;
+            case KEY_TYPE_MOBA_VIEW_MAP://看地图
                 break;
             default:
                 break;
@@ -300,7 +307,7 @@ void MangmiPolicy::leftJoystick(RawEvent& event){
         switch ( type){// 每一个类型 对应一种处理方式
             case JOYSTICK_CATEGORY_GAMEPAD:
                 break;
-            case JOYSTICK_TYPE_TOUCHSCREEN_JOYSTICK:
+            case JOYSTICK_TYPE_TOUCHSCREEN_JOYSTICK://虚拟摇杆
                 gamePadLeftJoystick(event,JOYSTICK_TYPE_GAMEPAD_LEFT_JOYSTICK, joystickConfigs);
                 break;
             case JOYSTICK_TYPE_GAMEPAD_RIGHT_JOYSTICK:
@@ -310,6 +317,10 @@ void MangmiPolicy::leftJoystick(RawEvent& event){
             case JOYSTICK_CATEGORY_MOUSE:
                 break;
             case JOYSTICK_CATEGORY_TOUCHSCREEN:
+                break;
+            case JOYSTICK_TYPE_TOUCHSCREEN_SKILL_SHOT:// 指向性技能
+                break;
+            case JOYSTICK_TYPE_TOUCHSCREEN_ADJUST_VIEW://调整视角
                 break;
             default:
                 break;

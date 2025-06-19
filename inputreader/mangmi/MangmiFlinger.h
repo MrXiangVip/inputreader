@@ -8,7 +8,7 @@
 #include <map>
 #include <vector>
 #include "utils/MangmiUtils.h"
-#include "Macro.h"
+#include "Macros.h"
 #include "../ include/EventHub.h"
 #include "utils/MiThreadPool.h"
 #include "MangmiPolicy.h"

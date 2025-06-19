@@ -57,15 +57,15 @@
 #define BUTTON_L2 312
 #define BUTTON_R1 311
 #define BUTTON_R2 313
-#define BTN_THUMBL 100
-#define BTN_TR 100
-#define BTN_TR2 100
-#define BTN_THUMBR 100
+#define BTN_THUMBL 317
+//#define BTN_TR 100
+//#define BTN_TR2 100
+#define BTN_THUMBR 318
 #define BTN_SELECT 100
-#define BTN_START 100
-#define BTN_MODE 100
-#define KEY_BACK 100
-#define KEY_MENU 100
+#define BTN_START 314
+#define BTN_MODE 316
+#define KEY_BACK 158
+#define KEY_MENU 139
 
 //////////////////////////////////////////////////////////////////////
 //从 android/view/KeyEvent.java 得到的

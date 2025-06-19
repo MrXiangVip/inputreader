@@ -9,7 +9,7 @@
 #include <csignal>
 #include "InputFilter.h"
 #include "../ include/EventHub.h"
-#include "Macro.h"
+#include "Macros.h"
 #include "utils/MangmiUtils.h"
 #include <sys/time.h>
 

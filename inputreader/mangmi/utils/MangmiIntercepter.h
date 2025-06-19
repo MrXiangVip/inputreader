@@ -8,6 +8,7 @@
 
 #include <set>
 #include "../MangmiFlinger.h"
+#include "MangmiConfig.h"
 
 #define EV_KEY 1
 #define EV_ABS 2
@@ -64,8 +65,8 @@ private:
     static std::set<InterceptKey> interceptKeySet;
 
 
-    static std::set<int> keySet;
-    static std::set<int> axisSet;
+//    static std::set<int> keySet;
+//    static std::set<int> axisSet;
 
 };
 

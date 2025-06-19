@@ -8,7 +8,8 @@
 #include <string>
 #include <vector>
 #include <atomic>
-#include "Macro.h"
+#include <pthread.h>
+#include "Macros.h"
 #include "../ include/EventHub.h"
 #include "utils/MangmiSocketClient.h"
 #include "utils/MangmiConfig.h"
@@ -44,7 +45,7 @@ class MangmiPolicy {
 
 public:
     pthread_t startSocketServerThread( );  //创程
-    static int replyPolicy(int inputId, RawEvent event);// 回复客户端socket
+    static int replyApplication(int inputId, RawEvent event);// 回复客户端socket
     void buildKeyEvent(RawEvent event); //根据 下发的策略生成新的事件
     void buildAxisEvent(RawEvent event);
     static MangmiPolicy* getInstance();
@@ -63,7 +64,6 @@ private:
     static MangmiPolicy *instance;
     static MiThreadPool mangmiPool;
 
-    static MangmiSocketClient key_socket_client;//
     std::vector<KeySlotConfig> kSlotConfigs; //?
     static std::vector<IdConfig> idConfigs;//
 

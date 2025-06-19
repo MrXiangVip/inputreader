@@ -10,13 +10,13 @@
 #include <cstdio>
 #include <vector>
 #include "MangmiIntercepter.h"
-#include "../Macro.h"
+#include "../Macros.h"
 #include "../InputFilter.h"
 #include "../MangmiPolicy.h"
 
 std::set<InterceptKey> MangmiIntercepter::interceptKeySet; // 定义
-std::set<int> MangmiIntercepter::keySet;
-std::set<int> MangmiIntercepter::axisSet;
+//std::set<int> MangmiIntercepter::keySet;
+//std::set<int> MangmiIntercepter::axisSet;
 
 MangmiIntercepter *MangmiIntercepter::instance;
 MangmiIntercepter *MangmiIntercepter::getInstance() {
@@ -125,7 +125,7 @@ int MangmiIntercepter::clearInputFilter( ){
 }
 
 void MangmiIntercepter::enableInputFilter( const std::set<int>& keyCodes, const std::set<int>& axisCodes ){
-    InputFilter::getInstance()->setInputsFilter( keySet, axisSet);
+    InputFilter::getInstance()->setInputsFilter( keyCodes, axisCodes);
     return ;
 }
 

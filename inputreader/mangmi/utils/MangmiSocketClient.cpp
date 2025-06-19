@@ -13,12 +13,19 @@
 #define PORT 8080
 #define BUFFER_SIZE 1024 * 64 //64k
 
-
+MangmiSocketClient* MangmiSocketClient::instance=NULL;
 MangmiSocketClient::MangmiSocketClient() : client_fd(-1), running(false) {}
 
 
 MangmiSocketClient::~MangmiSocketClient() {
     //stop();
+}
+
+MangmiSocketClient *MangmiSocketClient::getInstance(){
+    if( instance ==NULL ){
+        instance = new MangmiSocketClient();
+    }
+    return instance;
 }
 
 void MangmiSocketClient::connectToServer(const std::string& ip) {
@@ -86,7 +93,7 @@ int MangmiSocketClient::sendMessage(const std::string& message) {
     return iRet;
 }
 
-int MangmiSocketClient::runClient(int requestId) {
+int MangmiSocketClient::receiveMessage(int requestId) {
     int iRet = 0;
     std::string received_data;
     char buffer[BUFFER_SIZE] = {0};

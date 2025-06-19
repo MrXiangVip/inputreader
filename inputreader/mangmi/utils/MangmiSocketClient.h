@@ -10,19 +10,22 @@
 #include <thread>
 #include <mutex>
 #include <condition_variable>
-#include "../Macro.h"
+#include "../Macros.h"
 class MangmiSocketClient {
 public:
-    MangmiSocketClient();
-    ~MangmiSocketClient();
-
+    static MangmiSocketClient *getInstance();
     void connectToServer(const std::string& ip);
     void stop();
     int sendMessage(const std::string& message);
-    int runClient(int requestId);
+    int receiveMessage(int requestId);
     int DealWith_DeceivedData(int requestid, std::string received_data);
     bool running;
 private:
+
+    MangmiSocketClient();
+    ~MangmiSocketClient();
+
+    static MangmiSocketClient *instance;
 
     int client_fd;
     std::thread client_thread;
