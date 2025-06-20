@@ -14,7 +14,7 @@
 MangmiFlinger *MangmiFlinger::instance= nullptr;
 std::vector<RawEvent> MangmiFlinger::eventKeys; //
 std::vector<RawEvent> MangmiFlinger::eventAxis;//
-
+bool MangmiFlinger::running=false;
 
 MangmiFlinger* MangmiFlinger::getInstance() {
     if( instance == nullptr ){
@@ -28,23 +28,26 @@ MangmiFlinger::MangmiFlinger( ){
 }
 
 pthread_t MangmiFlinger::startFlingerThread( ){
-    ALOGD("启动 mangmi flinger 线程");
+    ALOGD("启动 MangmiFlinger 线程");
 
     pthread_t pthreadId;
 
     pthread_create(&pthreadId, nullptr, start, this);
     return  pthreadId;
 }
-
+void MangmiFlinger::stop(){
+    ALOGD("Stop MangmiFlinger");
+    running = false;
+}
 
 void* MangmiFlinger::start(void *args) {
-    ALOGD("启动 mangmi flinger");
+    ALOGD("启动 MangmiFlinger");
 
 //    updateInputIdMaps();
     MangmiFlinger *self = static_cast<MangmiFlinger*>(args);
+    running = true;
 
-
-    while(1) {
+    while(running) {
         InputFilter::getInstance()->pullInputEvents(eventKeys, eventAxis, 2000);
 
         if(!eventKeys.empty())

@@ -20,9 +20,8 @@ public:
     void setInputsFilter(const std::set<int>& keyCodes, const std::set<int>& axisCodes);
     static InputFilter *getInstance( );
     static int mWidth, mHeight;
-
-protected:
     std::vector<RawEvent> inputRawEvent(RawEvent &events);
+protected:
     std::vector<RawEvent> handleRawEvents(std::vector<RawEvent> &events);
     void handleKeyEvent(RawEvent &event);
     void handleAbsEvent(RawEvent &event);

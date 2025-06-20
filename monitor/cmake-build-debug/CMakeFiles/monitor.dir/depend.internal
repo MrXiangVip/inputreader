@@ -307,6 +307,7 @@ CMakeFiles/monitor.dir/monitor_autogen/mocs_compilation.cpp.o
  /usr/include/x86_64-linux-gnu/qt5/QtWidgets/qwidget.h
 CMakeFiles/monitor.dir/window/mainwindow.cpp.o
  /home/xshx/CLionProjects/monitor/include/EventHub.h
+ /home/xshx/CLionProjects/monitor/mangmi/InputFilter.h
  /home/xshx/CLionProjects/monitor/mangmi/Macros.h
  /home/xshx/CLionProjects/monitor/mangmi/MangmiFlinger.h
  /home/xshx/CLionProjects/monitor/mangmi/MangmiPolicy.h

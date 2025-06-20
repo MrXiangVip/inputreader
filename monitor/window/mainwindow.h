@@ -17,5 +17,14 @@ public:
 
 private:
     Ui::MainWindow *ui;
+    pthread_t flingerThread;
+    pthread_t policyThread;
+private slots:
+    void handleButtonClick();
+
+    void closeEvent(QCloseEvent *event);
+
+
+
 };
 #endif // MAINWINDOW_H

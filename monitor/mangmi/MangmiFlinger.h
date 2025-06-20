@@ -19,6 +19,7 @@ public:
     pthread_t startFlingerThread();
     static void* start(void *args);
     static MangmiFlinger* getInstance();
+    void stop();
 protected:
     void handleKeyEvents(std::vector<RawEvent>& events );
     void handleAxisEvents(std::vector<RawEvent>& events );
@@ -31,7 +32,7 @@ private:
     static MangmiFlinger *instance;//
     static std::vector<RawEvent> eventKeys; //
     static std::vector<RawEvent> eventAxis;//
-
+    static bool running;
 };
 
 

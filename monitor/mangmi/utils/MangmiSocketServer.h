@@ -17,6 +17,7 @@ public:
     bool running;
 
     int startServer();
+    void stop();
 
 private:
     int sockfd;
@@ -30,6 +31,7 @@ private:
     int dealReceivedData(std::string receivedData);
 
     int replyData(std::string requestId, std::string data);
+
 };
 
 

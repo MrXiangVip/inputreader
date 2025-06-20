@@ -50,6 +50,7 @@ public:
     static MangmiPolicy* getInstance();
     int updateIdConfigs( );
     static std::vector<socketReply> vectorReply;
+    void stop();
 protected:
     static void* startMangmiSocket(void *args);
 
@@ -71,7 +72,6 @@ private:
     static std::vector<int> jsRightSlotId;
     static int mWidth;
     static int mHeight;
-
 
     static std::atomic<bool>  AtomicComboThreadExit;
     int assignIdConfig(std::string str, int idAddType);

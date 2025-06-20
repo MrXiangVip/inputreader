@@ -86,7 +86,11 @@ int MangmiSocketServer::createLocalSocketServer(){
     running = true;
     return 0;
 }
-
+void MangmiSocketServer::stop( ){
+    running = false;
+    close( sockfd);
+    return;
+}
 int MangmiSocketServer::startServer( ){
     char buffer[BUFFER_SIZE] = {0};
     while (running) {

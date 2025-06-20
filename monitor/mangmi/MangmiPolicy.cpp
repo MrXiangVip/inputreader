@@ -54,6 +54,12 @@ MangmiPolicy* MangmiPolicy::getInstance( ){
     return instance;
 }
 
+void MangmiPolicy::stop() {
+    MangmiSocketServer::getInstance()->stop();
+    ALOGD("Stop MangmiPolicy");
+    return;
+}
+
 pthread_t MangmiPolicy::startSocketServerThread( ){
     ALOGD("启动策略套接字线程 \n");
     pthread_t sThreadId;
