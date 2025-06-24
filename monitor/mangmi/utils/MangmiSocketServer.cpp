@@ -169,9 +169,10 @@ int MangmiSocketServer::dealReceivedData(std::string receivedData) {
     ALOGI("---data_segments: cRequestId = %s, cSerialNo = %s, cDataLen = %s, cData: %s", cRequestId.c_str(),
           cSerialNo.c_str(), cDataLen.c_str(), cData.c_str());
     if ("1880" == cSerialNo) { //设置当前映射配置
+        MangmiConfig::getInstance()->releaseAllSlots();
         iRet =MangmiConfig::getInstance()->parseJson( cData);
 
-        iRet =MangmiPolicy::getInstance()->updateIdConfigs( );
+//        iRet =MangmiPolicy::getInstance()->updateIdConfigs( );
     }else if( "1881" == cSerialNo){
         iRet = stoi(cRequestId);
     }else if("1882" == cSerialNo ){

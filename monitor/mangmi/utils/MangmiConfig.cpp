@@ -5,6 +5,8 @@
 #include "MangmiConfig.h"
 #include "../json/json.h"
 #include "../Macros.h"
+#include "../InputFilter.h"
+#include "MangmiUtils.h"
 
 MangmiConfig* MangmiConfig::instance= NULL;
 
@@ -23,7 +25,8 @@ bool MangmiConfig::parseJson(std::string  sJson){
     ALOGD("parseJson %s",sJson.c_str());
     Json::Reader reader;
     Json::Value root;
-
+    int joystickSlotIndex =JOYSTICK_SLOT_INDEX;
+    int keySlotIndex = KEY_SLOT_INDEX;
     // 尝试解析 JSON 数据
     if (!reader.parse(sJson, root)) {
         // 如果解析失败，输出错误信息
@@ -66,6 +69,7 @@ bool MangmiConfig::parseJson(std::string  sJson){
             joystickConfig.sensitivityY = item["sensitivityY"].asFloat();
             joystickConfig.speed = item["speed"].asInt();
             joystickConfig.type = item["type"].asInt();
+            joystickConfig.slotId = joystickSlotIndex++;//  slotId 赋值
             gamePadConfig.joystickConfigs.push_back(joystickConfig);
         }
     }
@@ -98,6 +102,7 @@ bool MangmiConfig::parseJson(std::string  sJson){
             keyConfig.sensitivityY = item["sensitivityY"].asFloat();
             keyConfig.speed = item["speed"].asInt();
             keyConfig.type = item["type"].asInt();
+            keyConfig.slotId = keySlotIndex++;//给  keySlotId 赋值
             gamePadConfig.keyConfigs.push_back(keyConfig);
         }
     }
@@ -131,5 +136,14 @@ std::map<int, std::vector<JoystickConfig>> MangmiConfig::getJoystickConfigsMapBy
     return joystickConfigMap;
 }
 
+/* 释放全部的 slotId， 防止屏幕上有多余的点 */
+void MangmiConfig::releaseAllSlots() {
+    for( auto &keyConfig :gamePadConfig.keyConfigs){
+        InputFilter::getInstance()->pushSoftEvent( keyConfig.slotId, TOUCH_UP, 0,0 );
+    }
+    for(auto &joystickConfig:gamePadConfig.joystickConfigs){
+        InputFilter::getInstance()->pushSoftEvent( joystickConfig.slotId, TOUCH_UP,0, 0);
+    }
+}
 
 

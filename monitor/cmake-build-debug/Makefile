@@ -210,32 +210,32 @@ mangmi/InputFilter.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/monitor.dir/build.make CMakeFiles/monitor.dir/mangmi/InputFilter.cpp.s
 .PHONY : mangmi/InputFilter.cpp.s
 
-mangmi/MangmiFlinger.o: mangmi/MangmiFlinger.cpp.o
+mangmi/MangmiEvent.o: mangmi/MangmiEvent.cpp.o
 
-.PHONY : mangmi/MangmiFlinger.o
+.PHONY : mangmi/MangmiEvent.o
 
 # target to build an object file
-mangmi/MangmiFlinger.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/monitor.dir/build.make CMakeFiles/monitor.dir/mangmi/MangmiFlinger.cpp.o
-.PHONY : mangmi/MangmiFlinger.cpp.o
+mangmi/MangmiEvent.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/monitor.dir/build.make CMakeFiles/monitor.dir/mangmi/MangmiEvent.cpp.o
+.PHONY : mangmi/MangmiEvent.cpp.o
 
-mangmi/MangmiFlinger.i: mangmi/MangmiFlinger.cpp.i
+mangmi/MangmiEvent.i: mangmi/MangmiEvent.cpp.i
 
-.PHONY : mangmi/MangmiFlinger.i
+.PHONY : mangmi/MangmiEvent.i
 
 # target to preprocess a source file
-mangmi/MangmiFlinger.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/monitor.dir/build.make CMakeFiles/monitor.dir/mangmi/MangmiFlinger.cpp.i
-.PHONY : mangmi/MangmiFlinger.cpp.i
+mangmi/MangmiEvent.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/monitor.dir/build.make CMakeFiles/monitor.dir/mangmi/MangmiEvent.cpp.i
+.PHONY : mangmi/MangmiEvent.cpp.i
 
-mangmi/MangmiFlinger.s: mangmi/MangmiFlinger.cpp.s
+mangmi/MangmiEvent.s: mangmi/MangmiEvent.cpp.s
 
-.PHONY : mangmi/MangmiFlinger.s
+.PHONY : mangmi/MangmiEvent.s
 
 # target to generate assembly for a file
-mangmi/MangmiFlinger.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/monitor.dir/build.make CMakeFiles/monitor.dir/mangmi/MangmiFlinger.cpp.s
-.PHONY : mangmi/MangmiFlinger.cpp.s
+mangmi/MangmiEvent.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/monitor.dir/build.make CMakeFiles/monitor.dir/mangmi/MangmiEvent.cpp.s
+.PHONY : mangmi/MangmiEvent.cpp.s
 
 mangmi/MangmiPolicy.o: mangmi/MangmiPolicy.cpp.o
 
@@ -523,9 +523,9 @@ help:
 	@echo "... mangmi/InputFilter.o"
 	@echo "... mangmi/InputFilter.i"
 	@echo "... mangmi/InputFilter.s"
-	@echo "... mangmi/MangmiFlinger.o"
-	@echo "... mangmi/MangmiFlinger.i"
-	@echo "... mangmi/MangmiFlinger.s"
+	@echo "... mangmi/MangmiEvent.o"
+	@echo "... mangmi/MangmiEvent.i"
+	@echo "... mangmi/MangmiEvent.s"
 	@echo "... mangmi/MangmiPolicy.o"
 	@echo "... mangmi/MangmiPolicy.i"
 	@echo "... mangmi/MangmiPolicy.s"

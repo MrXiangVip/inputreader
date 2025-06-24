@@ -122,10 +122,10 @@
 		<Unit filename="/home/xshx/CLionProjects/monitor/mangmi/InputFilter.h">
 			<Option target="monitor"/>
 		</Unit>
-		<Unit filename="/home/xshx/CLionProjects/monitor/mangmi/MangmiFlinger.cpp">
+		<Unit filename="/home/xshx/CLionProjects/monitor/mangmi/MangmiEvent.cpp">
 			<Option target="monitor"/>
 		</Unit>
-		<Unit filename="/home/xshx/CLionProjects/monitor/mangmi/MangmiFlinger.h">
+		<Unit filename="/home/xshx/CLionProjects/monitor/mangmi/MangmiEvent.h">
 			<Option target="monitor"/>
 		</Unit>
 		<Unit filename="/home/xshx/CLionProjects/monitor/mangmi/MangmiPolicy.cpp">

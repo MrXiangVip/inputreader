@@ -126,12 +126,12 @@ CMakeFiles/monitor.dir/mangmi/InputFilter.cpp.o
  /home/xshx/CLionProjects/monitor/mangmi/InputFilter.h
  /home/xshx/CLionProjects/monitor/mangmi/Macros.h
  /home/xshx/CLionProjects/monitor/mangmi/utils/MangmiUtils.h
-CMakeFiles/monitor.dir/mangmi/MangmiFlinger.cpp.o
+CMakeFiles/monitor.dir/mangmi/MangmiEvent.cpp.o
  /home/xshx/CLionProjects/monitor/include/EventHub.h
  /home/xshx/CLionProjects/monitor/mangmi/InputFilter.h
  /home/xshx/CLionProjects/monitor/mangmi/Macros.h
- /home/xshx/CLionProjects/monitor/mangmi/MangmiFlinger.cpp
- /home/xshx/CLionProjects/monitor/mangmi/MangmiFlinger.h
+ /home/xshx/CLionProjects/monitor/mangmi/MangmiEvent.cpp
+ /home/xshx/CLionProjects/monitor/mangmi/MangmiEvent.h
  /home/xshx/CLionProjects/monitor/mangmi/MangmiPolicy.h
  /home/xshx/CLionProjects/monitor/mangmi/utils/MangmiConfig.h
  /home/xshx/CLionProjects/monitor/mangmi/utils/MangmiSocketClient.h
@@ -141,7 +141,7 @@ CMakeFiles/monitor.dir/mangmi/MangmiPolicy.cpp.o
  /home/xshx/CLionProjects/monitor/include/EventHub.h
  /home/xshx/CLionProjects/monitor/mangmi/InputFilter.h
  /home/xshx/CLionProjects/monitor/mangmi/Macros.h
- /home/xshx/CLionProjects/monitor/mangmi/MangmiFlinger.h
+ /home/xshx/CLionProjects/monitor/mangmi/MangmiEvent.h
  /home/xshx/CLionProjects/monitor/mangmi/MangmiPolicy.cpp
  /home/xshx/CLionProjects/monitor/mangmi/MangmiPolicy.h
  /home/xshx/CLionProjects/monitor/mangmi/json/json.h
@@ -155,15 +155,18 @@ CMakeFiles/monitor.dir/mangmi/json/jsoncpp.cpp.o
  /home/xshx/CLionProjects/monitor/mangmi/json/json.h
  /home/xshx/CLionProjects/monitor/mangmi/json/jsoncpp.cpp
 CMakeFiles/monitor.dir/mangmi/utils/MangmiConfig.cpp.o
+ /home/xshx/CLionProjects/monitor/include/EventHub.h
+ /home/xshx/CLionProjects/monitor/mangmi/InputFilter.h
  /home/xshx/CLionProjects/monitor/mangmi/Macros.h
  /home/xshx/CLionProjects/monitor/mangmi/json/json.h
  /home/xshx/CLionProjects/monitor/mangmi/utils/MangmiConfig.cpp
  /home/xshx/CLionProjects/monitor/mangmi/utils/MangmiConfig.h
+ /home/xshx/CLionProjects/monitor/mangmi/utils/MangmiUtils.h
 CMakeFiles/monitor.dir/mangmi/utils/MangmiIntercepter.cpp.o
  /home/xshx/CLionProjects/monitor/include/EventHub.h
  /home/xshx/CLionProjects/monitor/mangmi/InputFilter.h
  /home/xshx/CLionProjects/monitor/mangmi/Macros.h
- /home/xshx/CLionProjects/monitor/mangmi/MangmiFlinger.h
+ /home/xshx/CLionProjects/monitor/mangmi/MangmiEvent.h
  /home/xshx/CLionProjects/monitor/mangmi/MangmiPolicy.h
  /home/xshx/CLionProjects/monitor/mangmi/utils/MangmiConfig.h
  /home/xshx/CLionProjects/monitor/mangmi/utils/MangmiIntercepter.cpp
@@ -178,7 +181,7 @@ CMakeFiles/monitor.dir/mangmi/utils/MangmiSocketClient.cpp.o
 CMakeFiles/monitor.dir/mangmi/utils/MangmiSocketServer.cpp.o
  /home/xshx/CLionProjects/monitor/include/EventHub.h
  /home/xshx/CLionProjects/monitor/mangmi/Macros.h
- /home/xshx/CLionProjects/monitor/mangmi/MangmiFlinger.h
+ /home/xshx/CLionProjects/monitor/mangmi/MangmiEvent.h
  /home/xshx/CLionProjects/monitor/mangmi/MangmiPolicy.h
  /home/xshx/CLionProjects/monitor/mangmi/utils/MangmiConfig.h
  /home/xshx/CLionProjects/monitor/mangmi/utils/MangmiIntercepter.h
@@ -309,7 +312,7 @@ CMakeFiles/monitor.dir/window/mainwindow.cpp.o
  /home/xshx/CLionProjects/monitor/include/EventHub.h
  /home/xshx/CLionProjects/monitor/mangmi/InputFilter.h
  /home/xshx/CLionProjects/monitor/mangmi/Macros.h
- /home/xshx/CLionProjects/monitor/mangmi/MangmiFlinger.h
+ /home/xshx/CLionProjects/monitor/mangmi/MangmiEvent.h
  /home/xshx/CLionProjects/monitor/mangmi/MangmiPolicy.h
  /home/xshx/CLionProjects/monitor/mangmi/utils/MangmiConfig.h
  /home/xshx/CLionProjects/monitor/mangmi/utils/MangmiSocketClient.h

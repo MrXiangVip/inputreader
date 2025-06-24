@@ -12,7 +12,7 @@ set(REQUIRED_LIBS_QUALIFIED Qt5::Core Qt5::Gui Qt5::Widgets)
 
 add_executable(${PROJECT_NAME} main.cpp
         window/mainwindow.cpp window/mainwindow.ui
-        mangmi/MangmiFlinger.cpp mangmi/MangmiPolicy.cpp
+        mangmi/MangmiEvent.cpp mangmi/MangmiPolicy.cpp
         mangmi/utils/MiThreadPool.cpp  mangmi/utils/MiThreadPool.h
         mangmi/utils/MangmiSocketClient.cpp mangmi/utils/MangmiSocketClient.h
         mangmi/utils/MangmiUtils.cpp  mangmi/utils/MangmiUtils.h

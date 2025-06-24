@@ -116,18 +116,18 @@ CMakeFiles/monitor.dir/window/mainwindow.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/monitor.dir/window/mainwindow.cpp.s"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/xshx/CLionProjects/monitor/window/mainwindow.cpp -o CMakeFiles/monitor.dir/window/mainwindow.cpp.s
 
-CMakeFiles/monitor.dir/mangmi/MangmiFlinger.cpp.o: CMakeFiles/monitor.dir/flags.make
-CMakeFiles/monitor.dir/mangmi/MangmiFlinger.cpp.o: ../mangmi/MangmiFlinger.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/xshx/CLionProjects/monitor/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/monitor.dir/mangmi/MangmiFlinger.cpp.o"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/monitor.dir/mangmi/MangmiFlinger.cpp.o -c /home/xshx/CLionProjects/monitor/mangmi/MangmiFlinger.cpp
+CMakeFiles/monitor.dir/mangmi/MangmiEvent.cpp.o: CMakeFiles/monitor.dir/flags.make
+CMakeFiles/monitor.dir/mangmi/MangmiEvent.cpp.o: ../mangmi/MangmiEvent.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/xshx/CLionProjects/monitor/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/monitor.dir/mangmi/MangmiEvent.cpp.o"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/monitor.dir/mangmi/MangmiEvent.cpp.o -c /home/xshx/CLionProjects/monitor/mangmi/MangmiEvent.cpp
 
-CMakeFiles/monitor.dir/mangmi/MangmiFlinger.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/monitor.dir/mangmi/MangmiFlinger.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/xshx/CLionProjects/monitor/mangmi/MangmiFlinger.cpp > CMakeFiles/monitor.dir/mangmi/MangmiFlinger.cpp.i
+CMakeFiles/monitor.dir/mangmi/MangmiEvent.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/monitor.dir/mangmi/MangmiEvent.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/xshx/CLionProjects/monitor/mangmi/MangmiEvent.cpp > CMakeFiles/monitor.dir/mangmi/MangmiEvent.cpp.i
 
-CMakeFiles/monitor.dir/mangmi/MangmiFlinger.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/monitor.dir/mangmi/MangmiFlinger.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/xshx/CLionProjects/monitor/mangmi/MangmiFlinger.cpp -o CMakeFiles/monitor.dir/mangmi/MangmiFlinger.cpp.s
+CMakeFiles/monitor.dir/mangmi/MangmiEvent.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/monitor.dir/mangmi/MangmiEvent.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/xshx/CLionProjects/monitor/mangmi/MangmiEvent.cpp -o CMakeFiles/monitor.dir/mangmi/MangmiEvent.cpp.s
 
 CMakeFiles/monitor.dir/mangmi/MangmiPolicy.cpp.o: CMakeFiles/monitor.dir/flags.make
 CMakeFiles/monitor.dir/mangmi/MangmiPolicy.cpp.o: ../mangmi/MangmiPolicy.cpp
@@ -251,7 +251,7 @@ monitor_OBJECTS = \
 "CMakeFiles/monitor.dir/monitor_autogen/mocs_compilation.cpp.o" \
 "CMakeFiles/monitor.dir/main.cpp.o" \
 "CMakeFiles/monitor.dir/window/mainwindow.cpp.o" \
-"CMakeFiles/monitor.dir/mangmi/MangmiFlinger.cpp.o" \
+"CMakeFiles/monitor.dir/mangmi/MangmiEvent.cpp.o" \
 "CMakeFiles/monitor.dir/mangmi/MangmiPolicy.cpp.o" \
 "CMakeFiles/monitor.dir/mangmi/utils/MiThreadPool.cpp.o" \
 "CMakeFiles/monitor.dir/mangmi/utils/MangmiSocketClient.cpp.o" \
@@ -268,7 +268,7 @@ monitor_EXTERNAL_OBJECTS =
 monitor: CMakeFiles/monitor.dir/monitor_autogen/mocs_compilation.cpp.o
 monitor: CMakeFiles/monitor.dir/main.cpp.o
 monitor: CMakeFiles/monitor.dir/window/mainwindow.cpp.o
-monitor: CMakeFiles/monitor.dir/mangmi/MangmiFlinger.cpp.o
+monitor: CMakeFiles/monitor.dir/mangmi/MangmiEvent.cpp.o
 monitor: CMakeFiles/monitor.dir/mangmi/MangmiPolicy.cpp.o
 monitor: CMakeFiles/monitor.dir/mangmi/utils/MiThreadPool.cpp.o
 monitor: CMakeFiles/monitor.dir/mangmi/utils/MangmiSocketClient.cpp.o

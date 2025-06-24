@@ -89,9 +89,9 @@
 			"J35ZWY7OQW/moc_InputFilter.cpp"
 		],
 		[
-			"/home/xshx/CLionProjects/monitor/mangmi/MangmiFlinger.h",
+			"/home/xshx/CLionProjects/monitor/mangmi/MangmiEvent.h",
 			"MU",
-			"J35ZWY7OQW/moc_MangmiFlinger.cpp"
+			"J35ZWY7OQW/moc_MangmiEvent.cpp"
 		],
 		[
 			"/home/xshx/CLionProjects/monitor/mangmi/MangmiPolicy.h",
@@ -186,7 +186,7 @@
 	[
 		[ "/home/xshx/CLionProjects/monitor/main.cpp", "MU" ],
 		[ "/home/xshx/CLionProjects/monitor/mangmi/InputFilter.cpp", "MU" ],
-		[ "/home/xshx/CLionProjects/monitor/mangmi/MangmiFlinger.cpp", "MU" ],
+		[ "/home/xshx/CLionProjects/monitor/mangmi/MangmiEvent.cpp", "MU" ],
 		[ "/home/xshx/CLionProjects/monitor/mangmi/MangmiPolicy.cpp", "MU" ],
 		[ "/home/xshx/CLionProjects/monitor/mangmi/json/jsoncpp.cpp", "MU" ],
 		[

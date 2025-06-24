@@ -126,21 +126,21 @@ CMakeFiles/monitor.dir/mangmi/InputFilter.cpp.o: ../mangmi/InputFilter.h
 CMakeFiles/monitor.dir/mangmi/InputFilter.cpp.o: ../mangmi/Macros.h
 CMakeFiles/monitor.dir/mangmi/InputFilter.cpp.o: ../mangmi/utils/MangmiUtils.h
 
-CMakeFiles/monitor.dir/mangmi/MangmiFlinger.cpp.o: ../include/EventHub.h
-CMakeFiles/monitor.dir/mangmi/MangmiFlinger.cpp.o: ../mangmi/InputFilter.h
-CMakeFiles/monitor.dir/mangmi/MangmiFlinger.cpp.o: ../mangmi/Macros.h
-CMakeFiles/monitor.dir/mangmi/MangmiFlinger.cpp.o: ../mangmi/MangmiFlinger.cpp
-CMakeFiles/monitor.dir/mangmi/MangmiFlinger.cpp.o: ../mangmi/MangmiFlinger.h
-CMakeFiles/monitor.dir/mangmi/MangmiFlinger.cpp.o: ../mangmi/MangmiPolicy.h
-CMakeFiles/monitor.dir/mangmi/MangmiFlinger.cpp.o: ../mangmi/utils/MangmiConfig.h
-CMakeFiles/monitor.dir/mangmi/MangmiFlinger.cpp.o: ../mangmi/utils/MangmiSocketClient.h
-CMakeFiles/monitor.dir/mangmi/MangmiFlinger.cpp.o: ../mangmi/utils/MangmiUtils.h
-CMakeFiles/monitor.dir/mangmi/MangmiFlinger.cpp.o: ../mangmi/utils/MiThreadPool.h
+CMakeFiles/monitor.dir/mangmi/MangmiEvent.cpp.o: ../include/EventHub.h
+CMakeFiles/monitor.dir/mangmi/MangmiEvent.cpp.o: ../mangmi/InputFilter.h
+CMakeFiles/monitor.dir/mangmi/MangmiEvent.cpp.o: ../mangmi/Macros.h
+CMakeFiles/monitor.dir/mangmi/MangmiEvent.cpp.o: ../mangmi/MangmiEvent.cpp
+CMakeFiles/monitor.dir/mangmi/MangmiEvent.cpp.o: ../mangmi/MangmiEvent.h
+CMakeFiles/monitor.dir/mangmi/MangmiEvent.cpp.o: ../mangmi/MangmiPolicy.h
+CMakeFiles/monitor.dir/mangmi/MangmiEvent.cpp.o: ../mangmi/utils/MangmiConfig.h
+CMakeFiles/monitor.dir/mangmi/MangmiEvent.cpp.o: ../mangmi/utils/MangmiSocketClient.h
+CMakeFiles/monitor.dir/mangmi/MangmiEvent.cpp.o: ../mangmi/utils/MangmiUtils.h
+CMakeFiles/monitor.dir/mangmi/MangmiEvent.cpp.o: ../mangmi/utils/MiThreadPool.h
 
 CMakeFiles/monitor.dir/mangmi/MangmiPolicy.cpp.o: ../include/EventHub.h
 CMakeFiles/monitor.dir/mangmi/MangmiPolicy.cpp.o: ../mangmi/InputFilter.h
 CMakeFiles/monitor.dir/mangmi/MangmiPolicy.cpp.o: ../mangmi/Macros.h
-CMakeFiles/monitor.dir/mangmi/MangmiPolicy.cpp.o: ../mangmi/MangmiFlinger.h
+CMakeFiles/monitor.dir/mangmi/MangmiPolicy.cpp.o: ../mangmi/MangmiEvent.h
 CMakeFiles/monitor.dir/mangmi/MangmiPolicy.cpp.o: ../mangmi/MangmiPolicy.cpp
 CMakeFiles/monitor.dir/mangmi/MangmiPolicy.cpp.o: ../mangmi/MangmiPolicy.h
 CMakeFiles/monitor.dir/mangmi/MangmiPolicy.cpp.o: ../mangmi/json/json.h
@@ -154,15 +154,18 @@ CMakeFiles/monitor.dir/mangmi/MangmiPolicy.cpp.o: ../mangmi/utils/MiThreadPool.h
 CMakeFiles/monitor.dir/mangmi/json/jsoncpp.cpp.o: ../mangmi/json/json.h
 CMakeFiles/monitor.dir/mangmi/json/jsoncpp.cpp.o: ../mangmi/json/jsoncpp.cpp
 
+CMakeFiles/monitor.dir/mangmi/utils/MangmiConfig.cpp.o: ../include/EventHub.h
+CMakeFiles/monitor.dir/mangmi/utils/MangmiConfig.cpp.o: ../mangmi/InputFilter.h
 CMakeFiles/monitor.dir/mangmi/utils/MangmiConfig.cpp.o: ../mangmi/Macros.h
 CMakeFiles/monitor.dir/mangmi/utils/MangmiConfig.cpp.o: ../mangmi/json/json.h
 CMakeFiles/monitor.dir/mangmi/utils/MangmiConfig.cpp.o: ../mangmi/utils/MangmiConfig.cpp
 CMakeFiles/monitor.dir/mangmi/utils/MangmiConfig.cpp.o: ../mangmi/utils/MangmiConfig.h
+CMakeFiles/monitor.dir/mangmi/utils/MangmiConfig.cpp.o: ../mangmi/utils/MangmiUtils.h
 
 CMakeFiles/monitor.dir/mangmi/utils/MangmiIntercepter.cpp.o: ../include/EventHub.h
 CMakeFiles/monitor.dir/mangmi/utils/MangmiIntercepter.cpp.o: ../mangmi/InputFilter.h
 CMakeFiles/monitor.dir/mangmi/utils/MangmiIntercepter.cpp.o: ../mangmi/Macros.h
-CMakeFiles/monitor.dir/mangmi/utils/MangmiIntercepter.cpp.o: ../mangmi/MangmiFlinger.h
+CMakeFiles/monitor.dir/mangmi/utils/MangmiIntercepter.cpp.o: ../mangmi/MangmiEvent.h
 CMakeFiles/monitor.dir/mangmi/utils/MangmiIntercepter.cpp.o: ../mangmi/MangmiPolicy.h
 CMakeFiles/monitor.dir/mangmi/utils/MangmiIntercepter.cpp.o: ../mangmi/utils/MangmiConfig.h
 CMakeFiles/monitor.dir/mangmi/utils/MangmiIntercepter.cpp.o: ../mangmi/utils/MangmiIntercepter.cpp
@@ -177,7 +180,7 @@ CMakeFiles/monitor.dir/mangmi/utils/MangmiSocketClient.cpp.o: ../mangmi/utils/Ma
 
 CMakeFiles/monitor.dir/mangmi/utils/MangmiSocketServer.cpp.o: ../include/EventHub.h
 CMakeFiles/monitor.dir/mangmi/utils/MangmiSocketServer.cpp.o: ../mangmi/Macros.h
-CMakeFiles/monitor.dir/mangmi/utils/MangmiSocketServer.cpp.o: ../mangmi/MangmiFlinger.h
+CMakeFiles/monitor.dir/mangmi/utils/MangmiSocketServer.cpp.o: ../mangmi/MangmiEvent.h
 CMakeFiles/monitor.dir/mangmi/utils/MangmiSocketServer.cpp.o: ../mangmi/MangmiPolicy.h
 CMakeFiles/monitor.dir/mangmi/utils/MangmiSocketServer.cpp.o: ../mangmi/utils/MangmiConfig.h
 CMakeFiles/monitor.dir/mangmi/utils/MangmiSocketServer.cpp.o: ../mangmi/utils/MangmiIntercepter.h
@@ -308,7 +311,7 @@ CMakeFiles/monitor.dir/monitor_autogen/mocs_compilation.cpp.o: /usr/include/x86_
 CMakeFiles/monitor.dir/window/mainwindow.cpp.o: ../include/EventHub.h
 CMakeFiles/monitor.dir/window/mainwindow.cpp.o: ../mangmi/InputFilter.h
 CMakeFiles/monitor.dir/window/mainwindow.cpp.o: ../mangmi/Macros.h
-CMakeFiles/monitor.dir/window/mainwindow.cpp.o: ../mangmi/MangmiFlinger.h
+CMakeFiles/monitor.dir/window/mainwindow.cpp.o: ../mangmi/MangmiEvent.h
 CMakeFiles/monitor.dir/window/mainwindow.cpp.o: ../mangmi/MangmiPolicy.h
 CMakeFiles/monitor.dir/window/mainwindow.cpp.o: ../mangmi/utils/MangmiConfig.h
 CMakeFiles/monitor.dir/window/mainwindow.cpp.o: ../mangmi/utils/MangmiSocketClient.h

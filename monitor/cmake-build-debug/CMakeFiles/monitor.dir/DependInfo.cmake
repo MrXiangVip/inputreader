@@ -6,7 +6,7 @@ set(CMAKE_DEPENDS_LANGUAGES
 set(CMAKE_DEPENDS_CHECK_CXX
   "/home/xshx/CLionProjects/monitor/main.cpp" "/home/xshx/CLionProjects/monitor/cmake-build-debug/CMakeFiles/monitor.dir/main.cpp.o"
   "/home/xshx/CLionProjects/monitor/mangmi/InputFilter.cpp" "/home/xshx/CLionProjects/monitor/cmake-build-debug/CMakeFiles/monitor.dir/mangmi/InputFilter.cpp.o"
-  "/home/xshx/CLionProjects/monitor/mangmi/MangmiFlinger.cpp" "/home/xshx/CLionProjects/monitor/cmake-build-debug/CMakeFiles/monitor.dir/mangmi/MangmiFlinger.cpp.o"
+  "/home/xshx/CLionProjects/monitor/mangmi/MangmiEvent.cpp" "/home/xshx/CLionProjects/monitor/cmake-build-debug/CMakeFiles/monitor.dir/mangmi/MangmiEvent.cpp.o"
   "/home/xshx/CLionProjects/monitor/mangmi/MangmiPolicy.cpp" "/home/xshx/CLionProjects/monitor/cmake-build-debug/CMakeFiles/monitor.dir/mangmi/MangmiPolicy.cpp.o"
   "/home/xshx/CLionProjects/monitor/mangmi/json/jsoncpp.cpp" "/home/xshx/CLionProjects/monitor/cmake-build-debug/CMakeFiles/monitor.dir/mangmi/json/jsoncpp.cpp.o"
   "/home/xshx/CLionProjects/monitor/mangmi/utils/MangmiConfig.cpp" "/home/xshx/CLionProjects/monitor/cmake-build-debug/CMakeFiles/monitor.dir/mangmi/utils/MangmiConfig.cpp.o"

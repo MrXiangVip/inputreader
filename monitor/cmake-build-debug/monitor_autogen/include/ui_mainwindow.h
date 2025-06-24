@@ -106,10 +106,10 @@ public:
     void retranslateUi(QMainWindow *MainWindow)
     {
         MainWindow->setWindowTitle(QCoreApplication::translate("MainWindow", "MainWindow", nullptr));
-        pushButton_10->setText(QCoreApplication::translate("MainWindow", "PushButton", nullptr));
+        pushButton_10->setText(QCoreApplication::translate("MainWindow", "右摇杆", nullptr));
         pushButton_2->setText(QCoreApplication::translate("MainWindow", "<", nullptr));
         pushButton_7->setText(QCoreApplication::translate("MainWindow", "B", nullptr));
-        pushButton_9->setText(QCoreApplication::translate("MainWindow", "PushButton", nullptr));
+        pushButton_9->setText(QCoreApplication::translate("MainWindow", "左摇杆", nullptr));
         pushButton->setText(QCoreApplication::translate("MainWindow", "^", nullptr));
         pushButton_4->setText(QCoreApplication::translate("MainWindow", "v", nullptr));
         pushButton_8->setText(QCoreApplication::translate("MainWindow", "A", nullptr));

@@ -393,7 +393,8 @@ void MangmiPolicy::touchScreenJoystick(RawEvent event,  std::vector<JoystickConf
                 isAxisLeftDown =false;
                 isLeftDown =false;
                 for(int i=0; i<joystickConfigs.size(); i++){
-                    int slotId = getSlotIdFromIdConfig("joystickConfigs", i + joystickConfigs[i].id+ joystickConfigs[i].type);
+//                    int slotId = getSlotIdFromIdConfig("joystickConfigs", i + joystickConfigs[i].id+ joystickConfigs[i].type);
+                    int slotId = joystickConfigs[i].slotId;
                     ALOGD("slotId:%d, TOUCH_UP", slotId);
                     InputFilter::getInstance()->pushSoftEvent(slotId, TOUCH_UP, 0, 0);
                 }
@@ -418,7 +419,8 @@ void MangmiPolicy::touchScreenJoystick(RawEvent event,  std::vector<JoystickConf
 
                 int x = (int)((double)axisX / 32768.0 * fRadius * fSenX + fCenterX);
                 int y = (int)((double)axisY / 32768.0 * fRadius * fSenY + fCenterY);
-                int slotId = getSlotIdFromIdConfig("joystickConfigs", i + joystickConfig.id+ joystickConfig.type);
+//                int slotId = getSlotIdFromIdConfig("joystickConfigs", i + joystickConfig.id+ joystickConfig.type);
+                int slotId = joystickConfigs[i].slotId;
                 ALOGD("slotId:%d, TOUCH_DOWN x:%d, y:%d", slotId, x, y);
                 InputFilter::getInstance()->pushSoftEvent( slotId, TOUCH_DOWN, x, y);
             }
@@ -435,7 +437,8 @@ void MangmiPolicy::touchScreenJoystick(RawEvent event,  std::vector<JoystickConf
                     float fCenterY = mHeight - mHeight * joystickConfig.centerX;
                     int x = (int)((double)axisX / 32768.0 * fRadius * fSenX + fCenterX);
                     int y = (int)((double)axisY / 32768.0 * fRadius * fSenY + fCenterY);
-                    int slotId = getSlotIdFromIdConfig("joystickConfigs", i + joystickConfig.id+ joystickConfig.type);
+//                    int slotId = getSlotIdFromIdConfig("joystickConfigs", i + joystickConfig.id+ joystickConfig.type);
+                    int slotId = joystickConfigs[i].slotId;
                     ALOGD("slotId:%d, TOUCH_MOVE x:%d, y:%d", slotId, x, y);
                     InputFilter::getInstance()->pushSoftEvent( slotId, TOUCH_MOVE, x, y);
                 }
@@ -509,17 +512,18 @@ void MangmiPolicy::touchScreensStandardClick( RawEvent &event,int type, std::vec
     ALOGD("touchScreensStandardClick deviceId:%d, type:%d, code:%d, value:%d, sizeof keyConfig:%d", event.deviceId, event.type, event.code, event.value, keyConfigs.size());
     int tmpInputId= MangmiUtils::getInputIdFromEvcode( event.code);
     if( tmpInputId==0){return ;}
-    std::vector<int>  slotIds =getSlotIdFromKeySlotConfig( tmpInputId, type );
-    if( slotIds.size()==0){return;}
+//    std::vector<int>  slotIds =getSlotIdFromKeySlotConfig( tmpInputId, type );
+    if( keyConfigs.size()==0){return;}
     for(int i=0; i<keyConfigs.size();i++){
         const auto &keyConfig = keyConfigs[i];
         float centerX = keyConfig.centerX;
         float centerY = keyConfig.centerY;
         if( event.value == 1){
-
-            InputFilter::getInstance()->pushSoftEvent(slotIds[i], TOUCH_DOWN, centerX, centerY);
+//            InputFilter::getInstance()->pushSoftEvent(slotIds[i], TOUCH_DOWN, centerX, centerY);
+            InputFilter::getInstance()->pushSoftEvent(keyConfig.slotId, TOUCH_DOWN, centerX, centerY);
         }else if( event.value == 0){
-            InputFilter::getInstance()->pushSoftEvent(slotIds[i], TOUCH_UP, centerX, centerY);
+//            InputFilter::getInstance()->pushSoftEvent(slotIds[i], TOUCH_UP, centerX, centerY);
+            InputFilter::getInstance()->pushSoftEvent(keyConfig.slotId, TOUCH_UP, centerX, centerY);
         }
     }
 }

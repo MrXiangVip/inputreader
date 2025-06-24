@@ -9,6 +9,9 @@
 #include <vector>
 #include <map>
 
+#define KEY_SLOT_INDEX 60
+#define JOYSTICK_SLOT_INDEX 100
+
 struct JoystickConfig {
     float centerX;
     float centerY;
@@ -23,6 +26,7 @@ struct JoystickConfig {
     float sensitivityY;
     int speed;
     int type;
+    int slotId;//增加一个slotID 的字段
 };
 
 struct KeyConfig {
@@ -44,6 +48,7 @@ struct KeyConfig {
     float sensitivityY;
     int speed;
     int type;
+    int slotId;//增加一个slotID 的字段
 };
 struct GamepadConfig {
     float alpha;
@@ -60,6 +65,7 @@ struct GamepadConfig {
     int version;
 };
 
+
 class MangmiConfig {
 
 public:
@@ -70,7 +76,7 @@ public:
 
     std::map<int, std::vector<KeyConfig>> getKeyConfigsMapByInputId(int inputId);//  将全部配置 先按照inputId 再按照type分类
     std::map<int, std::vector<JoystickConfig>> getJoystickConfigsMapByInputId(int inputId);
-
+    void releaseAllSlots();
 private:
     GamepadConfig  gamePadConfig;
     static MangmiConfig *instance;

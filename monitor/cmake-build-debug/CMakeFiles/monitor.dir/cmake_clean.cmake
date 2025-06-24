@@ -4,7 +4,7 @@ file(REMOVE_RECURSE
   "monitor_autogen"
   "CMakeFiles/monitor.dir/main.cpp.o"
   "CMakeFiles/monitor.dir/mangmi/InputFilter.cpp.o"
-  "CMakeFiles/monitor.dir/mangmi/MangmiFlinger.cpp.o"
+  "CMakeFiles/monitor.dir/mangmi/MangmiEvent.cpp.o"
   "CMakeFiles/monitor.dir/mangmi/MangmiPolicy.cpp.o"
   "CMakeFiles/monitor.dir/mangmi/json/jsoncpp.cpp.o"
   "CMakeFiles/monitor.dir/mangmi/utils/MangmiConfig.cpp.o"
