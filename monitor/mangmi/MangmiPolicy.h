@@ -90,17 +90,17 @@ private:
 
     void absBreak(RawEvent &event);
 
-    void convertToStandardTouchClick(RawEvent &event, int type, std::vector<KeyConfig> keyConfig);
+    void touchScreensStandardClick(RawEvent &event, int type, std::vector<KeyConfig> keyConfig);
 
     std::vector<int> getSlotIdFromKeySlotConfig(int id, int type);
 
-    void convertToStandardKeyboardClick(RawEvent &event, int type, std::vector<KeyConfig> keyConfigs);
+    void standardKeyClick(RawEvent &event, int type, std::vector<KeyConfig> keyConfigs);
 
-    void convertToStandardKeyboardComboClick(RawEvent &event, int type, std::vector<KeyConfig> keyConfigs);
+    void standardKeyComboClick(RawEvent &event, int type, std::vector<KeyConfig> keyConfigs);
 
     static void keyBoardComboClick(RawEvent rawEvent, KeyConfig keyConfig);
 
-    void gamePadLeftJoystick(RawEvent event, int i, vector<JoystickConfig> joystickConfigs);
+    void touchScreenJoystick(RawEvent event,  vector<JoystickConfig> joystickConfigs);
 };
 
 

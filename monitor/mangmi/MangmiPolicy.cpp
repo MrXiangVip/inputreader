@@ -115,6 +115,9 @@ int MangmiPolicy::updateIdConfigs( ){
             assignKeySlotConfig( eventConfig.keyConfigs[i].id, eventConfig.keyConfigs[i].type );
         }
     }
+
+
+    return 0;
 }
 
 int MangmiPolicy::assignIdConfig(std::string str, int idAddType){
@@ -248,10 +251,10 @@ void MangmiPolicy::buildKeyEvent( RawEvent event){
             case KEY_CATEGORY_GAMEPAD://
                 break;
             case KEY_TYPE_GAMEPAD_CLICK_STANDARD:// 处理成物理按键 按击事件
-                convertToStandardKeyboardClick(event, KEY_TYPE_GAMEPAD_CLICK_STANDARD, keyConfigs);
+                standardKeyClick(event, KEY_TYPE_GAMEPAD_CLICK_STANDARD, keyConfigs);
                 break;
             case KEY_TYPE_GAMEPAD_CLICK_TURBO: // 处理成物理按键 连续按击事件
-                convertToStandardKeyboardComboClick( event, KEY_TYPE_GAMEPAD_CLICK_TURBO, keyConfigs);
+                standardKeyComboClick( event, KEY_TYPE_GAMEPAD_CLICK_TURBO, keyConfigs);
                 break;
             case KEY_CATEGORY_KEYBOARD://
                 break;
@@ -260,7 +263,7 @@ void MangmiPolicy::buildKeyEvent( RawEvent event){
             case KEY_CATEGORY_TOUCHSCREEN:
                 break;
             case KEY_TYPE_TOUCHSCREEN_CLICK_STANDARD:// 屏幕点击
-                convertToStandardTouchClick(event, KEY_TYPE_TOUCHSCREEN_CLICK_STANDARD,keyConfigs);
+                touchScreensStandardClick(event, KEY_TYPE_TOUCHSCREEN_CLICK_STANDARD,keyConfigs);
                 break;
             case KEY_CATEGORY_MOBA:// 指向性技能
                 break;
@@ -314,7 +317,7 @@ void MangmiPolicy::leftJoystick(RawEvent& event){
             case JOYSTICK_CATEGORY_GAMEPAD:
                 break;
             case JOYSTICK_TYPE_TOUCHSCREEN_JOYSTICK://虚拟摇杆
-                gamePadLeftJoystick(event,JOYSTICK_TYPE_GAMEPAD_LEFT_JOYSTICK, joystickConfigs);
+                touchScreenJoystick(event, joystickConfigs);
                 break;
             case JOYSTICK_TYPE_GAMEPAD_RIGHT_JOYSTICK:
                 break;
@@ -358,13 +361,15 @@ void MangmiPolicy::rightJoystick(RawEvent event) {
 }
 
 bool isLeftDown =false;
+bool isAxisLeftDown = false;
+
 #define DEADZONE_CENTERPOINT 5
 
-void MangmiPolicy::gamePadLeftJoystick(RawEvent event, int type, std::vector<JoystickConfig> joystickConfigs){
-    ALOGD("gamePadLeftJoystick deviceId:%d, type:%d, code:%d, value:%d", event.deviceId, event.type, event.code, event.value);
-    int leftOrigX, leftOrigY;
-    int axisX, axisY;
-    int leftAxisX, leftAxisY;
+void MangmiPolicy::touchScreenJoystick(RawEvent event,  std::vector<JoystickConfig> joystickConfigs){
+    ALOGD("touchScreenJoystick deviceId:%d, type:%d, code:%d, value:%d", event.deviceId, event.type, event.code, event.value);
+    int leftOrigX=0, leftOrigY=0;
+    int axisX=0, axisY=0;
+    int leftAxisX=0, leftAxisY=0;
     mWidth =InputFilter::mWidth;
     mHeight = InputFilter::mHeight;
     if( event.code ==ABS_X){
@@ -381,18 +386,24 @@ void MangmiPolicy::gamePadLeftJoystick(RawEvent event, int type, std::vector<Joy
 
     /*当摇杆从非死区移动到死区位置，或回到中心位置时，生成抬起事件*/
     if( (abs(leftOrigX)<DEADZONE_CENTERPOINT) && abs(leftOrigY)<DEADZONE_CENTERPOINT ){
-        leftOrigX =0;
-        leftOrigY =0;
-//        isAxisLeftDown =false;
-        isLeftDown =false;
-        for(int i=0; i<joystickConfigs.size(); i++){
-            int slotId = getSlotIdFromIdConfig("joystickConfigs", i + joystickConfigs[i].id+ joystickConfigs[i].type);
-            ALOGD("slotId%d, TOUCH_UP", slotId);
-            InputFilter::getInstance()->pushSoftEvent(slotId, TOUCH_UP, 0, 0);
+        if( isAxisLeftDown ==true){
+            if( (abs(leftOrigX) < DEADZONE_CENTERPOINT) && (abs(leftOrigY) < DEADZONE_CENTERPOINT) ){
+                leftOrigX =0;
+                leftOrigY =0;
+                isAxisLeftDown =false;
+                isLeftDown =false;
+                for(int i=0; i<joystickConfigs.size(); i++){
+                    int slotId = getSlotIdFromIdConfig("joystickConfigs", i + joystickConfigs[i].id+ joystickConfigs[i].type);
+                    ALOGD("slotId:%d, TOUCH_UP", slotId);
+                    InputFilter::getInstance()->pushSoftEvent(slotId, TOUCH_UP, 0, 0);
+                }
+            }
         }
+
     }else{
-        if( isLeftDown ==false ){//
+        if( isAxisLeftDown ==false ){//
             isLeftDown =true;
+            isAxisLeftDown = true;
 
             for(int i=0; i<joystickConfigs.size();i++){
                 JoystickConfig joystickConfig = joystickConfigs[i];
@@ -401,10 +412,14 @@ void MangmiPolicy::gamePadLeftJoystick(RawEvent event, int type, std::vector<Joy
                 float fSenY = joystickConfig.sensitivityY;
                 float fCenterX = mWidth * joystickConfig.centerY;
                 float fCenterY = mHeight - mHeight * joystickConfig.centerX;
+                float fMinRadius = fRadius * joystickConfig.minEffectiveRadiusPercent;
+                float xMinRadius = fMinRadius*fSenX;
+                float yMinRadius = fMinRadius*fSenY;
+
                 int x = (int)((double)axisX / 32768.0 * fRadius * fSenX + fCenterX);
                 int y = (int)((double)axisY / 32768.0 * fRadius * fSenY + fCenterY);
                 int slotId = getSlotIdFromIdConfig("joystickConfigs", i + joystickConfig.id+ joystickConfig.type);
-                ALOGD("slotId%d, TOUCH_DOWN x:%d, y%d", slotId, x, y);
+                ALOGD("slotId:%d, TOUCH_DOWN x:%d, y:%d", slotId, x, y);
                 InputFilter::getInstance()->pushSoftEvent( slotId, TOUCH_DOWN, x, y);
             }
         }else{
@@ -421,13 +436,12 @@ void MangmiPolicy::gamePadLeftJoystick(RawEvent event, int type, std::vector<Joy
                     int x = (int)((double)axisX / 32768.0 * fRadius * fSenX + fCenterX);
                     int y = (int)((double)axisY / 32768.0 * fRadius * fSenY + fCenterY);
                     int slotId = getSlotIdFromIdConfig("joystickConfigs", i + joystickConfig.id+ joystickConfig.type);
-                    ALOGD("slotId%d, TOUCH_MOVE x:%d, y%d", slotId, x, y);
+                    ALOGD("slotId:%d, TOUCH_MOVE x:%d, y:%d", slotId, x, y);
                     InputFilter::getInstance()->pushSoftEvent( slotId, TOUCH_MOVE, x, y);
                 }
             }
         }
     }
-
 
 
 }
@@ -491,8 +505,8 @@ RawEvent MangmiPolicy::generateEvent( int32_t deviceId, int type, int keyCode, i
 
 
 
-void MangmiPolicy::convertToStandardTouchClick( RawEvent &event,int type, std::vector<KeyConfig> keyConfigs){
-    ALOGD("convertToStandardTouchClick deviceId:%d, type:%d, code:%d, value:%d, sizeof keyConfig:%d", event.deviceId, event.type, event.code, event.value, keyConfigs.size());
+void MangmiPolicy::touchScreensStandardClick( RawEvent &event,int type, std::vector<KeyConfig> keyConfigs){
+    ALOGD("touchScreensStandardClick deviceId:%d, type:%d, code:%d, value:%d, sizeof keyConfig:%d", event.deviceId, event.type, event.code, event.value, keyConfigs.size());
     int tmpInputId= MangmiUtils::getInputIdFromEvcode( event.code);
     if( tmpInputId==0){return ;}
     std::vector<int>  slotIds =getSlotIdFromKeySlotConfig( tmpInputId, type );
@@ -511,8 +525,8 @@ void MangmiPolicy::convertToStandardTouchClick( RawEvent &event,int type, std::v
 }
 
 
-void MangmiPolicy::convertToStandardKeyboardClick( RawEvent &event,int type, std::vector<KeyConfig> keyConfigs) {
-    ALOGD("convertToStandardKeyboardClick ");
+void MangmiPolicy::standardKeyClick( RawEvent &event,int type, std::vector<KeyConfig> keyConfigs) {
+    ALOGD("standardKeyClick ");
     RawEvent  newEvent;
 
     for(const auto& keyconfig :keyConfigs){
@@ -527,8 +541,8 @@ void MangmiPolicy::convertToStandardKeyboardClick( RawEvent &event,int type, std
     return;
 }
 
-void MangmiPolicy::convertToStandardKeyboardComboClick( RawEvent &event, int type, std::vector<KeyConfig> keyConfigs){
-    ALOGD("convertToStandardKeyboardComboClick");
+void MangmiPolicy::standardKeyComboClick( RawEvent &event, int type, std::vector<KeyConfig> keyConfigs){
+    ALOGD("standardKeyComboClick");
     for(auto keyConfig :keyConfigs ){
         if( event.value ==1 ){
             AtomicComboThreadExit.store(false);

@@ -7,7 +7,7 @@
 
 
 #include <set>
-#include "../MangmiFlinger.h"
+#include "../MangmiEvent.h"
 #include "MangmiConfig.h"
 
 #define EV_KEY 1
@@ -56,7 +56,7 @@ public:
     static int getSize();
     static void toString();
     static int clearInputFilter();
-    static void enableInputFilter( const std::set<int>& keyCodes, const std::set<int>& axisCodes);
+    static void enableInputsFilter( const std::set<int>& keyCodes, const std::set<int>& axisCodes);
 
     int updateInterceptPolicy();
 

@@ -15,8 +15,8 @@
 
 InputFilter* InputFilter::instance;
 
-int InputFilter::mWidth=800;
-int InputFilter::mHeight=640;
+int InputFilter::mWidth=1080;
+int InputFilter::mHeight=1920;
 
 InputFilter::InputFilter(){
 //    pthread_mutex_init(&mutex, NULL);
@@ -172,5 +172,6 @@ void InputFilter::pullEvents(std::vector<RawEvent>& keys, std::vector<RawEvent>&
 }
 
 void InputFilter::setInputsFilter(const std::set<int>& keyCodes, const std::set<int>& axisCodes){
+    ALOGD("setInputsFilter ");
     return;
 }

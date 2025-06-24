@@ -124,7 +124,7 @@ int MangmiIntercepter::clearInputFilter( ){
     return 0;
 }
 
-void MangmiIntercepter::enableInputFilter( const std::set<int>& keyCodes, const std::set<int>& axisCodes ){
+void MangmiIntercepter::enableInputsFilter( const std::set<int>& keyCodes, const std::set<int>& axisCodes ){
     InputFilter::getInstance()->setInputsFilter( keyCodes, axisCodes);
     return ;
 }
@@ -164,17 +164,17 @@ void MangmiIntercepter::buildIntercepterByConfigs( GamepadConfig& gamepadConfig,
     }else {
         ALOGD("ERROR SERIAL NO %d",serialNo);
     }
+    toString();
+    return;
 }
 int MangmiIntercepter::updateInterceptPolicy() {
     ALOGD("updateInterceptPolicy");
-    std::set<int> keySet;
-    std::set<int> axisSet;
-
-    MangmiIntercepter::eraseInterceptEventBySerialNo(1180);
 
 //    更新拦截策略
-    //    mangmi::InputFilter::setInputsFilter(keySet, axisSet);
-
+    buildIntercepterByConfigs(MangmiConfig::getInstance()->getGamepadConfig(), 1880);
+    std::set<int> keySet = MangmiIntercepter::getInterceptEventByKeyType();
+    std::set<int> axisSet =MangmiIntercepter::getInterceptEventByAxisType();
+    enableInputsFilter(keySet, axisSet);
     return 0;
 }
 
