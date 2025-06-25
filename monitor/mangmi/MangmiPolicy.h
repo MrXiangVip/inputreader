@@ -94,9 +94,9 @@ private:
 
     std::vector<int> getSlotIdFromKeySlotConfig(int id, int type);
 
-    void standardKeyClick(RawEvent &event, int type, std::vector<KeyConfig> keyConfigs);
+    void standardKeyClick(RawEvent &event,  std::vector<KeyConfig> keyConfigs);
 
-    void standardKeyComboClick(RawEvent &event, int type, std::vector<KeyConfig> keyConfigs);
+    void standardKeyComboClick(RawEvent &event,  std::vector<KeyConfig> keyConfigs);
 
     static void keyBoardComboClick(RawEvent rawEvent, KeyConfig keyConfig);
 

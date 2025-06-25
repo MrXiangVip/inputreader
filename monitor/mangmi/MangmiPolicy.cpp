@@ -236,6 +236,21 @@ int MangmiPolicy::replyClient(int requestId, std::string data){
     return iRet;
 }
 
+/* */
+RawEvent MangmiPolicy::generateEvent( int32_t deviceId, int type, int keyCode, int32_t value) {
+    ALOGD("generateEvent");
+    RawEvent event;
+    event.deviceId = deviceId;
+    event.type = type;
+    int scanCode =MangmiUtils::getScanCodeFromKeyCode(keyCode);
+    if( scanCode >0 ){
+        keyCode = scanCode;
+    }
+    event.code = keyCode;
+    event.value = value;
+    return event;
+}
+
 void MangmiPolicy::buildKeyEvent( RawEvent event){
     ALOGD("新生成一个事件 deviceId:%d, type:%d, code:%d, value:%d", event.deviceId, event.type, event.code, event.value);
 
@@ -251,10 +266,10 @@ void MangmiPolicy::buildKeyEvent( RawEvent event){
             case KEY_CATEGORY_GAMEPAD://
                 break;
             case KEY_TYPE_GAMEPAD_CLICK_STANDARD:// 处理成物理按键 按击事件
-                standardKeyClick(event, KEY_TYPE_GAMEPAD_CLICK_STANDARD, keyConfigs);
+                standardKeyClick(event,  keyConfigs);
                 break;
             case KEY_TYPE_GAMEPAD_CLICK_TURBO: // 处理成物理按键 连续按击事件
-                standardKeyComboClick( event, KEY_TYPE_GAMEPAD_CLICK_TURBO, keyConfigs);
+                standardKeyComboClick( event,  keyConfigs);
                 break;
             case KEY_CATEGORY_KEYBOARD://
                 break;
@@ -364,12 +379,11 @@ bool isLeftDown =false;
 bool isAxisLeftDown = false;
 
 #define DEADZONE_CENTERPOINT 5
-
+int leftOrigX=0, leftOrigY=0;
+int leftAxisX=0, leftAxisY=0;
 void MangmiPolicy::touchScreenJoystick(RawEvent event,  std::vector<JoystickConfig> joystickConfigs){
     ALOGD("touchScreenJoystick deviceId:%d, type:%d, code:%d, value:%d", event.deviceId, event.type, event.code, event.value);
-    int leftOrigX=0, leftOrigY=0;
     int axisX=0, axisY=0;
-    int leftAxisX=0, leftAxisY=0;
     mWidth =InputFilter::mWidth;
     mHeight = InputFilter::mHeight;
     if( event.code ==ABS_X){
@@ -446,7 +460,6 @@ void MangmiPolicy::touchScreenJoystick(RawEvent event,  std::vector<JoystickConf
         }
     }
 
-
 }
 
 void MangmiPolicy::absHatXY(RawEvent &event) {
@@ -454,26 +467,26 @@ void MangmiPolicy::absHatXY(RawEvent &event) {
     int currentKey = 0;
 
     RawEvent newEvent;
-    if (event.code == ABS_HAT0X && event.value == 1) {// 轴右键
+    if (event.code == ABS_HAT0X && event.value == 1) {// 横轴右键下
         currentKey = DPAD_RIGHT;
         newEvent = generateEvent(event.deviceId, EV_KEY, DPAD_RIGHT, 1);
-    } else if (event.code = ABS_HAT0X && event.value == -1) {//横轴左键
+    } else if (event.code = ABS_HAT0X && event.value == -1) {//横轴左键按下
         currentKey = DPAD_LEFT;
         newEvent = generateEvent(event.deviceId, EV_KEY, DPAD_LEFT, 1);
-    } else if (event.code == ABS_HAT0X && event.value == 0) {//
+    } else if (event.code == ABS_HAT0X && event.value == 0) {//横轴 抬起
         if (currentKey == DPAD_LEFT) {
             newEvent = generateEvent(event.deviceId, EV_KEY, DPAD_LEFT, 0);
         } else if (currentKey == DPAD_RIGHT) {
             newEvent = generateEvent(event.deviceId, EV_KEY, DPAD_RIGHT, 0);
         }
         currentKey==0;
-    } else if (event.code == ABS_HAT0Y && event.value == 1) {
+    } else if (event.code == ABS_HAT0Y && event.value == 1) {// 纵轴上键 按下
         currentKey = DPAD_DOWN;
         newEvent = generateEvent(event.deviceId, EV_KEY, DPAD_DOWN, 1);
-    } else if (event.code == ABS_HAT0Y && event.value == -1) {
+    } else if (event.code == ABS_HAT0Y && event.value == -1) {// 纵轴下键 按下
         currentKey = DPAD_UP;
         newEvent = generateEvent(event.deviceId, EV_KEY, DPAD_UP, 1);
-    } else if (event.code == ABS_HAT0Y && event.value == 0) {
+    } else if (event.code == ABS_HAT0Y && event.value == 0) {//纵轴抬起
         if (currentKey == DPAD_DOWN) {
             newEvent = generateEvent(event.deviceId, EV_KEY, DPAD_UP, 0);
         } else if (currentKey == DPAD_UP) {
@@ -481,29 +494,33 @@ void MangmiPolicy::absHatXY(RawEvent &event) {
         }
         currentKey=0;
     }
-    buildKeyEvent(newEvent);
+    buildKeyEvent(newEvent);//根据配置决定动作
 }
 
 void MangmiPolicy::absGas(RawEvent &event){
     ALOGD("absGas ");
+    RawEvent newEvent;
+    if( event.code ==ABS_GAS && event.value==1){
+        newEvent =generateEvent(event.deviceId, EV_KEY, BUTTON_L2, 1);
+
+    }else if( event.code ==ABS_GAS && event.value ==0){
+        newEvent =generateEvent( event.deviceId, EV_KEY, BUTTON_L2, 0);
+    }
+//    InputFilter::getInstance()->pushSoftEvent( newEvent);
+    buildKeyEvent( newEvent);
 }
 
 void MangmiPolicy::absBreak(RawEvent &event){
     ALOGD("absBreak");
-}
+    RawEvent newEvent;
+    if( event.code ==ABS_BREAK && event.value==1){
+        newEvent = generateEvent( event.deviceId, EV_KEY, BUTTON_R2,1);
 
-RawEvent MangmiPolicy::generateEvent( int32_t deviceId, int type, int keyCode, int32_t value) {
-    ALOGD("generateEvent");
-    RawEvent event;
-    event.deviceId = deviceId;
-    event.type = type;
-    int scanCode =MangmiUtils::getScanCodeFromKeyCode(keyCode);
-    if( scanCode >0 ){
-        keyCode = scanCode;
+    }else if( event.code ==ABS_BREAK && event.value ==0){
+        newEvent = generateEvent( event.deviceId, EV_KEY, BUTTON_R2, 0);
     }
-    event.code = keyCode;
-    event.value = value;
-    return event;
+//    InputFilter::getInstance()->pushSoftEvent( newEvent);
+    buildKeyEvent( newEvent);
 }
 
 
@@ -529,7 +546,7 @@ void MangmiPolicy::touchScreensStandardClick( RawEvent &event,int type, std::vec
 }
 
 
-void MangmiPolicy::standardKeyClick( RawEvent &event,int type, std::vector<KeyConfig> keyConfigs) {
+void MangmiPolicy::standardKeyClick( RawEvent &event, std::vector<KeyConfig> keyConfigs) {
     ALOGD("standardKeyClick ");
     RawEvent  newEvent;
 
@@ -545,7 +562,7 @@ void MangmiPolicy::standardKeyClick( RawEvent &event,int type, std::vector<KeyCo
     return;
 }
 
-void MangmiPolicy::standardKeyComboClick( RawEvent &event, int type, std::vector<KeyConfig> keyConfigs){
+void MangmiPolicy::standardKeyComboClick( RawEvent &event,  std::vector<KeyConfig> keyConfigs){
     ALOGD("standardKeyComboClick");
     for(auto keyConfig :keyConfigs ){
         if( event.value ==1 ){
