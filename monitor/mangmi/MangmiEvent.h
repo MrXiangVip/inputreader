@@ -16,7 +16,7 @@
 class MangmiEvent {
 
 public:
-    pthread_t startFlingerThread();
+    pthread_t startEventThread();
     static void* start(void *args);
     static MangmiEvent* getInstance();
     void stop();

@@ -7,6 +7,8 @@
 #include <pthread.h>
 #include <thread>
 #include <csignal>
+#include <linux/input.h>
+
 #include "InputFilter.h"
 #include "../include/EventHub.h"
 #include "Macros.h"
@@ -108,22 +110,77 @@ std::vector<RawEvent> InputFilter::handleRawEvents(std::vector<RawEvent>& events
 void InputFilter::handleKeyEvent(RawEvent& event){
     keyEvents.push_back( event);
     pthread_cond_signal(&condEvent);
+    bool  filtered = (keyFilter.find(event.code)!=keyFilter.end());
+    if( filtered ){ return;}
+    pushEvent( event);
     return ;
 }
 
 
 void InputFilter::handleAbsEvent(RawEvent& event){
-    axisEvents.push_back( event);
-    pthread_cond_signal(&condEvent);
+    switch (event.code)
+    {
+        case ABS_MT_SLOT:
+        case ABS_MT_TRACKING_ID:
+        case ABS_MT_TOUCH_MAJOR:
+        case ABS_MT_WIDTH_MAJOR:
+        case ABS_MT_POSITION_X:
+        case ABS_MT_POSITION_Y:
+        case ABS_MT_PRESSURE:
+            handleTpEvent(event);
+            break;
+        case ABS_X:
+        case ABS_Y:
+        case ABS_Z:
+        case ABS_RX:
+        case ABS_RY:
+        case ABS_RZ:
+        case ABS_HAT0X:
+        case ABS_HAT0Y:
+        case ABS_BRAKE:
+        case ABS_GAS:
+            handleAxisEvent(event);
+            break;
+        default:
+            pushEvent(event);
+    }
     return;
 }
+
+
+
+void InputFilter::handleTpEvent(RawEvent& event){
+    ALOGI("%s",__func__);
+    return;
+}
+void InputFilter::handleAxisEvent(RawEvent& event){
+    ALOGI("%s",__func__);
+    axisEvents.push_back( event);
+    pthread_cond_signal(&condEvent);
+//    bool filtered = (axisFilter.find(event.code) != axisFilter.end());
+    bool filtered=false;
+    auto it =axisFilter.find(event.code);
+    if( it!= axisFilter.end()){
+        if( it->second==0){
+            filtered==true;
+        }else if( it->second == event.value ){
+            filtered ==true;
+        }
+    }
+    if( filtered ){ return;}
+    pushEvent(event);
+    return;
+}
+
+
 
 void InputFilter::handleSynEvent(RawEvent& event){
 
 }
 
 void InputFilter::pushEvent(const RawEvent& event){
-
+    ALOGD("%s",__func__);
+    return;
 }
 
 void InputFilter::pushSoftEvent(int id, int action, int x, int y)
@@ -171,7 +228,16 @@ void InputFilter::pullEvents(std::vector<RawEvent>& keys, std::vector<RawEvent>&
     } while (0 < remain);
 }
 
-void InputFilter::setInputsFilter(const std::set<int>& keyCodes, const std::set<int>& axisCodes){
+//void InputFilter::setInputsFilter(const std::set<int>& keyCodes, const std::set<int>& axisCodes){
+void InputFilter::setInputsFilter(const std::set<int>& keyCodes, const std::map<int,int>& axisCodes){
     ALOGD("setInputsFilter ");
+    setFilter( keyCodes, axisCodes);
     return;
+}
+
+//void InputFilter::setFilter(const std::set<int> &keyCodes, const std::set<int> &axisCodes){
+void InputFilter::setFilter(const std::set<int> &keyCodes, const std::map<int, int> &axisCodes){
+    ALOGI("%s",__func__);
+    keyFilter = keyCodes;
+    axisFilter = axisCodes;
 }

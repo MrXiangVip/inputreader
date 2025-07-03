@@ -9,6 +9,7 @@
 // 使用 POSIX 的 clock_gettime
 #include <time.h>
 #include <string>
+#include <linux/input.h>
 
 //////////////////////////////////////////////////////////////////////
 //InputId

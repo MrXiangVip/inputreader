@@ -53,7 +53,7 @@ bool MangmiConfig::parseJson(std::string  sJson){
     {
         ALOGI("---%s---joystickConfigs is null", __func__);
     }else {
-        ALOGI("---%s--- 处理 joystickConfigs ", __func__);
+        ALOGI("---%s--- parse joystickConfigs ", __func__);
         for (const auto& item : joystickConfigs) {
             JoystickConfig joystickConfig;
             joystickConfig.centerX = item["centerX"].asFloat();
@@ -81,7 +81,7 @@ bool MangmiConfig::parseJson(std::string  sJson){
     {
         ALOGI("---%s---keyConfigs is null", __func__);
     }else {
-        ALOGI("---%s--- 处理 keyConfigs ", __func__);
+        ALOGI("---%s--- parse keyConfigs ", __func__);
         for (const auto& item : keyConfigs) {
             KeyConfig keyConfig;
             keyConfig.duration = item["duration"].asInt();

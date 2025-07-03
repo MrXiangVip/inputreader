@@ -20,16 +20,6 @@
 #define KEY_CATEGORY_GAMEPAD 1000
 #define KEY_TYPE_GAMEPAD_CLICK_STANDARD (KEY_CATEGORY_GAMEPAD + 1)
 
-struct KeySlotConfig {
-    int id;
-    int slot;
-    int type;
-};
-struct IdConfig {
-    int id;
-    int slot;
-    std::string configStr;
-};
 
 struct socketReply {
     socketReply(int i, int i1);
@@ -48,7 +38,6 @@ public:
     void buildKeyEvent(RawEvent event); //根据 下发的策略生成新的事件
     void buildAxisEvent(RawEvent event);
     static MangmiPolicy* getInstance();
-    int updateIdConfigs( );
     static std::vector<socketReply> vectorReply;
     void stop();
 protected:
@@ -64,23 +53,14 @@ private:
     static MangmiPolicy *instance;
     static MiThreadPool mangmiPool;
 
-    std::vector<KeySlotConfig> kSlotConfigs; //?
-    static std::vector<IdConfig> idConfigs;//
 
-    static int iSlotId;//
-    static std::vector<int> jsLeftSlotId;
-    static std::vector<int> jsRightSlotId;
     static int mWidth;
     static int mHeight;
 
-    static std::atomic<bool>  AtomicComboThreadExit;
-    int assignIdConfig(std::string str, int idAddType);
-    void assignKeySlotConfig(int inputId, int type);
+    static std::atomic<bool>  AtomicComboThreadExit;// 按键连击开关
+    static std::atomic<bool> AtomicScreenComboThreadExit;//触屏连击开关
 
     void leftJoystick(RawEvent& event);
-
-
-    static int getSlotIdFromIdConfig(std::string str, int idAddType);
 
     void rightJoystick(RawEvent event);
 
@@ -90,9 +70,9 @@ private:
 
     void absBreak(RawEvent &event);
 
-    void touchScreensStandardClick(RawEvent &event, int type, std::vector<KeyConfig> keyConfig);
-
-    std::vector<int> getSlotIdFromKeySlotConfig(int id, int type);
+    void touchScreensStandardClickWhenPress(RawEvent &event, std::vector<KeyConfig> keyConfigs);
+    void touchScreenComboClickWhenPress(RawEvent &event, std::vector<KeyConfig> keyConfigs);
+    static void screenComboClick( RawEvent rawEvent, KeyConfig keyConfig);
 
     void standardKeyClick(RawEvent &event,  std::vector<KeyConfig> keyConfigs);
 
@@ -100,7 +80,23 @@ private:
 
     static void keyBoardComboClick(RawEvent rawEvent, KeyConfig keyConfig);
 
-    void touchScreenJoystick(RawEvent event,  vector<JoystickConfig> joystickConfigs);
+    void leftVirtualJoystick(RawEvent event,  vector<JoystickConfig> joystickConfigs);
+
+    void touchScreenFastComboClickWhenPress(RawEvent rawEvent, vector<KeyConfig> keyConfigs);
+
+    void touchScreenClickWhenRelease(RawEvent rawEvent, vector<KeyConfig> keyConfigs);
+
+    void mobaAssociateLeftJoystickWhenPress(RawEvent rawEvent, vector<KeyConfig> keyConfigs);
+
+    void mobaAssociateRightJoystickWhenPress(RawEvent event, vector<KeyConfig> keyConfigs);
+
+    void mobaAssociateSmartJoystickWhenPress(RawEvent event, vector<KeyConfig> keyConfigs);
+
+    void mobaCancelSkillWhenPress(RawEvent event, vector<KeyConfig> keyConfigs);
+
+    void mobaViewMapWhenPress(RawEvent event, vector<KeyConfig> keyConfigs);
+
+    void rightVirtualJoystick(RawEvent event, vector<JoystickConfig> joystickConfigs);
 };
 
 

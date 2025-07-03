@@ -8,6 +8,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <linux/input.h>
 
 #define KEY_SLOT_INDEX 60
 #define JOYSTICK_SLOT_INDEX 100

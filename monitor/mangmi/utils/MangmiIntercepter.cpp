@@ -28,12 +28,12 @@ MangmiIntercepter *MangmiIntercepter::getInstance() {
 
 
 int MangmiIntercepter::insertInterceptEventKey(InterceptKey key) {
-    ALOGD("%s, evCode:%d, serialNo:%d, type:%d\n", __func__, key.evCode, key.serialNo, key.type);
+    ALOGD("%s, evCode:%d, serialNo:%d, type:%d, value:%d\n", __func__, key.evCode, key.serialNo, key.type, key.value);
     interceptKeySet.insert( key );
     return  0;
 }
 
-
+/* 将serialNo 相同的集合删除 */
 int MangmiIntercepter::eraseInterceptEventBySerialNo(int serialNo) {
     ALOGD("%s, %d, size:%d\n", __func__, serialNo, interceptKeySet.size());
     if( interceptKeySet.size() >0){
@@ -53,7 +53,7 @@ int MangmiIntercepter::eraseInterceptEventKeyByInterceptKey(InterceptKey key) {
     ALOGD("%s, %d,%d,%d size:%d\n", __func__, key.serialNo, key.type, key.evCode, interceptKeySet.size());
     if( interceptKeySet.size() >0){
         for( auto it = interceptKeySet.begin(); it!=interceptKeySet.end();){
-            if( it->serialNo == key.serialNo && it->evCode==key.evCode && it->type==key.type){
+            if( it->serialNo == key.serialNo && it->evCode==key.evCode && it->type==key.type &&it->value ==key.value){
                 it = interceptKeySet.erase( it);
             }else{
                 ++it;
@@ -64,6 +64,7 @@ int MangmiIntercepter::eraseInterceptEventKeyByInterceptKey(InterceptKey key) {
     return 0;
 }
 
+/* 查出 类型是按键的集合 */
 std::set<int> MangmiIntercepter::getInterceptEventByKeyType( ) {
     std::set<int> keySet;
     if (interceptKeySet.size() > 0) {
@@ -77,12 +78,14 @@ std::set<int> MangmiIntercepter::getInterceptEventByKeyType( ) {
     return  keySet;
 }
 
-std::set<int> MangmiIntercepter::getInterceptEventByAxisType() {
-    std::set<int> keySet;
+/* 查出类型是摇杆的集合 */
+//std::set<int> MangmiIntercepter::getInterceptEventByAxisType() {
+std::map<int,int> MangmiIntercepter::getInterceptEventByAxisType() {
+    std::map<int, int> keySet;
     if (interceptKeySet.size() > 0) {
         for (auto it = interceptKeySet.begin(); it != interceptKeySet.end();) {
             if( it->type == EV_ABS){
-                keySet.insert( it->evCode );
+                keySet.insert( {it->evCode, it->value });
             }
             ++it;
         }
@@ -97,7 +100,7 @@ int MangmiIntercepter::insertInterceptKeyEventWithSerialNo(std::set<int> keySet,
     {
         for(const auto& evCode : keySet)
         {
-            InterceptKey key(serialNo, evCode, EV_KEY);
+            InterceptKey key(serialNo, evCode, EV_KEY,0);
             interceptKeySet.insert(key);
         }
         return 1;
@@ -112,7 +115,7 @@ int MangmiIntercepter::insertInterceptAxisEventWithSerialNo(std::set<int> keySet
     {
         for(const auto& evCode : keySet)
         {
-            InterceptKey key(serialNo, evCode, EV_ABS);
+            InterceptKey key(serialNo, evCode, EV_ABS,0);
             interceptKeySet.insert(key);
         }
         return 1;
@@ -124,7 +127,8 @@ int MangmiIntercepter::clearInputFilter( ){
     return 0;
 }
 
-void MangmiIntercepter::enableInputsFilter( const std::set<int>& keyCodes, const std::set<int>& axisCodes ){
+//void MangmiIntercepter::enableInputsFilter( const std::set<int>& keyCodes, const std::set<int>& axisCodes ){
+void MangmiIntercepter::enableInputsFilter( const std::set<int>& keyCodes, const std::map<int,int>& axisCodes ){
     InputFilter::getInstance()->setInputsFilter( keyCodes, axisCodes);
     return ;
 }
@@ -139,15 +143,15 @@ void MangmiIntercepter::buildIntercepterByConfigs( GamepadConfig& gamepadConfig,
         for(auto& joystickConfig :joystickConfigs) {
             if (joystickConfig.id == INPUT_ID_LEFT_JOYSTICK) {
                 if (JOYSTICK_TYPE_GAMEPAD_LEFT_JOYSTICK != joystickConfig.type) {
-                    InterceptKey interceptKeyX = InterceptKey(serialNo, ABS_X, EV_ABS);
-                    InterceptKey interceptKeyY = InterceptKey(serialNo, ABS_Y, EV_ABS);
+                    InterceptKey interceptKeyX = InterceptKey(serialNo, ABS_X, EV_ABS,0);
+                    InterceptKey interceptKeyY = InterceptKey(serialNo, ABS_Y, EV_ABS,0);
                     insertInterceptEventKey(interceptKeyX);
                     insertInterceptEventKey(interceptKeyY);
                 }
             } else if (joystickConfig.id == INPUT_ID_RIGHT_JOYSTICK) {
                 if (JOYSTICK_TYPE_GAMEPAD_RIGHT_JOYSTICK != joystickConfig.type) { //
-                    InterceptKey interceptKeyZ = InterceptKey(serialNo, ABS_Z, EV_ABS);
-                    InterceptKey interceptKeyRZ = InterceptKey(serialNo, ABS_RZ, EV_ABS);
+                    InterceptKey interceptKeyZ = InterceptKey(serialNo, ABS_Z, EV_ABS,0);
+                    InterceptKey interceptKeyRZ = InterceptKey(serialNo, ABS_RZ, EV_ABS,0);
                     insertInterceptEventKey(interceptKeyZ);
                     insertInterceptEventKey(interceptKeyRZ);
                 }
@@ -157,8 +161,30 @@ void MangmiIntercepter::buildIntercepterByConfigs( GamepadConfig& gamepadConfig,
 //      屏蔽按键
         std::vector<KeyConfig> keyConfigs = gamepadConfig.keyConfigs;
         for(auto& keyConfig :keyConfigs){
-            InterceptKey interceptKey = InterceptKey( serialNo, keyConfig.id, EV_KEY);
-            insertInterceptEventKey( interceptKey );
+//          方向键应该 加到摇杆屏蔽集合里,   L2,R2 也是摇杆类型 ,左右 方向键的evCode相同, 但value 不相同, 上下方向键的evCode 相同
+            if( keyConfig.id == INPUT_ID_LEFT  ){
+                InterceptKey interceptArrowKey = InterceptKey( serialNo, ABS_HAT0X, EV_ABS,-1);
+                insertInterceptEventKey( interceptArrowKey);
+            }else if( keyConfig.id ==INPUT_ID_RIGHT){
+                InterceptKey interceptArrowKey = InterceptKey( serialNo, ABS_HAT0X, EV_ABS,1);
+                insertInterceptEventKey( interceptArrowKey);
+            }else if( keyConfig.id == INPUT_ID_UP){
+                InterceptKey interceptArrowKey = InterceptKey( serialNo, ABS_HAT0Y, EV_ABS,1);
+                insertInterceptEventKey( interceptArrowKey);
+            }else if( keyConfig.id ==INPUT_ID_DOWN) {
+                InterceptKey interceptArrowKey = InterceptKey( serialNo, ABS_HAT0Y, EV_ABS,-1);
+                insertInterceptEventKey( interceptArrowKey);
+            }else if(keyConfig.id ==INPUT_ID_R2) {
+                InterceptKey interceptArrowKey = InterceptKey( serialNo, ABS_GAS, EV_ABS,0);
+                insertInterceptEventKey( interceptArrowKey);
+            }else if(keyConfig.id==INPUT_ID_L2 ){
+                InterceptKey interceptArrowKey = InterceptKey( serialNo, ABS_BRAKE, EV_ABS,0);
+                insertInterceptEventKey( interceptArrowKey);
+            }else{//
+                int evCode = MangmiUtils::getEvcodeFromInputId(keyConfig.id);
+                InterceptKey interceptKey = InterceptKey( serialNo, evCode, EV_KEY, 0);
+                insertInterceptEventKey( interceptKey );
+            }
         }
 
     }else {
@@ -173,7 +199,8 @@ int MangmiIntercepter::updateInterceptPolicy() {
 //    更新拦截策略
     buildIntercepterByConfigs(MangmiConfig::getInstance()->getGamepadConfig(), 1880);
     std::set<int> keySet = MangmiIntercepter::getInterceptEventByKeyType();
-    std::set<int> axisSet =MangmiIntercepter::getInterceptEventByAxisType();
+//    std::set<int> axisSet =MangmiIntercepter::getInterceptEventByAxisType();
+    std::map<int,int> axisSet =MangmiIntercepter::getInterceptEventByAxisType();
     enableInputsFilter(keySet, axisSet);
     return 0;
 }
@@ -182,7 +209,7 @@ void MangmiIntercepter::toString() {
     ALOGD("toString size:%d\n", interceptKeySet.size());
     if( interceptKeySet.size()>0 ){
         for( auto it =interceptKeySet.begin(); it!=interceptKeySet.end();){
-            ALOGD("evCode:%d, serialNo:%d, type:%d \n",it->evCode, it->serialNo, it->type);
+            ALOGD("evCode:%d, serialNo:%d, type:%d , value:%d\n",it->evCode, it->serialNo, it->type, it->value);
             it++;
         }
     }

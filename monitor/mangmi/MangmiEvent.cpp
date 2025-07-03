@@ -27,7 +27,7 @@ MangmiEvent::MangmiEvent( ){
     MangmiUtils::initInputIdMaps();
 }
 
-pthread_t MangmiEvent::startFlingerThread( ){
+pthread_t MangmiEvent::startEventThread( ){
     ALOGD("启动 MangmiEvent 线程");
 
     pthread_t pthreadId;
@@ -52,12 +52,10 @@ void* MangmiEvent::start(void *args) {
 
         if(!eventKeys.empty())
         {
-//            handleKeyEvent();
             self->handleKeyEvents(eventKeys);
         }
         if(!eventAxis.empty())
         {
-//            handleAxisEvent(eventAxis);
             self->handleAxisEvents( eventAxis);
         }
     }
@@ -75,8 +73,6 @@ void MangmiEvent::handleKeyEvents(std::vector<RawEvent>& events){
 }
 void MangmiEvent::handleKeyEvent(RawEvent event) {
     ALOGD("处理按键事件 deviceId:%d, type:%d,code:%d,value:%d ",event.deviceId, event.type, event.code,event.value);
-    int inputId = MangmiUtils::getInputIdFromEvcode(event.code);
-//    MangmiPolicy::getInstance()->replyApplication(inputId, event );
     MangmiPolicy::getInstance()->buildKeyEvent( event);
     ALOGD("处理按键事件 over \n\n");
 }

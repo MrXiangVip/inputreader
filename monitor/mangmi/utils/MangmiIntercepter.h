@@ -7,6 +7,7 @@
 
 
 #include <set>
+
 #include "../MangmiEvent.h"
 #include "MangmiConfig.h"
 
@@ -16,15 +17,17 @@
  *  拦截 事件的类
  * */
 struct InterceptKey {
-    InterceptKey(int mSerialNo, int mEvCode, int mType) {
+    InterceptKey(int mSerialNo, int mEvCode, int mType, int mValue) {
         serialNo =mSerialNo;
         evCode = mEvCode;
         type = mType;
+        value =mValue;
     }
 
     int serialNo;// 1880,1882
     int evCode;  //
-    int type;    // EV_KEY, EV_ABS
+    int type;    //EV_KEY, EV_ABS
+    int value;   //EV_ABS 还需要 value, 用来区分方向键
     bool operator<(const InterceptKey& other) const {
         if (serialNo != other.serialNo){
             return serialNo < other.serialNo;
@@ -32,7 +35,10 @@ struct InterceptKey {
         if( type !=other.type){
             return type < other.type;
         }
-        return evCode < other.evCode;
+        if( evCode !=other.evCode){
+            return evCode <other.evCode;
+        }
+        return value < other.value;
     }
 };
 
@@ -50,13 +56,15 @@ public:
 	
     static std::set<int> getInterceptEventByType(int type);
     static std::set<int> getInterceptEventByKeyType();
-    static std::set<int> getInterceptEventByAxisType();
+//    static std::set<int> getInterceptEventByAxisType();
+    static std::map<int,int> getInterceptEventByAxisType();
 
 
     static int getSize();
     static void toString();
     static int clearInputFilter();
-    static void enableInputsFilter( const std::set<int>& keyCodes, const std::set<int>& axisCodes);
+//    static void enableInputsFilter( const std::set<int>& keyCodes, const std::set<int>& axisCodes);
+    static void enableInputsFilter( const std::set<int>& keyCodes, const std::map<int, int>& axisCodes);
 
     int updateInterceptPolicy();
 

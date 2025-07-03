@@ -19,7 +19,7 @@ MainWindow::MainWindow(QWidget *parent)
     }
 ////  再启动接收投递 flinger 线程
     try{
-        flingerThread= MangmiEvent::getInstance()->startFlingerThread();
+        flingerThread= MangmiEvent::getInstance()->startEventThread();
     }catch (const std::exception &e){
         std::cerr<<e.what()<<std::endl;
     }
