@@ -9,6 +9,7 @@
 #include <vector>
 #include <atomic>
 #include <pthread.h>
+#include <set>
 #include "Macros.h"
 #include "../include/EventHub.h"
 #include "utils/MangmiSocketClient.h"
@@ -20,6 +21,13 @@
 #define KEY_CATEGORY_GAMEPAD 1000
 #define KEY_TYPE_GAMEPAD_CLICK_STANDARD (KEY_CATEGORY_GAMEPAD + 1)
 
+
+#define LEFT_ASSOCIATE_JOYSTICK 1
+#define RIGHT_ASSOCIATE_JOYSTICK 2
+#define SMART_ASSOCIATE_JOYSTICK 3
+
+#define LEFT_MAP_VIEW_MODE 4
+#define RIGHT_MAP_VIEW_MODE 5
 
 struct socketReply {
     socketReply(int i, int i1);
@@ -52,8 +60,9 @@ private:
     MangmiPolicy( );
     static MangmiPolicy *instance;
     static MiThreadPool mangmiPool;
-
-
+    bool iCancelSkill;// 取消技能
+    std::map<int, std::set<JoystickConfig>>  associateJoystickMap;//指向性技能
+    bool mapViewMode;//调整视角模式
     static int mWidth;
     static int mHeight;
 
@@ -97,6 +106,10 @@ private:
     void mobaViewMapWhenPress(RawEvent event, vector<KeyConfig> keyConfigs);
 
     void rightVirtualJoystick(RawEvent event, vector<JoystickConfig> joystickConfigs);
+
+    void addJoyStickMapFromKeyConfig(int associateType, KeyConfig keyConfig);
+
+    void removeJoyStickMapByKeyConfig(int associateType, KeyConfig keyConfig);
 };
 
 

@@ -10,9 +10,9 @@
 #include <time.h>
 #include <string>
 #include <linux/input.h>
-
+#include <linux/input-event-codes.h>
 //////////////////////////////////////////////////////////////////////
-//InputId
+//InputId 是android 的KeyEvent的 mKeyCode, 查看 KeyEvent.java
 #define INPUT_ID_LEFT_JOYSTICK 1
 #define INPUT_ID_RIGHT_JOYSTICK 2
 
@@ -54,17 +54,15 @@
 #define DPAD_DOWN   108
 #define DPAD_LEFT   105
 #define DPAD_RIGHT  106
-#define BUTTON_L1 310
-#define BUTTON_L2 312
-#define BUTTON_R1 311
-#define BUTTON_R2 313
-#define BTN_THUMBL 317
-//#define BTN_TR 100
-//#define BTN_TR2 100
-#define BTN_THUMBR 318
-#define BTN_SELECT 100
-#define BTN_START 314
-#define BTN_MODE 316
+//#define BTN_TL 310
+//#define BTN_TL2 312
+//#define BTN_TR 311
+//#define BTN_TR2 313
+//#define BTN_THUMBL 317
+//#define BTN_THUMBR 318
+//#define BTN_SELECT 100
+//#define BTN_START 314
+//#define BTN_MODE 316
 #define KEY_BACK 158
 #define KEY_MENU 139
 
@@ -76,12 +74,12 @@
 #define KEYCODE_BUTTON_Y 100
 
 //从frameworks/base/data/keyboards/Generic.kl 得到的
-#define BUTTON_A 304
-#define BUTTON_B 305
-#define BUTTON_C 306
-#define BUTTON_X 307
-#define BUTTON_Y 308
-#define BUTTON_Z 309
+//#define BTN_A 304
+//#define BTN_B 305
+//#define BTN_C 306
+//#define BTN_X 307
+//#define BTN_Y 308
+//#define BTN_Z 309
 
 
 //////////////////////////////////////////////////////////////////////
@@ -169,7 +167,7 @@ public :
     static int initKeyCodeToScanCodeMap( );
     static int  getScanCodeFromKeyCode(int keyCode);
 
-    static int initInputIdMaps();
+    static void initInputIdMaps();
     static int getInputIdFromEvcode(int evCode);
     static int getEvcodeFromInputId(int inputId);
     static long long getSystemTimePosix();

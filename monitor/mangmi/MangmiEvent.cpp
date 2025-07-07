@@ -59,6 +59,7 @@ void* MangmiEvent::start(void *args) {
             self->handleAxisEvents( eventAxis);
         }
     }
+    return nullptr;
 }
 
 void MangmiEvent::handleKeyEvents(std::vector<RawEvent>& events){

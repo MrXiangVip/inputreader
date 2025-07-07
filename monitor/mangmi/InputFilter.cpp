@@ -59,7 +59,7 @@ void *InputFilter::inputEventMonitor( void *args){
         RawEvent event;
         event.deviceId =1;
         event.type=EV_KEY;
-        event.code=BUTTON_A;
+        event.code=BTN_A;
         event.value=1;
         sleep(10);
         self->inputRawEvent( event);
@@ -77,7 +77,7 @@ void *InputFilter::inputEventMonitor( void *args){
 
 std::vector<RawEvent> InputFilter::inputRawEvent(RawEvent& event)
 {
-    ALOGD("thread:%d 投递一个事件 deviceId:%d, type:%d, code:%d, value:%d",std::this_thread::get_id(), event.deviceId, event.type, event.code, event.value);
+    ALOGD("thread 投递一个事件 deviceId:%d, type:%d, code:%d, value:%d", event.deviceId, event.type, event.code, event.value);
     std::vector<RawEvent> rawEvents;
     rawEvents.push_back(event);
     return handleRawEvents( rawEvents );
@@ -175,7 +175,8 @@ void InputFilter::handleAxisEvent(RawEvent& event){
 
 
 void InputFilter::handleSynEvent(RawEvent& event){
-
+    ALOGD("%s",__func__);
+    return;
 }
 
 void InputFilter::pushEvent(const RawEvent& event){
@@ -187,10 +188,12 @@ void InputFilter::pushSoftEvent(int id, int action, int x, int y)
 {
     ALOGD("pushSoftEvent id:%d, action:%d, x:%d, y:%d", id, action, x, y);
 //    filter.postSoftEvent(id, action, x, y);
+    return;
 }
 
 void InputFilter::pushSoftEvent(RawEvent event) {
     ALOGD("pushSoftEvent id:%d,  type:%d, code:%d,value:%d", event.deviceId, event.type, event.code, event.value);
+    return;
 }
 void InputFilter::pullInputEvents(std::vector<RawEvent>& keys, std::vector<RawEvent>& axes, int millisecond)
 {
@@ -199,7 +202,7 @@ void InputFilter::pullInputEvents(std::vector<RawEvent>& keys, std::vector<RawEv
 /* 从输入事件队列中拉取按键和轴事件 */
 void InputFilter::pullEvents(std::vector<RawEvent>& keys, std::vector<RawEvent>& axes, int millisecond)
 {
-    ALOGD("thread:%d :拉取事件", std::this_thread::get_id());
+    ALOGD("thread :拉取事件");
     unsigned long remain = (0 > millisecond) ? (unsigned long)(-1) : millisecond;
     do
     {
@@ -226,6 +229,7 @@ void InputFilter::pullEvents(std::vector<RawEvent>& keys, std::vector<RawEvent>&
         }
         remain -= elapse;
     } while (0 < remain);
+    return;
 }
 
 //void InputFilter::setInputsFilter(const std::set<int>& keyCodes, const std::set<int>& axisCodes){
@@ -240,4 +244,5 @@ void InputFilter::setFilter(const std::set<int> &keyCodes, const std::map<int, i
     ALOGI("%s",__func__);
     keyFilter = keyCodes;
     axisFilter = axisCodes;
+    return;
 }

@@ -28,6 +28,26 @@ struct JoystickConfig {
     int speed;
     int type;
     int slotId;//增加一个slotID 的字段
+    bool operator<(const JoystickConfig& other) const {
+        if( type!= other.type){
+            return type<other.type;
+        }else if( id != other.id){
+            return id< other.id;
+        }else if( slotId != other.slotId){
+            return slotId<other.slotId;
+        }else if( centerX != other.centerX ){
+            return centerX<other.centerX;
+        }else if( centerY != other.centerY){
+            return centerY <other.centerY;
+        }else if( radius <other.radius){
+            return  radius< other.radius;
+        }
+        return reverseJoystickX < other.reverseJoystickX;
+    }
+    bool operator==(const JoystickConfig& other) const {
+        return type==other.type && id ==other.id && slotId==other.slotId &&
+                    centerX==other.centerX &&centerY==other.centerY && radius==other.radius;
+    }
 };
 
 struct KeyConfig {

@@ -182,7 +182,7 @@ int MangmiSocketServer::dealReceivedData(std::string receivedData) {
 
         }
     }else{
-        ALOGD("unkown serialNo %d", cSerialNo.c_str());
+        ALOGD("unkown serialNo %s", cSerialNo.c_str());
     }
     ALOGI("---DealWith_Deceiveddata---success");
 

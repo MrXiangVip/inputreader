@@ -13,10 +13,10 @@ std::map<int, int> MangmiUtils::inputIdMaps; // 定义
  int MangmiUtils::initKeyCodeToScanCodeMap(){
 
     keyCodeScanCodeMap.clear();
-    keyCodeScanCodeMap.insert({KEYCODE_BUTTON_A, BUTTON_A });//增加 keyCode 到 scanCode 映射关系
-    keyCodeScanCodeMap.insert({KEYCODE_BUTTON_B, BUTTON_B });
-    keyCodeScanCodeMap.insert({KEYCODE_BUTTON_X, BUTTON_X });
-    keyCodeScanCodeMap.insert({KEYCODE_BUTTON_Y, BUTTON_Y });
+    keyCodeScanCodeMap.insert({KEYCODE_BUTTON_A, BTN_A });//增加 keyCode 到 scanCode 映射关系
+    keyCodeScanCodeMap.insert({KEYCODE_BUTTON_B, BTN_B });
+    keyCodeScanCodeMap.insert({KEYCODE_BUTTON_X, BTN_X });
+    keyCodeScanCodeMap.insert({KEYCODE_BUTTON_Y, BTN_Y });
     return  0;
 }
 
@@ -36,7 +36,7 @@ int MangmiUtils::getScanCodeFromKeyCode( int keyCode){
 }
 
 
-int MangmiUtils::initInputIdMaps( ){
+void MangmiUtils::initInputIdMaps( ){
     ALOGD("initInputIdMaps");
     inputIdMaps.clear();
     inputIdMaps.insert({INPUT_ID_UP, DPAD_UP});
@@ -44,18 +44,18 @@ int MangmiUtils::initInputIdMaps( ){
     inputIdMaps.insert({INPUT_ID_LEFT, DPAD_LEFT});
     inputIdMaps.insert({INPUT_ID_RIGHT, DPAD_RIGHT});
 
-    inputIdMaps.insert({INPUT_ID_A, BUTTON_A});
-    inputIdMaps.insert({INPUT_ID_B, BUTTON_B});
-    inputIdMaps.insert({INPUT_ID_C, BUTTON_C});
-    inputIdMaps.insert({INPUT_ID_X, BUTTON_X});
-    inputIdMaps.insert({INPUT_ID_Y, BUTTON_Y});
-    inputIdMaps.insert({INPUT_ID_Z, BUTTON_Z});
-    inputIdMaps.insert({INPUT_ID_L1, BUTTON_L1});
-    inputIdMaps.insert({INPUT_ID_L2, BUTTON_L2});
+    inputIdMaps.insert({INPUT_ID_A, BTN_A});
+    inputIdMaps.insert({INPUT_ID_B, BTN_B});
+    inputIdMaps.insert({INPUT_ID_C, BTN_C});
+    inputIdMaps.insert({INPUT_ID_X, BTN_X});
+    inputIdMaps.insert({INPUT_ID_Y, BTN_Y});
+    inputIdMaps.insert({INPUT_ID_Z, BTN_Z});
+    inputIdMaps.insert({INPUT_ID_L1, BTN_TL});
+    inputIdMaps.insert({INPUT_ID_L2, BTN_TL2});
     inputIdMaps.insert({INPUT_ID_L3, BTN_THUMBL});
 
-//    inputIdMaps.insert({INPUT_ID_R1, BTN_TR});
-//    inputIdMaps.insert({INPUT_ID_R2, BTN_TR2});
+    inputIdMaps.insert({INPUT_ID_R1, BTN_TR});
+    inputIdMaps.insert({INPUT_ID_R2, BTN_TR2});
     inputIdMaps.insert({INPUT_ID_R3, BTN_THUMBR});
 
     inputIdMaps.insert({INPUT_ID_SELECT, BTN_SELECT});
@@ -64,6 +64,7 @@ int MangmiUtils::initInputIdMaps( ){
 
     inputIdMaps.insert({INPUT_ID_BACK, KEY_BACK});
     inputIdMaps.insert({INPUT_ID_MENU, KEY_MENU});
+    return;
  }
 
 

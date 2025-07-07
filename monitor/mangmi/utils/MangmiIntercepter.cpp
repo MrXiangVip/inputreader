@@ -35,7 +35,7 @@ int MangmiIntercepter::insertInterceptEventKey(InterceptKey key) {
 
 /* 将serialNo 相同的集合删除 */
 int MangmiIntercepter::eraseInterceptEventBySerialNo(int serialNo) {
-    ALOGD("%s, %d, size:%d\n", __func__, serialNo, interceptKeySet.size());
+    ALOGD("%s, %d, size:%d\n", __func__, serialNo, (int)interceptKeySet.size());
     if( interceptKeySet.size() >0){
         for( auto it = interceptKeySet.begin(); it!=interceptKeySet.end();){
             if( it->serialNo == serialNo){
@@ -50,7 +50,7 @@ int MangmiIntercepter::eraseInterceptEventBySerialNo(int serialNo) {
 }
 
 int MangmiIntercepter::eraseInterceptEventKeyByInterceptKey(InterceptKey key) {
-    ALOGD("%s, %d,%d,%d size:%d\n", __func__, key.serialNo, key.type, key.evCode, interceptKeySet.size());
+    ALOGD("%s, %d,%d,%d size:%d\n", __func__, key.serialNo, key.type, key.evCode, (int)interceptKeySet.size());
     if( interceptKeySet.size() >0){
         for( auto it = interceptKeySet.begin(); it!=interceptKeySet.end();){
             if( it->serialNo == key.serialNo && it->evCode==key.evCode && it->type==key.type &&it->value ==key.value){
@@ -206,7 +206,7 @@ int MangmiIntercepter::updateInterceptPolicy() {
 }
 
 void MangmiIntercepter::toString() {
-    ALOGD("toString size:%d\n", interceptKeySet.size());
+    ALOGD("toString size:%d\n", (int)interceptKeySet.size());
     if( interceptKeySet.size()>0 ){
         for( auto it =interceptKeySet.begin(); it!=interceptKeySet.end();){
             ALOGD("evCode:%d, serialNo:%d, type:%d , value:%d\n",it->evCode, it->serialNo, it->type, it->value);

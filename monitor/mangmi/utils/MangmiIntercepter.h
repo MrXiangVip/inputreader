@@ -11,8 +11,8 @@
 #include "../MangmiEvent.h"
 #include "MangmiConfig.h"
 
-#define EV_KEY 1
-#define EV_ABS 2
+//#define EV_KEY 1
+//#define EV_ABS 2
 /*
  *  拦截 事件的类
  * */

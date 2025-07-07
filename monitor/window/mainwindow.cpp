@@ -32,14 +32,14 @@ void MainWindow::handleButtonClick(){
         RawEvent  event;
         event.deviceId =1;
         event.type=EV_KEY;
-        event.code=BUTTON_A;
+        event.code=BTN_A;
         event.value=1; //down
         InputFilter::getInstance()->inputRawEvent( event);
         std::this_thread::sleep_for(std::chrono::seconds(1));
         RawEvent  eventUp;
         eventUp.deviceId =1;
         eventUp.type=EV_KEY;
-        eventUp.code=BUTTON_A;
+        eventUp.code=BTN_A;
         eventUp.value=0; //up
         InputFilter::getInstance()->inputRawEvent( eventUp);
 

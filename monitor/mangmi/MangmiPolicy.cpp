@@ -43,6 +43,7 @@ MangmiPolicy::MangmiPolicy() {
     mangmiPool.createPool();
     AtomicComboThreadExit.store(false);
     AtomicScreenComboThreadExit.store(false);
+    iCancelSkill = false;//
 }
 
 MangmiPolicy* MangmiPolicy::getInstance( ){
@@ -236,9 +237,8 @@ void MangmiPolicy::leftJoystick(RawEvent& event){
             case JOYSTICK_CATEGORY_TOUCHSCREEN:
                 break;
             case JOYSTICK_TYPE_TOUCHSCREEN_JOYSTICK://虚拟摇杆
-                leftVirtualJoystick(event, joystickConfigs);
-                break;
             case JOYSTICK_TYPE_TOUCHSCREEN_SKILL_SHOT:// 指向性技能
+                leftVirtualJoystick(event, joystickConfigs);
                 break;
             case JOYSTICK_TYPE_TOUCHSCREEN_ADJUST_VIEW://调整视角
                 break;
@@ -251,7 +251,7 @@ void MangmiPolicy::leftJoystick(RawEvent& event){
 /* 右摇杆 */
 void MangmiPolicy::rightJoystick(RawEvent event) {
     ALOGD("rightJoystick");
-    std::map<int, vector<JoystickConfig>> joystickMap = MangmiConfig::getInstance()->getJoystickConfigsMapByInputId( INPUT_ID_RIGHT_JOYSTICK );// 一个左摇杆 可以配置多个策略
+    std::map<int, std::vector<JoystickConfig>> joystickMap = MangmiConfig::getInstance()->getJoystickConfigsMapByInputId( INPUT_ID_RIGHT_JOYSTICK );// 一个左摇杆 可以配置多个策略
     for( auto it=joystickMap.begin();it!=joystickMap.end();++it){
         int type = it->first;
         std::vector<JoystickConfig> joystickConfigs = it->second;
@@ -265,9 +265,8 @@ void MangmiPolicy::rightJoystick(RawEvent event) {
             case JOYSTICK_CATEGORY_TOUCHSCREEN:
                 break;
             case JOYSTICK_TYPE_TOUCHSCREEN_JOYSTICK://虚拟摇杆
-                rightVirtualJoystick(event, joystickConfigs);
-                break;
             case JOYSTICK_TYPE_TOUCHSCREEN_SKILL_SHOT:// 指向性技能
+                rightVirtualJoystick(event, joystickConfigs);
                 break;
             case JOYSTICK_TYPE_TOUCHSCREEN_ADJUST_VIEW://调整视角
                 break;
@@ -301,6 +300,14 @@ void MangmiPolicy::leftVirtualJoystick(RawEvent event,  std::vector<JoystickConf
         axisX = event.value; //swap y->x
         leftAxisX = axisX;
         axisY = leftAxisY;
+    }
+
+//   当没有按下取消技能时, 从指向性技能里查出 关联左摇杆和智能摇杆 的按键配置. 如果按下了取消技能按键,抬起关联了左摇杆和智能摇杆的按键
+    if( iCancelSkill ==false ){
+        std::set<JoystickConfig> leftAssociateJoystickConfig =associateJoystickMap.at(LEFT_ASSOCIATE_JOYSTICK);
+        std::set<JoystickConfig> smartAssociateJoystickConfig =associateJoystickMap.at( SMART_ASSOCIATE_JOYSTICK);
+        joystickConfigs.insert( joystickConfigs.end(),leftAssociateJoystickConfig.begin(), leftAssociateJoystickConfig.end());
+        joystickConfigs.insert( joystickConfigs.end(), smartAssociateJoystickConfig.begin(), smartAssociateJoystickConfig.end());
     }
 
     /*当摇杆从非死区移动到死区位置，或回到中心位置时，生成抬起事件*/
@@ -386,6 +393,13 @@ void MangmiPolicy::rightVirtualJoystick(RawEvent event, std::vector<JoystickConf
         rightAxisX = axisX;
         axisY = rightAxisY;
     }
+//   当没有按下取消技能时, 从指向性技能里查出 关联右摇杆和智能摇杆 的按键配置. 如果按下了取消技能,抬起关联了右摇杆和智能摇杆的按键
+    if( iCancelSkill ==false ){
+        std::set<JoystickConfig> rightAssociateJoystickConfig =associateJoystickMap.at( RIGHT_ASSOCIATE_JOYSTICK);
+        std::set<JoystickConfig> smartAssociateJoystickConfig =associateJoystickMap.at( SMART_ASSOCIATE_JOYSTICK);
+        joystickConfigs.insert( joystickConfigs.end(),rightAssociateJoystickConfig.begin(), rightAssociateJoystickConfig.end());
+        joystickConfigs.insert( joystickConfigs.end(), smartAssociateJoystickConfig.begin(), smartAssociateJoystickConfig.end());
+    }
 
     /*当摇杆从非死区移动到死区位置，或回到中心位置时，生成抬起事件*/
     if( (abs(rightOrigX)<DEADZONE_CENTERPOINT) && abs(rightOrigY)<DEADZONE_CENTERPOINT ){
@@ -448,7 +462,7 @@ void MangmiPolicy::rightVirtualJoystick(RawEvent event, std::vector<JoystickConf
     return;
 }
 
-/* 横轴方向键 */
+/* 十字轴 方向键 */
 void MangmiPolicy::absHatXY(RawEvent &event) {
     ALOGD("absHatXY deviceId:%d, type:%d, code:%d, value:%d", event.deviceId, event.type, event.code, event.value);
     int currentKey = 0;
@@ -457,7 +471,7 @@ void MangmiPolicy::absHatXY(RawEvent &event) {
     if (event.code == ABS_HAT0X && event.value == 1) {// 横轴右键下
         currentKey = DPAD_RIGHT;
         newEvent = generateEvent(event.deviceId, EV_KEY, DPAD_RIGHT, 1);
-    } else if (event.code = ABS_HAT0X && event.value == -1) {//横轴左键按下
+    } else if (event.code == ABS_HAT0X && event.value == -1) {//横轴左键按下
         currentKey = DPAD_LEFT;
         newEvent = generateEvent(event.deviceId, EV_KEY, DPAD_LEFT, 1);
     } else if (event.code == ABS_HAT0X && event.value == 0) {//横轴 抬起
@@ -484,29 +498,29 @@ void MangmiPolicy::absHatXY(RawEvent &event) {
     buildKeyEvent(newEvent);//根据配置决定动作
 }
 
-/* */
+/* L2 键 */
 void MangmiPolicy::absGas(RawEvent &event){
     ALOGD("absGas ");
     RawEvent newEvent;
     if( event.code ==ABS_GAS && event.value==1){
-        newEvent =generateEvent(event.deviceId, EV_KEY, BUTTON_L2, 1);
+        newEvent =generateEvent(event.deviceId, EV_KEY, BTN_TL2, 1);
 
     }else if( event.code ==ABS_GAS && event.value ==0){
-        newEvent =generateEvent( event.deviceId, EV_KEY, BUTTON_L2, 0);
+        newEvent =generateEvent( event.deviceId, EV_KEY, BTN_TL2, 0);
     }
 //    InputFilter::getInstance()->pushSoftEvent( newEvent);
     buildKeyEvent( newEvent);
 }
 
-/* */
+/* R2 键 */
 void MangmiPolicy::absBreak(RawEvent &event){
     ALOGD("absBreak");
     RawEvent newEvent;
     if( event.code ==ABS_BREAK && event.value==1){
-        newEvent = generateEvent( event.deviceId, EV_KEY, BUTTON_R2,1);
+        newEvent = generateEvent( event.deviceId, EV_KEY, BTN_TR2,1);
 
     }else if( event.code ==ABS_BREAK && event.value ==0){
-        newEvent = generateEvent( event.deviceId, EV_KEY, BUTTON_R2, 0);
+        newEvent = generateEvent( event.deviceId, EV_KEY, BTN_TR2, 0);
     }
 //    InputFilter::getInstance()->pushSoftEvent( newEvent);
     buildKeyEvent( newEvent);
@@ -515,7 +529,7 @@ void MangmiPolicy::absBreak(RawEvent &event){
 
 /* 屏幕映射模式 -- 屏幕点击-- 标准点击 */
 void MangmiPolicy::touchScreensStandardClickWhenPress( RawEvent &event, std::vector<KeyConfig> keyConfigs){
-    ALOGD("touchScreensStandardClickWhenPress deviceId:%d, type:%d, code:%d, value:%d, sizeof keyConfig:%d", event.deviceId, event.type, event.code, event.value, keyConfigs.size());
+    ALOGD("touchScreensStandardClickWhenPress deviceId:%d, type:%d, code:%d, value:%d, sizeof keyConfig:%d", event.deviceId, event.type, event.code, event.value, (int)keyConfigs.size());
     int tmpInputId= MangmiUtils::getInputIdFromEvcode( event.code);
     if( tmpInputId==0){return ;}
     if( keyConfigs.size()==0){return;}
@@ -635,7 +649,7 @@ void MangmiPolicy::keyBoardComboClick( RawEvent rawEvent, KeyConfig keyConfig){
     }
 }
 
-/* 屏幕映射模式-- 指向性技能-- 摇杆关联-左*/
+/* 屏幕映射模式--拖出按键-- 指向性技能-- 摇杆关联选左*/
 void MangmiPolicy::mobaAssociateLeftJoystickWhenPress(RawEvent event, std::vector<KeyConfig> keyConfigs){
     ALOGD("%s",__func__);
 
@@ -645,45 +659,133 @@ void MangmiPolicy::mobaAssociateLeftJoystickWhenPress(RawEvent event, std::vecto
             int centerX = mWidth*config.centerX;
             int centerY = mHeight*config.centerY;
             InputFilter::getInstance()->pushSoftEvent( config.slotId, TOUCH_DOWN, centerX, centerY);
-//            同时要保存数据,等会左摇杆要用到
-
+//            同时要保存数据, 当左摇杆 摇动要用到
+            addJoyStickMapFromKeyConfig( LEFT_ASSOCIATE_JOYSTICK, config);
         }
     }else if( event.value==0){//抬起
         for( const auto &config:keyConfigs){
             InputFilter::getInstance()->pushSoftEvent( config.slotId, TOUCH_UP, 0,0);
+//        将元素删除
+            removeJoyStickMapByKeyConfig(LEFT_ASSOCIATE_JOYSTICK, config);
+        }
+
+    }
+    return;
+}
+/* 将指向性技能的按键数据保存 */
+void MangmiPolicy::addJoyStickMapFromKeyConfig(int associateType, KeyConfig keyConfig){
+    ALOGD("%s", __func__);
+    JoystickConfig  joystickConfig;
+    joystickConfig.centerX =  keyConfig.centerX;
+    joystickConfig.centerY =  keyConfig.centerY;
+    joystickConfig.sensitivityX =  keyConfig.sensitivityX;
+    joystickConfig.sensitivityY = keyConfig.sensitivityY;
+    joystickConfig.reverseJoystickX = keyConfig.reverseJoystickX;
+    joystickConfig.reverseJoystickY = keyConfig.reverseJoystickY;
+    joystickConfig.radius = mWidth *keyConfig.radius;
+    joystickConfig.minEffectiveRadiusPercent  = keyConfig.minEffectiveRadiusPercent;
+
+    auto it = associateJoystickMap.find(associateType);
+    if( it != associateJoystickMap.end() ){
+        std::set<JoystickConfig> associateJoystickConfig = it->second;
+        associateJoystickConfig.insert( joystickConfig);
+    }else{
+        std::set<JoystickConfig> associateJoystickConfig ;
+        associateJoystickConfig.insert( joystickConfig);
+        associateJoystickMap.insert({associateType, associateJoystickConfig});
+    }
+    return ;
+}
+void MangmiPolicy::removeJoyStickMapByKeyConfig(int associateType, KeyConfig keyConfig) {
+    ALOGD("%s", __func__);
+    JoystickConfig  joystickConfig;
+    joystickConfig.centerX =  keyConfig.centerX;
+    joystickConfig.centerY =  keyConfig.centerY;
+    joystickConfig.sensitivityX =  keyConfig.sensitivityX;
+    joystickConfig.sensitivityY = keyConfig.sensitivityY;
+    joystickConfig.reverseJoystickX = keyConfig.reverseJoystickX;
+    joystickConfig.reverseJoystickY = keyConfig.reverseJoystickY;
+    joystickConfig.radius = mWidth *keyConfig.radius;
+    joystickConfig.minEffectiveRadiusPercent  = keyConfig.minEffectiveRadiusPercent;
+    std::set<JoystickConfig> associateJoystickConfig = associateJoystickMap.at( associateType);
+    for( auto it =associateJoystickConfig.begin(); it != associateJoystickConfig.end();){
+        if(  *it ==joystickConfig ){
+            it = associateJoystickConfig.erase(it);
+        } else{
+            ++it;
         }
     }
+    return;
 }
 
-/* 屏幕映射模式--指向性技能-- 摇杆关联-右 */
+
+/* 屏幕映射模式--拖出按键--指向性技能-- 摇杆关联选右 */
 void MangmiPolicy::mobaAssociateRightJoystickWhenPress(RawEvent event, std::vector<KeyConfig> keyConfigs){
     ALOGD("%s", __func__);
     if( event.value == 1){// 按下
-
+        for(const auto &config:keyConfigs) {
+            int centerX = mWidth * config.centerX;
+            int centerY = mHeight * config.centerY;
+            InputFilter::getInstance()->pushSoftEvent(config.slotId, TOUCH_DOWN, centerX, centerY);
+//            同时要保存数据, 当左摇杆 摇动要用到
+            addJoyStickMapFromKeyConfig(RIGHT_ASSOCIATE_JOYSTICK, config);
+        }
     }else if( event.value ==0){//抬起
-
+        for( const auto &config:keyConfigs){
+            InputFilter::getInstance()->pushSoftEvent( config.slotId, TOUCH_UP, 0,0);
+            // 将元素删除
+            removeJoyStickMapByKeyConfig(RIGHT_ASSOCIATE_JOYSTICK, config);
+        }
     }
     return;
 }
 
-/* 屏幕映射模式--指向性技能--摇杆关联--智能*/
+/* 屏幕映射模式--拖出按键--指向性技能--摇杆关联选智能*/
 void MangmiPolicy::mobaAssociateSmartJoystickWhenPress(RawEvent event, std::vector<KeyConfig> keyConfigs){
     ALOGD("%s",__func__);
     if( event.value==1){//按下
-
+        for(const auto &config:keyConfigs) {
+            int centerX = mWidth * config.centerX;
+            int centerY = mHeight * config.centerY;
+            InputFilter::getInstance()->pushSoftEvent(config.slotId, TOUCH_DOWN, centerX, centerY);
+//            同时要保存数据, 当左摇杆 摇动要用到
+            addJoyStickMapFromKeyConfig(SMART_ASSOCIATE_JOYSTICK, config);
+        }
     }else if( event.value ==0){//抬起
-
+        for( const auto &config:keyConfigs){
+            InputFilter::getInstance()->pushSoftEvent( config.slotId, TOUCH_UP, 0,0);
+//          删除元素
+            removeJoyStickMapByKeyConfig( SMART_ASSOCIATE_JOYSTICK, config);
+        }
     }
     return;
 }
 
-/* 屏幕映射模式--取消技能 */
+/* 屏幕映射模式--取消技能,   有按下和抬起的动作 同时将 按键的指向性技能取消 */
 void MangmiPolicy::mobaCancelSkillWhenPress(RawEvent event, std::vector<KeyConfig> keyConfigs){
     ALOGD("%s",__func__);
+
     if( event.value ==1){//按下
-
-    }else if(event.value ==0){//抬起
-
+        iCancelSkill = true;
+        for( const auto &config: keyConfigs){
+            int centerX = mWidth * config.centerX;
+            int centerY = mHeight * config.centerY;
+            InputFilter::getInstance()->pushSoftEvent(config.slotId, TOUCH_DOWN, centerX, centerY);
+        }
+//      同时将指向性技能的键抬起
+        for(auto it =associateJoystickMap.begin(); it!=associateJoystickMap.end(); it++){
+            int type = it->first;
+            std::set<JoystickConfig> joystickConfigs = it->second;
+            for(auto config:joystickConfigs){
+                InputFilter::getInstance()->pushSoftEvent( config.slotId, TOUCH_UP, 0,0);
+            }
+        }
+        associateJoystickMap.clear();//同时将map清除
+    }else if(event.value ==0){//抬起取消技能按键
+        iCancelSkill = false;
+        for(const auto config:keyConfigs){
+            InputFilter::getInstance()->pushSoftEvent(config.slotId, TOUCH_UP, 0, 0);
+        }
     }
     return;
 }
@@ -691,9 +793,9 @@ void MangmiPolicy::mobaCancelSkillWhenPress(RawEvent event, std::vector<KeyConfi
 void MangmiPolicy::mobaViewMapWhenPress(RawEvent event, std::vector<KeyConfig> keyConfigs){
     ALOGD("%s",__func__);
     if( event.value ==1){ //按下
-
+        mapViewMode = 1;
     }else if(event.value ==0){//抬起
-
+        mapViewMode = 0;
     }
     return;
 }

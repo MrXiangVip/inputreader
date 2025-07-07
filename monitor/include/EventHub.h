@@ -7,9 +7,9 @@
 
 #include <cstdint>
 
-#define  EV_KEY  1
-#define  EV_ABS  3
-#define  EV_SYN  4
+//#define  EV_KEY  1
+//#define  EV_ABS  3
+//#define  EV_SYN  4
 
 struct RawEvent {
     // Time when the event happened
