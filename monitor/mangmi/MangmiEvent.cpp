@@ -63,7 +63,7 @@ void* MangmiEvent::start(void *args) {
 }
 
 void MangmiEvent::handleKeyEvents(std::vector<RawEvent>& events){
-    ALOGD("处理按键事件 ");
+    ALOGD("keyEvents ");
     unsigned int size = events.size();
     for (unsigned int i = 0; i < size; i++)
     {
@@ -73,13 +73,13 @@ void MangmiEvent::handleKeyEvents(std::vector<RawEvent>& events){
     return;
 }
 void MangmiEvent::handleKeyEvent(RawEvent event) {
-    ALOGD("处理按键事件 deviceId:%d, type:%d,code:%d,value:%d ",event.deviceId, event.type, event.code,event.value);
+    ALOGD("keyEvent deviceId:%d, type:%d,code:%d,value:%d ",event.deviceId, event.type, event.code,event.value);
     MangmiPolicy::getInstance()->buildKeyEvent( event);
-    ALOGD("处理按键事件 over \n\n");
+    ALOGD("keyEvent over \n\n");
 }
 
 void MangmiEvent::handleAxisEvents(std::vector<RawEvent>& events){
-    ALOGD("处理摇杆事件s");
+    ALOGD("axisEvents");
     unsigned int size = events.size();
     for (unsigned int i = 0; i < size; i++)
     {
@@ -90,7 +90,7 @@ void MangmiEvent::handleAxisEvents(std::vector<RawEvent>& events){
 }
 
 void MangmiEvent::handleAxisEvent(RawEvent event) {
-    ALOGD("处理摇杆事件");
+    ALOGD("axisEvent");
     MangmiPolicy::getInstance()->buildAxisEvent(event);
-    ALOGD("处理摇杆事件 over \n\n");
+    ALOGD("axisEvent over \n\n");
 }

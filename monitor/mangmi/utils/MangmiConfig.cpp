@@ -25,6 +25,7 @@ bool MangmiConfig::parseJson(std::string  sJson){
     ALOGD("parseJson %s",sJson.c_str());
     Json::Reader reader;
     Json::Value root;
+
     int joystickSlotIndex =JOYSTICK_SLOT_INDEX;
     int keySlotIndex = KEY_SLOT_INDEX;
     // 尝试解析 JSON 数据

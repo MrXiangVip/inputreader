@@ -9,9 +9,11 @@
 #include <vector>
 #include <map>
 #include <linux/input.h>
-
+#include <sstream>
+#include "../Macros.h"
 #define KEY_SLOT_INDEX 60
 #define JOYSTICK_SLOT_INDEX 100
+
 
 struct JoystickConfig {
     float centerX;
@@ -70,6 +72,31 @@ struct KeyConfig {
     int speed;
     int type;
     int slotId;//增加一个slotID 的字段
+    std::string toString() const {
+        std::ostringstream oss;
+        oss << "KeyConfig{"
+            << "duration=" << duration
+            << ", exclusiveJoystick=" << (exclusiveJoystick ? "true" : "false")
+            << ", targetCode=" << targetCode
+            << ", triggerType=" << triggerType
+            << ", width=" << width
+            << ", centerX=" << centerX
+            << ", centerY=" << centerY
+            << ", followPointerPosition=" << (followPointerPosition ? "true" : "false")
+            << ", hideFromUi=" << (hideFromUi ? "true" : "false")
+            << ", id=" << id
+            << ", minEffectiveRadiusPercent=" << minEffectiveRadiusPercent
+            << ", radius=" << radius
+            << ", reverseJoystickX=" << (reverseJoystickX ? "true" : "false")
+            << ", reverseJoystickY=" << (reverseJoystickY ? "true" : "false")
+            << ", sensitivityX=" << sensitivityX
+            << ", sensitivityY=" << sensitivityY
+            << ", speed=" << speed
+            << ", type=" << type
+            << ", slotId=" << slotId
+            << "}";
+        return oss.str();
+    }
 };
 struct GamepadConfig {
     float alpha;

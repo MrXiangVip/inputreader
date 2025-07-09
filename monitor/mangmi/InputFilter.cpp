@@ -162,9 +162,9 @@ void InputFilter::handleAxisEvent(RawEvent& event){
     auto it =axisFilter.find(event.code);
     if( it!= axisFilter.end()){
         if( it->second==0){
-            filtered==true;
+            filtered=true;
         }else if( it->second == event.value ){
-            filtered ==true;
+            filtered =true;
         }
     }
     if( filtered ){ return;}

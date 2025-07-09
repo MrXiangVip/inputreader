@@ -194,7 +194,7 @@ void MangmiPolicy::buildKeyEvent( RawEvent event){
 /* */
 void MangmiPolicy::buildAxisEvent( RawEvent event) {
     ALOGD("build new Event");
-//  方向键， L2,R2，左右摇杆 都是abs事件
+//  十字键， L2,R2，左右摇杆 都是abs事件
     switch( event.code ){
         case ABS_X:
         case ABS_Y:
@@ -211,7 +211,7 @@ void MangmiPolicy::buildAxisEvent( RawEvent event) {
         case ABS_GAS:
             absGas( event);
             break;
-        case ABS_BREAK:
+        case ABS_BRAKE:
             absBreak( event);
             break;
         default:
@@ -352,8 +352,6 @@ void MangmiPolicy::leftVirtualJoystick(RawEvent event,  std::vector<JoystickConf
             if( isLeftDown == true){
                 for(int i=0; i<joystickConfigs.size();i++){
                     JoystickConfig joystickConfig = joystickConfigs[i];
-                    int axisX = event.value;
-                    int axisY = mWidth -event.value;
                     float fRadius = mWidth * joystickConfig.radius;
                     float fSenX = joystickConfig.sensitivityX;
                     float fSenY = joystickConfig.sensitivityY;
@@ -443,8 +441,6 @@ void MangmiPolicy::rightVirtualJoystick(RawEvent event, std::vector<JoystickConf
             if( isRightDown == true){
                 for(int i=0; i<joystickConfigs.size();i++){
                     JoystickConfig joystickConfig = joystickConfigs[i];
-                    int axisX = event.value;
-                    int axisY = mWidth -event.value;
                     float fRadius = mWidth * joystickConfig.radius;
                     float fSenX = joystickConfig.sensitivityX;
                     float fSenY = joystickConfig.sensitivityY;
@@ -463,37 +459,37 @@ void MangmiPolicy::rightVirtualJoystick(RawEvent event, std::vector<JoystickConf
 }
 
 /* 十字轴 方向键 */
+int lastKey = 0;
 void MangmiPolicy::absHatXY(RawEvent &event) {
     ALOGD("absHatXY deviceId:%d, type:%d, code:%d, value:%d", event.deviceId, event.type, event.code, event.value);
-    int currentKey = 0;
 
     RawEvent newEvent;
     if (event.code == ABS_HAT0X && event.value == 1) {// 横轴右键下
-        currentKey = DPAD_RIGHT;
-        newEvent = generateEvent(event.deviceId, EV_KEY, DPAD_RIGHT, 1);
+        lastKey = KEY_RIGHT;
+        newEvent = generateEvent(event.deviceId, EV_KEY, KEY_RIGHT, 1);
     } else if (event.code == ABS_HAT0X && event.value == -1) {//横轴左键按下
-        currentKey = DPAD_LEFT;
-        newEvent = generateEvent(event.deviceId, EV_KEY, DPAD_LEFT, 1);
+        lastKey = KEY_LEFT;
+        newEvent = generateEvent(event.deviceId, EV_KEY, KEY_LEFT, 1);
     } else if (event.code == ABS_HAT0X && event.value == 0) {//横轴 抬起
-        if (currentKey == DPAD_LEFT) {
-            newEvent = generateEvent(event.deviceId, EV_KEY, DPAD_LEFT, 0);
-        } else if (currentKey == DPAD_RIGHT) {
-            newEvent = generateEvent(event.deviceId, EV_KEY, DPAD_RIGHT, 0);
+        if (lastKey == KEY_LEFT) {
+            newEvent = generateEvent(event.deviceId, EV_KEY, KEY_LEFT, 0);
+        } else if (lastKey == KEY_RIGHT) {
+            newEvent = generateEvent(event.deviceId, EV_KEY, KEY_RIGHT, 0);
         }
-        currentKey==0;
+        lastKey=0;
     } else if (event.code == ABS_HAT0Y && event.value == 1) {// 纵轴上键 按下
-        currentKey = DPAD_DOWN;
-        newEvent = generateEvent(event.deviceId, EV_KEY, DPAD_DOWN, 1);
+        lastKey = KEY_DOWN;
+        newEvent = generateEvent(event.deviceId, EV_KEY, KEY_DOWN, 1);
     } else if (event.code == ABS_HAT0Y && event.value == -1) {// 纵轴下键 按下
-        currentKey = DPAD_UP;
-        newEvent = generateEvent(event.deviceId, EV_KEY, DPAD_UP, 1);
+        lastKey = KEY_UP;
+        newEvent = generateEvent(event.deviceId, EV_KEY, KEY_UP, 1);
     } else if (event.code == ABS_HAT0Y && event.value == 0) {//纵轴抬起
-        if (currentKey == DPAD_DOWN) {
-            newEvent = generateEvent(event.deviceId, EV_KEY, DPAD_UP, 0);
-        } else if (currentKey == DPAD_UP) {
-            newEvent = generateEvent(event.deviceId, EV_KEY, DPAD_DOWN, 0);
+        if (lastKey == KEY_DOWN) {
+            newEvent = generateEvent(event.deviceId, EV_KEY, KEY_UP, 0);
+        } else if (lastKey == KEY_UP) {
+            newEvent = generateEvent(event.deviceId, EV_KEY, KEY_DOWN, 0);
         }
-        currentKey=0;
+        lastKey=0;
     }
     buildKeyEvent(newEvent);//根据配置决定动作
 }
@@ -516,10 +512,10 @@ void MangmiPolicy::absGas(RawEvent &event){
 void MangmiPolicy::absBreak(RawEvent &event){
     ALOGD("absBreak");
     RawEvent newEvent;
-    if( event.code ==ABS_BREAK && event.value==1){
+    if( event.code ==ABS_BRAKE && event.value==1){
         newEvent = generateEvent( event.deviceId, EV_KEY, BTN_TR2,1);
 
-    }else if( event.code ==ABS_BREAK && event.value ==0){
+    }else if( event.code ==ABS_BRAKE && event.value ==0){
         newEvent = generateEvent( event.deviceId, EV_KEY, BTN_TR2, 0);
     }
 //    InputFilter::getInstance()->pushSoftEvent( newEvent);
@@ -533,16 +529,21 @@ void MangmiPolicy::touchScreensStandardClickWhenPress( RawEvent &event, std::vec
     int tmpInputId= MangmiUtils::getInputIdFromEvcode( event.code);
     if( tmpInputId==0){return ;}
     if( keyConfigs.size()==0){return;}
-    for(int i=0; i<keyConfigs.size();i++){
-        const auto &keyConfig = keyConfigs[i];
-        float centerX = keyConfig.centerX;
-        float centerY = keyConfig.centerY;
+    int mWidth = InputFilter::mWidth;
+    int mHeight  =InputFilter::mHeight;
+    for(size_t i=0; i<keyConfigs.size();i++){
+        const auto keyConfig = keyConfigs[i];
+        ALOGD("%s, width:%d, height:%d", keyConfig.toString().c_str(), mWidth, mHeight);
+        float fCenterX =  mWidth* keyConfig.centerY;
+        float fCenterY = mHeight - mHeight * keyConfig.centerX;
         if( event.value == 1){
 //            InputFilter::getInstance()->pushSoftEvent(slotIds[i], TOUCH_DOWN, centerX, centerY);
-            InputFilter::getInstance()->pushSoftEvent(keyConfig.slotId, TOUCH_DOWN, centerX, centerY);
+            ALOGD("TOUCH_DOWN slotId:%d, x:%f, y:%f", keyConfig.slotId, fCenterX, fCenterY);
+            InputFilter::getInstance()->pushSoftEvent(keyConfig.slotId, TOUCH_DOWN, fCenterX, fCenterY);
         }else if( event.value == 0){
 //            InputFilter::getInstance()->pushSoftEvent(slotIds[i], TOUCH_UP, centerX, centerY);
-            InputFilter::getInstance()->pushSoftEvent(keyConfig.slotId, TOUCH_UP, centerX, centerY);
+            ALOGD("TOUCH_UP slotId:%d, x:%f, y:%f", keyConfig.slotId, fCenterX, fCenterY);
+            InputFilter::getInstance()->pushSoftEvent(keyConfig.slotId, TOUCH_UP, fCenterX, fCenterY);
         }
     }
     return;
@@ -565,7 +566,9 @@ void MangmiPolicy::touchScreenComboClickWhenPress(RawEvent &event, std::vector<K
 void MangmiPolicy::screenComboClick( RawEvent rawEvent, KeyConfig keyConfig){
     ALOGD("keyBoardComboClick");
     while(1){
-        InputFilter::getInstance()->pushSoftEvent( keyConfig.slotId, TOUCH_DOWN, keyConfig.centerX, keyConfig.centerY );
+        float fCenterX = mWidth*keyConfig.centerY;
+        float fCenterY = mHeight - mHeight*keyConfig.centerX;
+        InputFilter::getInstance()->pushSoftEvent( keyConfig.slotId, TOUCH_DOWN,  fCenterX, fCenterY );
         std::this_thread::sleep_for(std::chrono::milliseconds( keyConfig.duration));
         InputFilter::getInstance()->pushSoftEvent(keyConfig.slotId, TOUCH_UP, 0, 0);
         std::this_thread::sleep_for(std::chrono::milliseconds( keyConfig.duration));

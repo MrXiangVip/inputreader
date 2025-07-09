@@ -50,21 +50,21 @@
 #define INPUT_ID_M4 1004
 
 
-#define DPAD_UP     103
-#define DPAD_DOWN   108
-#define DPAD_LEFT   105
-#define DPAD_RIGHT  106
+//#define KEY_UP     103
+//#define KEY_DOWN   108
+//#define KEY_LEFT   105
+//#define KEY_RIGHT  106
 //#define BTN_TL 310
 //#define BTN_TL2 312
 //#define BTN_TR 311
 //#define BTN_TR2 313
 //#define BTN_THUMBL 317
 //#define BTN_THUMBR 318
-//#define BTN_SELECT 100
-//#define BTN_START 314
+//#define BTN_SELECT 314
+//#define BTN_START 315
 //#define BTN_MODE 316
-#define KEY_BACK 158
-#define KEY_MENU 139
+//#define KEY_BACK 158
+//#define KEY_MENU 139
 
 //////////////////////////////////////////////////////////////////////
 //从 android/view/KeyEvent.java 得到的
@@ -141,16 +141,16 @@
 #define JOYSTICK_TYPE_TOUCHSCREEN_ADJUST_VIEW (JOYSTICK_CATEGORY_TOUCHSCREEN + 4)
 
 /////////////////////////////////////////////////////////////////////////////////
-#define ABS_X			0x00  // 水平轴（X轴）
-#define ABS_Y			0x01  // 垂直轴（Y轴）
-#define ABS_Z			0x02  // Z轴（如游戏手柄的油门）
-#define ABS_RX			0x03  // 旋转X轴（右摇杆X）
-#define ABS_RY			0x04  // 旋转Y轴（右摇杆Y）
-#define ABS_RZ			0x05  // 旋转Z轴
-#define ABS_HAT0X		0x10  // 方向键X
-#define ABS_HAT0Y		0x11  // 方向键Y
-#define ABS_GAS         0x09  //L2
-#define ABS_BREAK       0x0A  //R2
+//#define ABS_X			0x00  // 水平轴（X轴）
+//#define ABS_Y			0x01  // 垂直轴（Y轴）
+//#define ABS_Z			0x02  // Z轴（如游戏手柄的油门）
+//#define ABS_RX			0x03  // 旋转X轴（右摇杆X）
+//#define ABS_RY			0x04  // 旋转Y轴（右摇杆Y）
+//#define ABS_RZ			0x05  // 旋转Z轴
+//#define ABS_HAT0X		0x10  // 方向键X
+//#define ABS_HAT0Y		0x11  // 方向键Y
+//#define ABS_GAS         0x09  //L2
+//#define ABS_BREAK       0x0A  //R2
 
 //////////////////////////////////////////////////////////////////////////////////
 #define TOUCH_NONE 0

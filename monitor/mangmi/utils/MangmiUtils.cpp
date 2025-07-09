@@ -39,10 +39,10 @@ int MangmiUtils::getScanCodeFromKeyCode( int keyCode){
 void MangmiUtils::initInputIdMaps( ){
     ALOGD("initInputIdMaps");
     inputIdMaps.clear();
-    inputIdMaps.insert({INPUT_ID_UP, DPAD_UP});
-    inputIdMaps.insert({INPUT_ID_DOWN, DPAD_DOWN});
-    inputIdMaps.insert({INPUT_ID_LEFT, DPAD_LEFT});
-    inputIdMaps.insert({INPUT_ID_RIGHT, DPAD_RIGHT});
+    inputIdMaps.insert({INPUT_ID_UP, KEY_UP});
+    inputIdMaps.insert({INPUT_ID_DOWN, KEY_DOWN});
+    inputIdMaps.insert({INPUT_ID_LEFT, KEY_LEFT});
+    inputIdMaps.insert({INPUT_ID_RIGHT, KEY_RIGHT});
 
     inputIdMaps.insert({INPUT_ID_A, BTN_A});
     inputIdMaps.insert({INPUT_ID_B, BTN_B});
