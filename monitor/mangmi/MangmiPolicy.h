@@ -43,8 +43,8 @@ class MangmiPolicy {
 public:
     pthread_t startSocketServerThread( );  //创程
     static int replyApplication(int inputId, RawEvent event);// 回复客户端socket
-    void buildKeyEvent(RawEvent event); //根据 下发的策略生成新的事件
-    void buildAxisEvent(RawEvent event);
+    void handleKeyPlus(RawEvent event); //根据 下发的策略生成新的事件
+    void handleAxisPlus(RawEvent event);
     static MangmiPolicy* getInstance();
     static std::vector<socketReply> vectorReply;
     void stop();
@@ -77,7 +77,7 @@ private:
 
     void absGas(RawEvent &event);
 
-    void absBreak(RawEvent &event);
+    void absBrake(RawEvent &event);
 
     void touchScreensStandardClickWhenPress(RawEvent &event, std::vector<KeyConfig> keyConfigs);
     void touchScreenComboClickWhenPress(RawEvent &event, std::vector<KeyConfig> keyConfigs);

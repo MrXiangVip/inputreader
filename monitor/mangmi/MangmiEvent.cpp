@@ -74,7 +74,7 @@ void MangmiEvent::handleKeyEvents(std::vector<RawEvent>& events){
 }
 void MangmiEvent::handleKeyEvent(RawEvent event) {
     ALOGD("keyEvent deviceId:%d, type:%d,code:%d,value:%d ",event.deviceId, event.type, event.code,event.value);
-    MangmiPolicy::getInstance()->buildKeyEvent( event);
+    MangmiPolicy::getInstance()->handleKeyPlus( event);
     ALOGD("keyEvent over \n\n");
 }
 
@@ -91,6 +91,6 @@ void MangmiEvent::handleAxisEvents(std::vector<RawEvent>& events){
 
 void MangmiEvent::handleAxisEvent(RawEvent event) {
     ALOGD("axisEvent");
-    MangmiPolicy::getInstance()->buildAxisEvent(event);
+    MangmiPolicy::getInstance()->handleAxisPlus(event);
     ALOGD("axisEvent over \n\n");
 }

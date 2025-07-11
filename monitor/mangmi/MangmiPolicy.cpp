@@ -131,7 +131,7 @@ RawEvent MangmiPolicy::generateEvent( int32_t deviceId, int type, int keyCode, i
     return event;
 }
 
-void MangmiPolicy::buildKeyEvent( RawEvent event){
+void MangmiPolicy::handleKeyPlus( RawEvent event){
     ALOGD("新生成一个事件 deviceId:%d, type:%d, code:%d, value:%d", event.deviceId, event.type, event.code, event.value);
 
     int inputId = MangmiUtils::getInputIdFromEvcode( event.code);
@@ -178,6 +178,7 @@ void MangmiPolicy::buildKeyEvent( RawEvent event){
                 break;
             case KEY_TYPE_MOBA_SMART_JOYSTICK_ASSOCIATION://指向性技能--摇杆关联--智能
                 mobaAssociateSmartJoystickWhenPress( event, keyConfigs);
+                break;
             case KEY_TYPE_MOBA_CANCEL_SKILL:// 取消技能
                 mobaCancelSkillWhenPress( event, keyConfigs);//
                 break;
@@ -191,8 +192,290 @@ void MangmiPolicy::buildKeyEvent( RawEvent event){
 
     return;
 }
+
+/* 标准按键点击在原生模式下触发 , xbox模式和switch模式 需要根据配置下发的targetCode找到 对应的scancode */
+void MangmiPolicy::standardKeyClick( RawEvent &event, std::vector<KeyConfig> keyConfigs) {
+    ALOGD("standardKeyClick ");
+    RawEvent  newEvent;
+    for(const auto& keyconfig :keyConfigs){
+        int scanCode = MangmiUtils::getScanCodeFromKeyCode( keyconfig.targetCode);
+        newEvent = generateEvent(event.deviceId, EV_KEY, scanCode, event.value);
+        InputFilter::getInstance()->pushSoftEvent( newEvent);
+    }
+
+    return;
+}
+/* 原生模式 --连发*/
+void MangmiPolicy::standardKeyComboClick( RawEvent &event,  std::vector<KeyConfig> keyConfigs){
+    ALOGD("standardKeyComboClick");
+    if( event.value ==1 ){//按下
+        AtomicComboThreadExit.store(false);
+        for(auto keyConfig :keyConfigs ){
+            mangmiPool.push_task( keyBoardComboClick, event , keyConfig);
+        }
+    }else if( event.value ==0){// 抬起
+        AtomicComboThreadExit.store(true);
+    }
+    return;
+}
+
+void MangmiPolicy::keyBoardComboClick( RawEvent rawEvent, KeyConfig keyConfig){
+    ALOGD("keyBoardComboClick");
+    while(1){
+        int scanCode = MangmiUtils::getScanCodeFromKeyCode( keyConfig.targetCode);
+        RawEvent downEvent =generateEvent( rawEvent.deviceId, rawEvent.type, scanCode, 1);
+        InputFilter::getInstance()->pushSoftEvent( downEvent);
+        std::this_thread::sleep_for( std::chrono::milliseconds(keyConfig.duration) );
+
+        RawEvent  upEvent = generateEvent(rawEvent.deviceId, rawEvent.type, scanCode, 0);
+        InputFilter::getInstance()->pushSoftEvent( upEvent);
+        if( AtomicComboThreadExit.load() ){
+            break;
+        }
+    }
+}
+/* 屏幕映射模式 -- 屏幕点击-- 标准点击 */
+void MangmiPolicy::touchScreensStandardClickWhenPress( RawEvent &event, std::vector<KeyConfig> keyConfigs){
+    ALOGD("touchScreensStandardClickWhenPress deviceId:%d, type:%d, code:%d, value:%d, sizeof keyConfig:%d", event.deviceId, event.type, event.code, event.value, (int)keyConfigs.size());
+    int tmpInputId= MangmiUtils::getInputIdFromEvcode( event.code);
+    if( tmpInputId==0){return ;}
+    if( keyConfigs.size()==0){return;}
+    int mWidth = InputFilter::mWidth;
+    int mHeight  =InputFilter::mHeight;
+    for(size_t i=0; i<keyConfigs.size();i++){
+        const auto keyConfig = keyConfigs[i];
+        ALOGD("%s, width:%d, height:%d", keyConfig.toString().c_str(), mWidth, mHeight);
+        float fCenterX =  mWidth* keyConfig.centerY;
+        float fCenterY = mHeight - mHeight * keyConfig.centerX;
+        if( event.value == 1){
+//            InputFilter::getInstance()->pushSoftEvent(slotIds[i], TOUCH_DOWN, centerX, centerY);
+            ALOGD("TOUCH_DOWN slotId:%d, x:%f, y:%f", keyConfig.slotId, fCenterX, fCenterY);
+            InputFilter::getInstance()->pushSoftEvent(keyConfig.slotId, TOUCH_DOWN, fCenterX, fCenterY);
+        }else if( event.value == 0){
+//            InputFilter::getInstance()->pushSoftEvent(slotIds[i], TOUCH_UP, centerX, centerY);
+            ALOGD("TOUCH_UP slotId:%d, x:%f, y:%f", keyConfig.slotId, fCenterX, fCenterY);
+            InputFilter::getInstance()->pushSoftEvent(keyConfig.slotId, TOUCH_UP, fCenterX, fCenterY);
+        }
+    }
+    return;
+}
+/* 屏幕映射模式 -- 屏幕点击 -- 连击 */
+void MangmiPolicy::touchScreenComboClickWhenPress(RawEvent &event, std::vector<KeyConfig> keyConfigs){
+    ALOGD("touchScreenComboClickWhenPress ");
+    if( event.value ==1 ){// 按下
+        AtomicScreenComboThreadExit.store(false);
+        for( auto config:keyConfigs ){
+            mangmiPool.push_task( screenComboClick, event, config);
+        }
+    }else if( event.value ==0){// 抬起
+        AtomicScreenComboThreadExit.store(true);
+
+    }
+    return;
+}
+/*  屏幕映射模式 -- 屏幕点击 -- 连击  的实现*/
+void MangmiPolicy::screenComboClick( RawEvent rawEvent, KeyConfig keyConfig){
+    ALOGD("keyBoardComboClick");
+    while(1){
+        float fCenterX = mWidth*keyConfig.centerY;
+        float fCenterY = mHeight - mHeight*keyConfig.centerX;
+        InputFilter::getInstance()->pushSoftEvent( keyConfig.slotId, TOUCH_DOWN,  fCenterX, fCenterY );
+        std::this_thread::sleep_for(std::chrono::milliseconds( keyConfig.duration));
+        InputFilter::getInstance()->pushSoftEvent(keyConfig.slotId, TOUCH_UP, 0, 0);
+        std::this_thread::sleep_for(std::chrono::milliseconds( keyConfig.duration));
+        if( AtomicScreenComboThreadExit.load()){
+            break;
+        }
+    }
+    return;
+}
+/* 屏幕映射模式 -- 屏幕点击-- 极速点击 */
+void MangmiPolicy::touchScreenFastComboClickWhenPress( RawEvent rawEvent, std::vector<KeyConfig> keyConfigs){
+    ALOGD("touchScreenFastComboClickWhenPress");
+    if( rawEvent.value == 1){// key down
+        for( auto &keyConfig: keyConfigs){
+            int centerX = keyConfig.centerX*mWidth;
+            int centerY = keyConfig.centerY*mHeight;
+            InputFilter::getInstance()->pushSoftEvent( keyConfig.slotId, TOUCH_DOWN, centerX, centerY);
+            std::this_thread::sleep_for(std::chrono::milliseconds(60));
+            InputFilter::getInstance()->pushSoftEvent( keyConfig.slotId, TOUCH_UP, centerX, centerY);
+
+        }
+    }else if( rawEvent.value ==0){//key up
+
+    }
+    return;
+}
+
+
+/* 屏幕映射模式--屏幕点击--松开点击 */
+void MangmiPolicy::touchScreenClickWhenRelease(RawEvent rawEvent, std::vector<KeyConfig> keyConfigs){
+    ALOGD("%s",__func__);
+    if( rawEvent.value == 0){// 抬起
+        for(auto &config:keyConfigs){
+            int centerX = config.centerX*mWidth;
+            int centerY = config.centerY*mHeight;
+            InputFilter::getInstance()->pushSoftEvent( config.slotId, TOUCH_DOWN, centerX, centerY);
+            std::this_thread::sleep_for(std::chrono::milliseconds(60));
+            InputFilter::getInstance()->pushSoftEvent( config.slotId, TOUCH_UP, centerX, centerY);
+        }
+    }else if( rawEvent.value ==1){// 按下
+
+    }
+}
+/* 屏幕映射模式--拖出按键-- 指向性技能-- 摇杆关联选左*/
+void MangmiPolicy::mobaAssociateLeftJoystickWhenPress(RawEvent event, std::vector<KeyConfig> keyConfigs){
+    ALOGD("%s",__func__);
+
+
+    if( event.value == 1){// 按下
+        for(const auto &config:keyConfigs){
+            int centerX = mWidth*config.centerX;
+            int centerY = mHeight*config.centerY;
+            InputFilter::getInstance()->pushSoftEvent( config.slotId, TOUCH_DOWN, centerX, centerY);
+//            同时要保存数据, 当左摇杆 摇动要用到
+            addJoyStickMapFromKeyConfig( LEFT_ASSOCIATE_JOYSTICK, config);
+        }
+    }else if( event.value==0){//抬起
+        for( const auto &config:keyConfigs){
+            InputFilter::getInstance()->pushSoftEvent( config.slotId, TOUCH_UP, 0,0);
+//        将元素删除
+            removeJoyStickMapByKeyConfig(LEFT_ASSOCIATE_JOYSTICK, config);
+        }
+
+    }
+    return;
+}
+/* 将指向性技能的按键数据保存 */
+void MangmiPolicy::addJoyStickMapFromKeyConfig(int associateType, KeyConfig keyConfig){
+    ALOGD("%s", __func__);
+    JoystickConfig  joystickConfig;
+    joystickConfig.centerX =  keyConfig.centerX;
+    joystickConfig.centerY =  keyConfig.centerY;
+    joystickConfig.sensitivityX =  keyConfig.sensitivityX;
+    joystickConfig.sensitivityY = keyConfig.sensitivityY;
+    joystickConfig.reverseJoystickX = keyConfig.reverseJoystickX;
+    joystickConfig.reverseJoystickY = keyConfig.reverseJoystickY;
+    joystickConfig.radius = mWidth *keyConfig.radius;
+    joystickConfig.minEffectiveRadiusPercent  = keyConfig.minEffectiveRadiusPercent;
+
+    auto it = associateJoystickMap.find(associateType);
+    if( it != associateJoystickMap.end() ){
+        std::set<JoystickConfig> associateJoystickConfig = it->second;
+        associateJoystickConfig.insert( joystickConfig);
+    }else{
+        std::set<JoystickConfig> associateJoystickConfig ;
+        associateJoystickConfig.insert( joystickConfig);
+        associateJoystickMap.insert({associateType, associateJoystickConfig});
+    }
+    return ;
+}
+void MangmiPolicy::removeJoyStickMapByKeyConfig(int associateType, KeyConfig keyConfig) {
+    ALOGD("%s", __func__);
+    JoystickConfig  joystickConfig;
+    joystickConfig.centerX =  keyConfig.centerX;
+    joystickConfig.centerY =  keyConfig.centerY;
+    joystickConfig.sensitivityX =  keyConfig.sensitivityX;
+    joystickConfig.sensitivityY = keyConfig.sensitivityY;
+    joystickConfig.reverseJoystickX = keyConfig.reverseJoystickX;
+    joystickConfig.reverseJoystickY = keyConfig.reverseJoystickY;
+    joystickConfig.radius = mWidth *keyConfig.radius;
+    joystickConfig.minEffectiveRadiusPercent  = keyConfig.minEffectiveRadiusPercent;
+    std::set<JoystickConfig> associateJoystickConfig = associateJoystickMap.at( associateType);
+    for( auto it =associateJoystickConfig.begin(); it != associateJoystickConfig.end();){
+        if(  *it ==joystickConfig ){
+            it = associateJoystickConfig.erase(it);
+        } else{
+            ++it;
+        }
+    }
+    return;
+}
+
+
+/* 屏幕映射模式--拖出按键--指向性技能-- 摇杆关联选右 */
+void MangmiPolicy::mobaAssociateRightJoystickWhenPress(RawEvent event, std::vector<KeyConfig> keyConfigs){
+    ALOGD("%s", __func__);
+    if( event.value == 1){// 按下
+        for(const auto &config:keyConfigs) {
+            int centerX = mWidth * config.centerX;
+            int centerY = mHeight * config.centerY;
+            InputFilter::getInstance()->pushSoftEvent(config.slotId, TOUCH_DOWN, centerX, centerY);
+//            同时要保存数据, 当左摇杆 摇动要用到
+            addJoyStickMapFromKeyConfig(RIGHT_ASSOCIATE_JOYSTICK, config);
+        }
+    }else if( event.value ==0){//抬起
+        for( const auto &config:keyConfigs){
+            InputFilter::getInstance()->pushSoftEvent( config.slotId, TOUCH_UP, 0,0);
+            // 将元素删除
+            removeJoyStickMapByKeyConfig(RIGHT_ASSOCIATE_JOYSTICK, config);
+        }
+    }
+    return;
+}
+
+/* 屏幕映射模式--拖出按键--指向性技能--摇杆关联选智能*/
+void MangmiPolicy::mobaAssociateSmartJoystickWhenPress(RawEvent event, std::vector<KeyConfig> keyConfigs){
+    ALOGD("%s",__func__);
+    if( event.value==1){//按下
+        for(const auto &config:keyConfigs) {
+            int centerX = mWidth * config.centerX;
+            int centerY = mHeight * config.centerY;
+            InputFilter::getInstance()->pushSoftEvent(config.slotId, TOUCH_DOWN, centerX, centerY);
+//            同时要保存数据, 当左摇杆 摇动要用到
+            addJoyStickMapFromKeyConfig(SMART_ASSOCIATE_JOYSTICK, config);
+        }
+    }else if( event.value ==0){//抬起
+        for( const auto &config:keyConfigs){
+            InputFilter::getInstance()->pushSoftEvent( config.slotId, TOUCH_UP, 0,0);
+//          删除元素
+            removeJoyStickMapByKeyConfig( SMART_ASSOCIATE_JOYSTICK, config);
+        }
+    }
+    return;
+}
+
+/* 屏幕映射模式--取消技能,   有按下和抬起的动作 同时将 按键的指向性技能取消 */
+void MangmiPolicy::mobaCancelSkillWhenPress(RawEvent event, std::vector<KeyConfig> keyConfigs){
+    ALOGD("%s",__func__);
+
+    if( event.value ==1){//按下
+        iCancelSkill = true;
+        for( const auto &config: keyConfigs){
+            int centerX = mWidth * config.centerX;
+            int centerY = mHeight * config.centerY;
+            InputFilter::getInstance()->pushSoftEvent(config.slotId, TOUCH_DOWN, centerX, centerY);
+        }
+//      同时将指向性技能的键抬起
+        for(auto it =associateJoystickMap.begin(); it!=associateJoystickMap.end(); it++){
+            int type = it->first;
+            std::set<JoystickConfig> joystickConfigs = it->second;
+            for(auto config:joystickConfigs){
+                InputFilter::getInstance()->pushSoftEvent( config.slotId, TOUCH_UP, 0,0);
+            }
+        }
+        associateJoystickMap.clear();//同时将map清除
+    }else if(event.value ==0){//抬起取消技能按键
+        iCancelSkill = false;
+        for(const auto config:keyConfigs){
+            InputFilter::getInstance()->pushSoftEvent(config.slotId, TOUCH_UP, 0, 0);
+        }
+    }
+    return;
+}
+/* 屏幕映射模式--查看地图 */
+void MangmiPolicy::mobaViewMapWhenPress(RawEvent event, std::vector<KeyConfig> keyConfigs){
+    ALOGD("%s",__func__);
+    if( event.value ==1){ //按下
+        mapViewMode = 1;
+    }else if(event.value ==0){//抬起
+        mapViewMode = 0;
+    }
+    return;
+}
+
 /* */
-void MangmiPolicy::buildAxisEvent( RawEvent event) {
+void MangmiPolicy::handleAxisPlus( RawEvent event) {
     ALOGD("build new Event");
 //  十字键， L2,R2，左右摇杆 都是abs事件
     switch( event.code ){
@@ -212,7 +495,7 @@ void MangmiPolicy::buildAxisEvent( RawEvent event) {
             absGas( event);
             break;
         case ABS_BRAKE:
-            absBreak( event);
+            absBrake( event);
             break;
         default:
             break;
@@ -304,10 +587,15 @@ void MangmiPolicy::leftVirtualJoystick(RawEvent event,  std::vector<JoystickConf
 
 //   当没有按下取消技能时, 从指向性技能里查出 关联左摇杆和智能摇杆 的按键配置. 如果按下了取消技能按键,抬起关联了左摇杆和智能摇杆的按键
     if( iCancelSkill ==false ){
-        std::set<JoystickConfig> leftAssociateJoystickConfig =associateJoystickMap.at(LEFT_ASSOCIATE_JOYSTICK);
-        std::set<JoystickConfig> smartAssociateJoystickConfig =associateJoystickMap.at( SMART_ASSOCIATE_JOYSTICK);
-        joystickConfigs.insert( joystickConfigs.end(),leftAssociateJoystickConfig.begin(), leftAssociateJoystickConfig.end());
-        joystickConfigs.insert( joystickConfigs.end(), smartAssociateJoystickConfig.begin(), smartAssociateJoystickConfig.end());
+        if( associateJoystickMap.count(LEFT_ASSOCIATE_JOYSTICK) >0){
+            std::set<JoystickConfig> leftAssociateJoystickConfig =associateJoystickMap.at(LEFT_ASSOCIATE_JOYSTICK);
+            joystickConfigs.insert( joystickConfigs.end(),leftAssociateJoystickConfig.begin(), leftAssociateJoystickConfig.end());
+
+        }else if( associateJoystickMap.count(SMART_ASSOCIATE_JOYSTICK) >0){
+            std::set<JoystickConfig> smartAssociateJoystickConfig =associateJoystickMap.at( SMART_ASSOCIATE_JOYSTICK);
+            joystickConfigs.insert( joystickConfigs.end(), smartAssociateJoystickConfig.begin(), smartAssociateJoystickConfig.end());
+        }
+
     }
 
     /*当摇杆从非死区移动到死区位置，或回到中心位置时，生成抬起事件*/
@@ -491,7 +779,7 @@ void MangmiPolicy::absHatXY(RawEvent &event) {
         }
         lastKey=0;
     }
-    buildKeyEvent(newEvent);//根据配置决定动作
+    handleKeyPlus(newEvent);//根据配置决定动作
 }
 
 /* L2 键 */
@@ -505,12 +793,12 @@ void MangmiPolicy::absGas(RawEvent &event){
         newEvent =generateEvent( event.deviceId, EV_KEY, BTN_TL2, 0);
     }
 //    InputFilter::getInstance()->pushSoftEvent( newEvent);
-    buildKeyEvent( newEvent);
+    handleKeyPlus( newEvent);
 }
 
 /* R2 键 */
-void MangmiPolicy::absBreak(RawEvent &event){
-    ALOGD("absBreak");
+void MangmiPolicy::absBrake(RawEvent &event){
+    ALOGD("absBrake");
     RawEvent newEvent;
     if( event.code ==ABS_BRAKE && event.value==1){
         newEvent = generateEvent( event.deviceId, EV_KEY, BTN_TR2,1);
@@ -519,287 +807,9 @@ void MangmiPolicy::absBreak(RawEvent &event){
         newEvent = generateEvent( event.deviceId, EV_KEY, BTN_TR2, 0);
     }
 //    InputFilter::getInstance()->pushSoftEvent( newEvent);
-    buildKeyEvent( newEvent);
+    handleKeyPlus( newEvent);
 }
 
 
-/* 屏幕映射模式 -- 屏幕点击-- 标准点击 */
-void MangmiPolicy::touchScreensStandardClickWhenPress( RawEvent &event, std::vector<KeyConfig> keyConfigs){
-    ALOGD("touchScreensStandardClickWhenPress deviceId:%d, type:%d, code:%d, value:%d, sizeof keyConfig:%d", event.deviceId, event.type, event.code, event.value, (int)keyConfigs.size());
-    int tmpInputId= MangmiUtils::getInputIdFromEvcode( event.code);
-    if( tmpInputId==0){return ;}
-    if( keyConfigs.size()==0){return;}
-    int mWidth = InputFilter::mWidth;
-    int mHeight  =InputFilter::mHeight;
-    for(size_t i=0; i<keyConfigs.size();i++){
-        const auto keyConfig = keyConfigs[i];
-        ALOGD("%s, width:%d, height:%d", keyConfig.toString().c_str(), mWidth, mHeight);
-        float fCenterX =  mWidth* keyConfig.centerY;
-        float fCenterY = mHeight - mHeight * keyConfig.centerX;
-        if( event.value == 1){
-//            InputFilter::getInstance()->pushSoftEvent(slotIds[i], TOUCH_DOWN, centerX, centerY);
-            ALOGD("TOUCH_DOWN slotId:%d, x:%f, y:%f", keyConfig.slotId, fCenterX, fCenterY);
-            InputFilter::getInstance()->pushSoftEvent(keyConfig.slotId, TOUCH_DOWN, fCenterX, fCenterY);
-        }else if( event.value == 0){
-//            InputFilter::getInstance()->pushSoftEvent(slotIds[i], TOUCH_UP, centerX, centerY);
-            ALOGD("TOUCH_UP slotId:%d, x:%f, y:%f", keyConfig.slotId, fCenterX, fCenterY);
-            InputFilter::getInstance()->pushSoftEvent(keyConfig.slotId, TOUCH_UP, fCenterX, fCenterY);
-        }
-    }
-    return;
-}
-/* 屏幕映射模式 -- 屏幕点击 -- 连击 */
-void MangmiPolicy::touchScreenComboClickWhenPress(RawEvent &event, std::vector<KeyConfig> keyConfigs){
-    ALOGD("touchScreenComboClickWhenPress ");
-    if( event.value ==1 ){// 按下
-        AtomicScreenComboThreadExit.store(false);
-        for( auto config:keyConfigs ){
-            mangmiPool.push_task( screenComboClick, event, config);
-        }
-    }else if( event.value ==0){// 抬起
-        AtomicScreenComboThreadExit.store(true);
 
-    }
-    return;
-}
-/*  屏幕映射模式 -- 屏幕点击 -- 连击  的实现*/
-void MangmiPolicy::screenComboClick( RawEvent rawEvent, KeyConfig keyConfig){
-    ALOGD("keyBoardComboClick");
-    while(1){
-        float fCenterX = mWidth*keyConfig.centerY;
-        float fCenterY = mHeight - mHeight*keyConfig.centerX;
-        InputFilter::getInstance()->pushSoftEvent( keyConfig.slotId, TOUCH_DOWN,  fCenterX, fCenterY );
-        std::this_thread::sleep_for(std::chrono::milliseconds( keyConfig.duration));
-        InputFilter::getInstance()->pushSoftEvent(keyConfig.slotId, TOUCH_UP, 0, 0);
-        std::this_thread::sleep_for(std::chrono::milliseconds( keyConfig.duration));
-        if( AtomicScreenComboThreadExit.load()){
-            break;
-        }
-    }
-    return;
-}
-/* 屏幕映射模式 -- 屏幕点击-- 极速点击 */
-void MangmiPolicy::touchScreenFastComboClickWhenPress( RawEvent rawEvent, std::vector<KeyConfig> keyConfigs){
-    ALOGD("touchScreenFastComboClickWhenPress");
-    if( rawEvent.value == 1){// key down
-        for( auto &keyConfig: keyConfigs){
-            int centerX = keyConfig.centerX*mWidth;
-            int centerY = keyConfig.centerY*mHeight;
-            InputFilter::getInstance()->pushSoftEvent( keyConfig.slotId, TOUCH_DOWN, centerX, centerY);
-            std::this_thread::sleep_for(std::chrono::milliseconds(60));
-            InputFilter::getInstance()->pushSoftEvent( keyConfig.slotId, TOUCH_UP, centerX, centerY);
-
-        }
-    }else if( rawEvent.value ==0){//key up
-
-    }
-    return;
-}
-/* 屏幕映射模式--屏幕点击--松开点击 */
-void MangmiPolicy::touchScreenClickWhenRelease(RawEvent rawEvent, std::vector<KeyConfig> keyConfigs){
-    ALOGD("%s",__func__);
-    if( rawEvent.value == 0){// 抬起
-        for(auto &config:keyConfigs){
-            int centerX = config.centerX*mWidth;
-            int centerY = config.centerY*mHeight;
-            InputFilter::getInstance()->pushSoftEvent( config.slotId, TOUCH_DOWN, centerX, centerY);
-            std::this_thread::sleep_for(std::chrono::milliseconds(60));
-            InputFilter::getInstance()->pushSoftEvent( config.slotId, TOUCH_UP, centerX, centerY);
-        }
-    }else if( rawEvent.value ==1){// 按下
-
-    }
-}
-/* 标准按键点击在原生模式下触发 , xbox模式和switch模式 需要根据配置下发的targetCode找到 对应的scancode */
-void MangmiPolicy::standardKeyClick( RawEvent &event, std::vector<KeyConfig> keyConfigs) {
-    ALOGD("standardKeyClick ");
-    RawEvent  newEvent;
-    for(const auto& keyconfig :keyConfigs){
-        int scanCode = MangmiUtils::getScanCodeFromKeyCode( keyconfig.targetCode);
-        newEvent = generateEvent(event.deviceId, EV_KEY, scanCode, event.value);
-        InputFilter::getInstance()->pushSoftEvent( newEvent);
-    }
-
-    return;
-}
-/* 原生模式 --连发*/
-void MangmiPolicy::standardKeyComboClick( RawEvent &event,  std::vector<KeyConfig> keyConfigs){
-    ALOGD("standardKeyComboClick");
-    if( event.value ==1 ){//按下
-        AtomicComboThreadExit.store(false);
-        for(auto keyConfig :keyConfigs ){
-            mangmiPool.push_task( keyBoardComboClick, event , keyConfig);
-        }
-    }else if( event.value ==0){// 抬起
-        AtomicComboThreadExit.store(true);
-    }
-    return;
-}
-
-void MangmiPolicy::keyBoardComboClick( RawEvent rawEvent, KeyConfig keyConfig){
-    ALOGD("keyBoardComboClick");
-    while(1){
-        int scanCode = MangmiUtils::getScanCodeFromKeyCode( keyConfig.targetCode);
-        RawEvent downEvent =generateEvent( rawEvent.deviceId, rawEvent.type, scanCode, 1);
-        InputFilter::getInstance()->pushSoftEvent( downEvent);
-        std::this_thread::sleep_for( std::chrono::milliseconds(keyConfig.duration) );
-
-        RawEvent  upEvent = generateEvent(rawEvent.deviceId, rawEvent.type, scanCode, 0);
-        InputFilter::getInstance()->pushSoftEvent( upEvent);
-        if( AtomicComboThreadExit.load() ){
-            break;
-        }
-    }
-}
-
-/* 屏幕映射模式--拖出按键-- 指向性技能-- 摇杆关联选左*/
-void MangmiPolicy::mobaAssociateLeftJoystickWhenPress(RawEvent event, std::vector<KeyConfig> keyConfigs){
-    ALOGD("%s",__func__);
-
-
-    if( event.value == 1){// 按下
-        for(const auto &config:keyConfigs){
-            int centerX = mWidth*config.centerX;
-            int centerY = mHeight*config.centerY;
-            InputFilter::getInstance()->pushSoftEvent( config.slotId, TOUCH_DOWN, centerX, centerY);
-//            同时要保存数据, 当左摇杆 摇动要用到
-            addJoyStickMapFromKeyConfig( LEFT_ASSOCIATE_JOYSTICK, config);
-        }
-    }else if( event.value==0){//抬起
-        for( const auto &config:keyConfigs){
-            InputFilter::getInstance()->pushSoftEvent( config.slotId, TOUCH_UP, 0,0);
-//        将元素删除
-            removeJoyStickMapByKeyConfig(LEFT_ASSOCIATE_JOYSTICK, config);
-        }
-
-    }
-    return;
-}
-/* 将指向性技能的按键数据保存 */
-void MangmiPolicy::addJoyStickMapFromKeyConfig(int associateType, KeyConfig keyConfig){
-    ALOGD("%s", __func__);
-    JoystickConfig  joystickConfig;
-    joystickConfig.centerX =  keyConfig.centerX;
-    joystickConfig.centerY =  keyConfig.centerY;
-    joystickConfig.sensitivityX =  keyConfig.sensitivityX;
-    joystickConfig.sensitivityY = keyConfig.sensitivityY;
-    joystickConfig.reverseJoystickX = keyConfig.reverseJoystickX;
-    joystickConfig.reverseJoystickY = keyConfig.reverseJoystickY;
-    joystickConfig.radius = mWidth *keyConfig.radius;
-    joystickConfig.minEffectiveRadiusPercent  = keyConfig.minEffectiveRadiusPercent;
-
-    auto it = associateJoystickMap.find(associateType);
-    if( it != associateJoystickMap.end() ){
-        std::set<JoystickConfig> associateJoystickConfig = it->second;
-        associateJoystickConfig.insert( joystickConfig);
-    }else{
-        std::set<JoystickConfig> associateJoystickConfig ;
-        associateJoystickConfig.insert( joystickConfig);
-        associateJoystickMap.insert({associateType, associateJoystickConfig});
-    }
-    return ;
-}
-void MangmiPolicy::removeJoyStickMapByKeyConfig(int associateType, KeyConfig keyConfig) {
-    ALOGD("%s", __func__);
-    JoystickConfig  joystickConfig;
-    joystickConfig.centerX =  keyConfig.centerX;
-    joystickConfig.centerY =  keyConfig.centerY;
-    joystickConfig.sensitivityX =  keyConfig.sensitivityX;
-    joystickConfig.sensitivityY = keyConfig.sensitivityY;
-    joystickConfig.reverseJoystickX = keyConfig.reverseJoystickX;
-    joystickConfig.reverseJoystickY = keyConfig.reverseJoystickY;
-    joystickConfig.radius = mWidth *keyConfig.radius;
-    joystickConfig.minEffectiveRadiusPercent  = keyConfig.minEffectiveRadiusPercent;
-    std::set<JoystickConfig> associateJoystickConfig = associateJoystickMap.at( associateType);
-    for( auto it =associateJoystickConfig.begin(); it != associateJoystickConfig.end();){
-        if(  *it ==joystickConfig ){
-            it = associateJoystickConfig.erase(it);
-        } else{
-            ++it;
-        }
-    }
-    return;
-}
-
-
-/* 屏幕映射模式--拖出按键--指向性技能-- 摇杆关联选右 */
-void MangmiPolicy::mobaAssociateRightJoystickWhenPress(RawEvent event, std::vector<KeyConfig> keyConfigs){
-    ALOGD("%s", __func__);
-    if( event.value == 1){// 按下
-        for(const auto &config:keyConfigs) {
-            int centerX = mWidth * config.centerX;
-            int centerY = mHeight * config.centerY;
-            InputFilter::getInstance()->pushSoftEvent(config.slotId, TOUCH_DOWN, centerX, centerY);
-//            同时要保存数据, 当左摇杆 摇动要用到
-            addJoyStickMapFromKeyConfig(RIGHT_ASSOCIATE_JOYSTICK, config);
-        }
-    }else if( event.value ==0){//抬起
-        for( const auto &config:keyConfigs){
-            InputFilter::getInstance()->pushSoftEvent( config.slotId, TOUCH_UP, 0,0);
-            // 将元素删除
-            removeJoyStickMapByKeyConfig(RIGHT_ASSOCIATE_JOYSTICK, config);
-        }
-    }
-    return;
-}
-
-/* 屏幕映射模式--拖出按键--指向性技能--摇杆关联选智能*/
-void MangmiPolicy::mobaAssociateSmartJoystickWhenPress(RawEvent event, std::vector<KeyConfig> keyConfigs){
-    ALOGD("%s",__func__);
-    if( event.value==1){//按下
-        for(const auto &config:keyConfigs) {
-            int centerX = mWidth * config.centerX;
-            int centerY = mHeight * config.centerY;
-            InputFilter::getInstance()->pushSoftEvent(config.slotId, TOUCH_DOWN, centerX, centerY);
-//            同时要保存数据, 当左摇杆 摇动要用到
-            addJoyStickMapFromKeyConfig(SMART_ASSOCIATE_JOYSTICK, config);
-        }
-    }else if( event.value ==0){//抬起
-        for( const auto &config:keyConfigs){
-            InputFilter::getInstance()->pushSoftEvent( config.slotId, TOUCH_UP, 0,0);
-//          删除元素
-            removeJoyStickMapByKeyConfig( SMART_ASSOCIATE_JOYSTICK, config);
-        }
-    }
-    return;
-}
-
-/* 屏幕映射模式--取消技能,   有按下和抬起的动作 同时将 按键的指向性技能取消 */
-void MangmiPolicy::mobaCancelSkillWhenPress(RawEvent event, std::vector<KeyConfig> keyConfigs){
-    ALOGD("%s",__func__);
-
-    if( event.value ==1){//按下
-        iCancelSkill = true;
-        for( const auto &config: keyConfigs){
-            int centerX = mWidth * config.centerX;
-            int centerY = mHeight * config.centerY;
-            InputFilter::getInstance()->pushSoftEvent(config.slotId, TOUCH_DOWN, centerX, centerY);
-        }
-//      同时将指向性技能的键抬起
-        for(auto it =associateJoystickMap.begin(); it!=associateJoystickMap.end(); it++){
-            int type = it->first;
-            std::set<JoystickConfig> joystickConfigs = it->second;
-            for(auto config:joystickConfigs){
-                InputFilter::getInstance()->pushSoftEvent( config.slotId, TOUCH_UP, 0,0);
-            }
-        }
-        associateJoystickMap.clear();//同时将map清除
-    }else if(event.value ==0){//抬起取消技能按键
-        iCancelSkill = false;
-        for(const auto config:keyConfigs){
-            InputFilter::getInstance()->pushSoftEvent(config.slotId, TOUCH_UP, 0, 0);
-        }
-    }
-    return;
-}
-/* 屏幕映射模式--查看地图 */
-void MangmiPolicy::mobaViewMapWhenPress(RawEvent event, std::vector<KeyConfig> keyConfigs){
-    ALOGD("%s",__func__);
-    if( event.value ==1){ //按下
-        mapViewMode = 1;
-    }else if(event.value ==0){//抬起
-        mapViewMode = 0;
-    }
-    return;
-}
 
