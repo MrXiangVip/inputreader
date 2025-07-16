@@ -110,6 +110,22 @@ private:
     void addJoyStickMapFromKeyConfig(int associateType, KeyConfig keyConfig);
 
     void removeJoyStickMapByKeyConfig(int associateType, KeyConfig keyConfig);
+
+    void leftJoystickAdjustView( RawEvent &event, std::vector<JoystickConfig> joystickConfigs);
+
+    static void Left_AdjustViewFunc(int ilen, std::vector<JoystickConfig> configs, vector<int> vectorX, vector<int> vectorY);
+
+    static void AVLeft_predictCoor(int ilen, vector<int> beginX, vector<int> beginY, vector<int> &distX, vector<int> &distY);
+
+    static void AVLeft_speed(int ilen, vector<int> &vSpeed);
+
+    static int calculateDelayFromSpeed(int currentValue);
+
+    void leftJoystickAdjustViewPlus(RawEvent &event, vector<JoystickConfig> configs);
+
+    static pair<int, int> getIncreaseDistance(double slope, double angle);
+
+    static void updateDistPointWhileMoving(vector<JoystickConfig> configs );
 };
 
 

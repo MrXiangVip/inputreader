@@ -15,6 +15,10 @@
 #include <cstring>
 #include <vector>
 #include <set>
+#include <cmath>
+#include <algorithm> // 用于std::clamp
+#include <cfloat>
+
 #include "json/json.h"
 #include "utils/MangmiIntercepter.h"
 #include "../include/EventHub.h"
@@ -240,8 +244,8 @@ void MangmiPolicy::touchScreensStandardClickWhenPress( RawEvent &event, std::vec
     int tmpInputId= MangmiUtils::getInputIdFromEvcode( event.code);
     if( tmpInputId==0){return ;}
     if( keyConfigs.size()==0){return;}
-    int mWidth = InputFilter::mWidth;
-    int mHeight  =InputFilter::mHeight;
+//    int mWidth = InputFilter::mWidth;
+//    int mHeight  =InputFilter::mHeight;
     for(size_t i=0; i<keyConfigs.size();i++){
         const auto keyConfig = keyConfigs[i];
         ALOGD("%s, width:%d, height:%d", keyConfig.toString().c_str(), mWidth, mHeight);
@@ -356,7 +360,7 @@ void MangmiPolicy::addJoyStickMapFromKeyConfig(int associateType, KeyConfig keyC
     joystickConfig.sensitivityY = keyConfig.sensitivityY;
     joystickConfig.reverseJoystickX = keyConfig.reverseJoystickX;
     joystickConfig.reverseJoystickY = keyConfig.reverseJoystickY;
-    joystickConfig.radius = mWidth *keyConfig.radius;
+    joystickConfig.radius =  keyConfig.radius;
     joystickConfig.minEffectiveRadiusPercent  = keyConfig.minEffectiveRadiusPercent;
 
     auto it = associateJoystickMap.find(associateType);
@@ -379,7 +383,7 @@ void MangmiPolicy::removeJoyStickMapByKeyConfig(int associateType, KeyConfig key
     joystickConfig.sensitivityY = keyConfig.sensitivityY;
     joystickConfig.reverseJoystickX = keyConfig.reverseJoystickX;
     joystickConfig.reverseJoystickY = keyConfig.reverseJoystickY;
-    joystickConfig.radius = mWidth *keyConfig.radius;
+    joystickConfig.radius =  keyConfig.radius;
     joystickConfig.minEffectiveRadiusPercent  = keyConfig.minEffectiveRadiusPercent;
     std::set<JoystickConfig> associateJoystickConfig = associateJoystickMap.at( associateType);
     for( auto it =associateJoystickConfig.begin(); it != associateJoystickConfig.end();){
@@ -464,8 +468,11 @@ void MangmiPolicy::mobaCancelSkillWhenPress(RawEvent event, std::vector<KeyConfi
     return;
 }
 /* 屏幕映射模式--查看地图 */
+
 void MangmiPolicy::mobaViewMapWhenPress(RawEvent event, std::vector<KeyConfig> keyConfigs){
     ALOGD("%s",__func__);
+//    if( ABS)
+
     if( event.value ==1){ //按下
         mapViewMode = 1;
     }else if(event.value ==0){//抬起
@@ -524,6 +531,8 @@ void MangmiPolicy::leftJoystick(RawEvent& event){
                 leftVirtualJoystick(event, joystickConfigs);
                 break;
             case JOYSTICK_TYPE_TOUCHSCREEN_ADJUST_VIEW://调整视角
+//                leftJoystickAdjustView( event, joystickConfigs);
+                leftJoystickAdjustViewPlus( event, joystickConfigs);
                 break;
             default:
                 break;
@@ -811,5 +820,383 @@ void MangmiPolicy::absBrake(RawEvent &event){
 }
 
 
+static int leftAdjustViewX =0;
+static int leftAdjustViewY =0;
+static int isJSAVLeftMidlle = 0;
+static bool isAVLeftDown = false;
+bool bStartAVLeft = false;
+
+std::atomic<bool> aLeftThreadExit;
+std::atomic<double> aLeftSlope;
+std::atomic<double> aLeftAngle;
+std::vector<bool> vAVLInvertX;
+std::vector<bool> vAVLInvertY;
+std::vector<float> vAVLSenX;
+std::vector<float> vAVLSenY;
+static bool bLeftJoystickDown =false;
+static bool bLeftJoystickMove =false;
+void MangmiPolicy::leftJoystickAdjustView( RawEvent &event, std::vector<JoystickConfig> joystickConfigs){
+    ALOGD("%s ", __func__);
+//    int mWidth = InputFilter::mWidth;
+//    int mHeight = InputFilter::mHeight;
+    double x, y, slope, angle;
+    std::vector<int> vectorCenterX;
+    std::vector<int> vectorCenterY;
+    int iLen = joystickConfigs.size();
+    if( ABS_X ==event.code){
+        leftAdjustViewY = event.value;
+    }else if( ABS_Y ==event.code){
+        leftAdjustViewX = event.value;
+    }else{
+        ALOGD("no matched abs");
+        return;
+    }
+
+    if( abs(leftAdjustViewX)<DEADZONE_CENTERPOINT && abs(leftAdjustViewY)<DEADZONE_CENTERPOINT ){
+        leftAdjustViewX =0;
+        leftAdjustViewY =0;
+        isJSAVLeftMidlle = 1;
+        return;
+    }else{
+        isJSAVLeftMidlle = 0;
+    }
+    x = (double)leftAdjustViewX;
+    y = (double)leftAdjustViewY;
+    if( bStartAVLeft ==false){
+
+        bStartAVLeft = true;
+        vAVLInvertX.clear();
+        vAVLInvertY.clear();
+
+        for( auto config :joystickConfigs){
+            float fCenterX = mWidth *config.centerY;
+            float fCenterY = mHeight - mHeight* config.centerX;
+            vectorCenterX.push_back(fCenterX);
+            vectorCenterY.push_back(fCenterY*(-1)); //坐标系在第四象限(x:1,y:-1)
+            vAVLInvertX.push_back(config.reverseJoystickX);
+            vAVLInvertY.push_back( config.reverseJoystickY);
+            vAVLSenX.push_back(config.sensitivityX);
+            vAVLSenY.push_back(config.sensitivityY);
+//            InputFilter::getInstance()->pushSoftEvent( config.slotId, TOUCH_DOWN, fCenterX, fCenterY );
+        }
+
+    }
+    if(isAVLeftDown==false ) {
+        for(size_t i=0; i<joystickConfigs.size();i++) {
+            InputFilter::getInstance()->pushSoftEvent( joystickConfigs[i].slotId, TOUCH_DOWN, vectorCenterX[i], vectorCenterY[i]);
+        }
+        aLeftThreadExit.store(false);
+        mangmiPool.push_task(Left_AdjustViewFunc, iLen, joystickConfigs, vectorCenterX, vectorCenterY);
+        isAVLeftDown = true;
+    } else {
+
+        for (int i = 0; i < iLen; i++) {
+            //死区范围:-5到5
+            if ((abs(leftAdjustViewX) < DEADZONE_CENTERPOINT))
+                x = 0;
+
+            //斜率
+            slope = y / x;
+            aLeftSlope.store(slope);
+
+            //弧度
+            angle = std::atan2(y, x);
+            aLeftAngle.store(angle);
+
+            //角度
+            //double angle_deg = angle * 180.0 / M_PI;
+            ALOGI("---%s---slope = %f, angle = %f ", __func__, slope, angle );
+        }
+    }
+
+}
+
+void MangmiPolicy::Left_AdjustViewFunc(int ilen, std::vector<JoystickConfig> configs, std::vector<int> vectorX, std::vector<int> vectorY){
+    ALOGD("%s",__func__);
+    std::vector<int> distX;
+    std::vector<int> distY;
+    std::vector<int> vBeginX;
+    std::vector<int> vBeginY;
+    std::vector<int> vSpeed;
+    vBeginX.clear();
+    vBeginY.clear();
+    for(int i = 0; i < ilen; i++)
+    {
+        ALOGD("%s, x:%d, y:%d",__func__ , vectorX[i], vectorY[i]);
+        vBeginX.push_back(vectorX[i]);
+        vBeginY.push_back(vectorY[i]);
+    }
 
 
+    while(1){
+        if(0 == isJSAVLeftMidlle)
+        {
+ADJUSTVIEW_LEFT:
+            distX.clear();
+            distY.clear();
+            vSpeed.clear();
+            if(aLeftThreadExit.load())
+            {
+                std::this_thread::sleep_for(std::chrono::milliseconds(50)); //delay 50 ms
+                //ALOGI("---Left_AdjustViewFunc---aLeftThreadExit = true---release now");
+                break;
+            }
+            AVLeft_predictCoor(ilen, vBeginX, vBeginY, distX, distY);
+            AVLeft_speed(ilen, vSpeed);
+            vBeginX.clear();
+            vBeginY.clear();
+            for(int i = 0; i < ilen; i++)
+            {
+                if((distX[i] <= 0) || (distX[i] >= mWidth) ||
+                   (distY[i] <= (-mHeight)) || (distY[i] >= 0))
+                {
+                    vBeginX.clear();
+                    vBeginY.clear();
+                    for(int j = 0; j < ilen; j++)
+                    {
+                        vBeginX.push_back(vectorX[j]);
+                        vBeginY.push_back(vectorY[j]);
+                        //ALOGI("---over line---TOUCH_UP---JSLeftViewSlotId[%d] = %d", j, JSLeftViewSlotId[j]);
+//                        updateSlotIdDown(JS_LEFT, JS_LEFT_EVCODE, JSLeftViewSlotId[i], false);
+                        InputFilter::getInstance()->pushSoftEvent(configs[i].slotId, TOUCH_UP, 0, 0);
+                    }
+                    std::this_thread::sleep_for(std::chrono::milliseconds(50)); //delay 50 ms
+                    for(int j = 0; j < ilen; j++)
+                    {
+                        //ALOGI("---over line---TOUCH_DOWN(%d), x = %d, y = %d", JSLeftViewSlotId[j], vectorX[j], vectorY[j]);
+//                        updateSlotIdDown(JS_LEFT, JS_LEFT_EVCODE, JSLeftViewSlotId[i], true);
+                        InputFilter::getInstance()->pushSoftEvent( configs[i].slotId, TOUCH_DOWN, vectorX[j], vectorY[j] * (-1)); //坐标系在第四象限(x:1,y:-1)
+                    }
+                    goto ADJUSTVIEW_LEFT;
+                }
+
+                //ALOGI("---%s---TOUCH_MOVE(%d), distX[%d] = %d, distY[%d] = %d", __func__, JSLeftViewSlotId[i], i, distX[i], i, distY[i]);
+                std::this_thread::sleep_for(std::chrono::milliseconds(vSpeed[i])); //delay vSpeed ms
+//                InputFilter::getInstance()->pushSoftEvent(JSLeftViewSlotId[i], TOUCH_MOVE, distX[i], distY[i] * (-1)); //坐标系在第四象限(x:1,y:-1)
+                InputFilter::getInstance()->pushSoftEvent(configs[i].slotId, TOUCH_MOVE, distX[i], distY[i] * (-1)); //坐标系在第四象限(x:1,y:-1)
+
+                vBeginX.push_back(distX[i]);
+                vBeginY.push_back(distY[i]);
+            }
+        }
+    }
+
+    for(int i = 0; i < ilen; i++)
+    {
+        ALOGI("%s,TOUCH_UP slotId:%d",__func__, configs[i].slotId);
+        InputFilter::getInstance()->pushSoftEvent(configs[i].slotId, TOUCH_UP, 0, 0);
+    }
+    bStartAVLeft = false;
+    isAVLeftDown = false;
+    aLeftThreadExit.store(false);
+}
+
+void MangmiPolicy::AVLeft_predictCoor(int ilen, std::vector<int> beginX, std::vector<int> beginY, std::vector<int>& distX, std::vector<int>& distY)
+{
+    int i = 0;
+    std::vector<int> newX;
+    std::vector<int> newY;
+    double distance;
+    double slope, angle;
+
+    newX.clear();
+    newY.clear();
+    //斜率
+    slope = aLeftSlope.load();
+    if (std::isinf(slope)) { //斜率为无穷大的情况
+        for(i = 0; i < ilen; i++)
+        {
+            if(true == vAVLInvertX[i]) //UI: X轴反向
+                slope = slope * (-1); //Y坐标反向
+
+            newX.push_back(beginX[i]);
+            newY.push_back(beginY[i] + (5 * (slope > 0 ? 1 : -1)));
+        }
+    }else {
+        //弧度
+        angle = aLeftAngle.load();
+
+        //根据弧度计算动态的距离,固定步长为5
+        distance = 5 * std::cos(angle);
+        //ALOGI("---%s---slope = %f, angle = %f, distance = %f", __func__, slope, angle, distance);
+
+        //根据斜率和步长计算坐标点(newX, newY)
+        for(i = 0; i < ilen; i++)
+        {
+            if(true == vAVLInvertY[i]) //UI: Y轴反向
+                newX.push_back(beginX[i] + distance * (-1));
+
+            else
+                newX.push_back(beginX[i] + distance);
+
+            if(true == vAVLInvertX[i]) //UI: X轴反向
+                slope = slope * (-1); //Y坐标反向
+
+            newY.push_back(beginY[i] + distance * slope);
+        }
+    }
+
+    for(i = 0; i < ilen; i++)
+    {
+        distX.push_back(newX[i]);
+        distY.push_back(newY[i]);
+
+        //ALOGI("---最终结果: 新的坐标点为[%d](%d, %d)", newX[i], newY[i]);
+    }
+}
+void MangmiPolicy::AVLeft_speed(int ilen, std::vector<int>& vSpeed)
+{
+    int i = 0;
+    int idelay = 0;
+    int iCurValue = 0;
+
+    for(i = 0; i < ilen; i++)
+    {
+        iCurValue = (int)((float)(vAVLSenX[i] + vAVLSenY[i]) * 100);
+        ALOGI("---%s---iCurValue[%d] = %d", __func__, i, iCurValue);
+        idelay = calculateDelayFromSpeed(iCurValue);
+        vSpeed.push_back(idelay);
+    }
+}
+
+// 函数：根据当前值计算速度和延时
+int MangmiPolicy::calculateDelayFromSpeed(int currentValue) {
+    const int minCurrent = 0;
+    const int maxCurrent = 200;
+    const double minSpeed = 0.0;
+    const double maxSpeed = 5.0;
+    const int minDelay = 4;   // 最大速度对应的最小延时
+    const int maxDelay = 20;  // 最小速度对应的最大延时
+    double speed = 0.0;
+    int delay = 0;
+
+    // 确保当前值在有效范围内
+//    currentValue = std::clamp(currentValue, minCurrent, maxCurrent);
+    currentValue = std::min( std::max(currentValue,minCurrent),maxCurrent);
+
+    // 计算速度，与当前值成正比
+    speed = (static_cast<double>(currentValue) / maxCurrent) * (maxSpeed - minSpeed) + minSpeed;
+
+    // 计算延时，与速度成反比
+    delay = maxDelay - static_cast<int>((speed / maxSpeed) * (maxDelay - minDelay));
+
+    //ALOGI("---%s---delay = %d", __func__, delay);
+    return delay;
+}
+
+
+static bool bLeftAdjustViewLast=false; //上一次的状态
+static bool bLeftAdjustView=false;      //这一次的状态
+static std::map<int, std::pair<int,int>> leftDistPoint;// 键为slotId, 值为 x,y 坐标
+static double slope; //斜率
+static double angle; //弧度
+void MangmiPolicy::leftJoystickAdjustViewPlus(RawEvent& event, std::vector<JoystickConfig> configs ){
+    ALOGD("%s, deviceId:%d, type:%d, code:%d, value:%d",__func__, event.deviceId, event.type, event.code, event.value);
+
+    if( ABS_X ==event.code){// 向左摇动摇杆 value 是正值, 向右摇动摇杆 value 是负值, 所以取反
+        leftAdjustViewY = -event.value;
+    }else if( ABS_Y ==event.code){
+        leftAdjustViewX = event.value;
+    }else{
+        ALOGD("no matched abs");
+        return;
+    }
+    ALOGD("leftAdjustViewX:%d, leftAdjustViewY:%d", leftAdjustViewX, leftAdjustViewY);
+    if( (abs(leftAdjustViewX)<DEADZONE_CENTERPOINT) && (abs(leftAdjustViewY)<DEADZONE_CENTERPOINT) ){
+        leftAdjustViewX =0;
+        leftAdjustViewY =0;
+    }
+
+    if( bLeftAdjustViewLast ==false ){// down
+        leftDistPoint.clear();
+        bLeftAdjustViewLast =true;    // 将上一次的状态改变
+        for( auto config: configs){
+            float fCenterX = mWidth *config.centerY;
+            float fCenterY = mHeight -config.centerX *mHeight;
+            ALOGD("mWidth:%d, mHeight:%d, config:%s",mWidth, mHeight, config.toString().c_str());
+            ALOGD("TOUCH_DOWN , x:%f, y:%f", fCenterX, fCenterY);
+            InputFilter::getInstance()->pushSoftEvent( config.slotId, TOUCH_DOWN, fCenterX, fCenterY );
+            leftDistPoint[config.slotId]={fCenterX, fCenterY};
+        }
+    }else{//在移动过程中
+        double x =leftAdjustViewX;
+        double y = leftAdjustViewY;
+        //死区范围:-5到5
+        if ((abs(leftAdjustViewX) < DEADZONE_CENTERPOINT))
+            x = 0;
+        //斜率
+        if( std::abs(x)>1e-10){
+            slope = y / x;
+        }else{
+            slope=(y>0)?INFINITY:-INFINITY;
+        }
+        //弧度
+        angle = std::atan2(y, x);
+//        如果松开了摇杆 抬起移动点, 将map清空, 调整视角的标志置为false
+        if( (abs(leftAdjustViewX) < DEADZONE_CENTERPOINT) && (abs(leftAdjustViewY) < DEADZONE_CENTERPOINT) ){
+            for( auto config :configs){
+                ALOGD("%s, TOUCH_UP ",__func__);
+                InputFilter::getInstance()->pushSoftEvent(config.slotId, TOUCH_UP, 0, 0);
+            }
+            bLeftAdjustView = false;    // 将状态复原
+            bLeftAdjustViewLast = false;//
+            return;
+        }
+        if( bLeftAdjustView ==false){//在摇杆移动过程中
+            bLeftAdjustView = true;
+            mangmiPool.push_task( updateDistPointWhileMoving, configs);
+        }
+
+    }
+
+}
+
+std::pair<int , int >   MangmiPolicy::getIncreaseDistance(double mSlope, double mAngle ){
+    ALOGD("%s, slope:%f,angle:%f", __func__, mSlope, mAngle);
+    int increaseX =0;
+    int increaseY =0;
+    //斜率
+    if (std::isinf(mSlope)) { //斜率为无穷大的情况
+         increaseX = 0;
+         increaseY = 5* (mSlope>0?1:-1);
+    }else {
+        //弧度
+        //根据弧度计算动态的距离,固定步长为5
+        double distance = 5 * std::cos(mAngle);
+        increaseX = distance;
+        increaseY = distance*mSlope;
+    }
+    ALOGD("%s, increaseX:%d, increaseY:%d", __func__, increaseX, increaseY);
+    return std::make_pair(increaseX, increaseY);
+}
+
+
+void MangmiPolicy::updateDistPointWhileMoving( std::vector<JoystickConfig> configs){
+    ALOGD("%s,  slope:%f, angle:%f", __func__, slope, angle);
+
+    while( bLeftAdjustView ){
+        //    1. 遍历 configs,计算移动过程中的坐标点
+            std::pair<int, int> increaseXY =getIncreaseDistance(slope, angle);
+            for( auto config: configs){
+                std::pair<int ,int>  point = leftDistPoint.at(config.slotId);
+                int distX = point.first +increaseXY.first;
+                int distY = point.second +increaseXY.second;
+                leftDistPoint[config.slotId] ={distX, distY};
+//    2. 如果已经移动到屏幕外,将坐标点移动到 起始点
+                if( distX<=0 || distX>=mWidth || distY >mHeight || distY <0 ){
+                    InputFilter::getInstance()->pushSoftEvent( config.slotId, TOUCH_UP, 0, 0);
+                    std::this_thread::sleep_for(std::chrono::milliseconds(50)); //delay 50 ms
+                    distX = config.centerY*mWidth;
+                    distY = mHeight - mHeight *config.centerX;
+                    leftDistPoint[config.slotId] =std::make_pair( distX, distY);
+                    InputFilter::getInstance()->pushSoftEvent( config.slotId, TOUCH_DOWN, distX, distY );
+                }
+//            std::this_thread::sleep_for(std::chrono::milliseconds(vSpeed[i])); //delay vSpeed ms
+                std::this_thread::sleep_for(std::chrono::milliseconds(50)); //delay 50 ms
+                ALOGD("%s, TOUCH_MOVE x:%d, y:%d", __func__, distX, distY );
+                InputFilter::getInstance()->pushSoftEvent( config.slotId, TOUCH_MOVE, distX, distY);
+            }
+    }
+    ALOGD("%s, exit adjust view moving",__func__);
+    return ;
+}

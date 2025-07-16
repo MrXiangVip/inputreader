@@ -50,6 +50,26 @@ struct JoystickConfig {
         return type==other.type && id ==other.id && slotId==other.slotId &&
                     centerX==other.centerX &&centerY==other.centerY && radius==other.radius;
     }
+    std::string toString() const {
+        std::ostringstream oss;
+        oss << "JoystickConfig{"
+            << "centerX="  << centerX
+            << ", centerY=" << centerY
+            << ", followPointerPosition=" << (followPointerPosition ? "true" : "false")
+            << ", hideFromUi=" << (hideFromUi ? "true" : "false")
+            << ", id=" << id
+            << ", minEffectiveRadiusPercent=" << minEffectiveRadiusPercent
+            << ", radius=" << radius
+            << ", reverseJoystickX=" << (reverseJoystickX ? "true" : "false")
+            << ", reverseJoystickY=" << (reverseJoystickY ? "true" : "false")
+            << ", sensitivityX=" << sensitivityX
+            << ", sensitivityY=" << sensitivityY
+            << ", speed=" << speed
+            << ", type=" << type
+            << ", slotId=" << slotId
+            << "}";
+        return oss.str();
+    }
 };
 
 struct KeyConfig {
