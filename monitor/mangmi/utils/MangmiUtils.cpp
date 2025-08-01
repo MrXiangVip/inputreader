@@ -13,7 +13,7 @@ std::map<int, int> MangmiUtils::inputIdMaps; // 定义
  int MangmiUtils::initKeyCodeToScanCodeMap(){
 
     keyCodeScanCodeMap.clear();
-    keyCodeScanCodeMap.insert({KEYCODE_BUTTON_A, BTN_A });//增加 keyCode 到 scanCode 映射关系
+    keyCodeScanCodeMap.insert({KEYCODE_BUTTON_A, BTN_A });//增加 keyCode(android system) 到 scanCode(linux) 映射关系
     keyCodeScanCodeMap.insert({KEYCODE_BUTTON_B, BTN_B });
     keyCodeScanCodeMap.insert({KEYCODE_BUTTON_X, BTN_X });
     keyCodeScanCodeMap.insert({KEYCODE_BUTTON_Y, BTN_Y });
@@ -35,7 +35,7 @@ int MangmiUtils::getScanCodeFromKeyCode( int keyCode){
     }
 }
 
-
+/* 建立 InputID(android app) 和scanCode(linux) 的映射关系 */
 void MangmiUtils::initInputIdMaps( ){
     ALOGD("initInputIdMaps");
     inputIdMaps.clear();

@@ -5,7 +5,7 @@
 #include <string>
 #include <csignal>
 #include <vector>
-#include "MangmiSocketServer.h"
+#include "MangmiSocketServerPlus.h"
 #include "../Macros.h"
 #include "MangmiConfig.h"
 #include "../MangmiPolicy.h"
@@ -13,21 +13,21 @@
 #define BUFFER_SIZE 1024 * 64 //64k
 #define PORT 8080
 
-MangmiSocketServer* MangmiSocketServer::instance;
-MangmiSocketServer * MangmiSocketServer::getInstance() {
+MangmiSocketServerPlus* MangmiSocketServerPlus::instance;
+MangmiSocketServerPlus * MangmiSocketServerPlus::getInstance() {
     if( instance== nullptr){
-        instance =new MangmiSocketServer();
+        instance =new MangmiSocketServerPlus();
     }
     return instance;
 }
 
-MangmiSocketServer::MangmiSocketServer() {
-    ALOGD("MangmiSocketServer");
+MangmiSocketServerPlus::MangmiSocketServerPlus() {
+    ALOGD("MangmiSocketServerPlus");
 
     createSocketServer();
 }
 
-int MangmiSocketServer::createSocketServer(){
+int MangmiSocketServerPlus::createSocketServer(){
     ALOGD("createSocketServer");
     std::string received_data;
 
@@ -46,12 +46,11 @@ int MangmiSocketServer::createSocketServer(){
         return -1;
     }
 
-    struct sockaddr_in address;
-    address.sin_family = AF_INET;
-    address.sin_addr.s_addr = INADDR_ANY;
-    address.sin_port = htons(PORT);
+    addrIn.sin_family = AF_INET;
+    addrIn.sin_addr.s_addr = INADDR_ANY;
+    addrIn.sin_port = htons(PORT);
 
-    if (::bind(sockfd, (struct sockaddr*)&address, sizeof(address)) < 0) {
+    if (::bind(sockfd, (struct sockaddr*)&addrIn, sizeof(addrIn)) < 0) {
         ALOGI("bind failed");
         close(sockfd);
         return -1;
@@ -66,7 +65,7 @@ int MangmiSocketServer::createSocketServer(){
     return 0;
 }
 
-int MangmiSocketServer::createLocalSocketServer(){
+int MangmiSocketServerPlus::createLocalSocketServer(){
 
     sockfd = socket(AF_UNIX, SOCK_STREAM, 0);
     if( sockfd==-1){
@@ -86,12 +85,12 @@ int MangmiSocketServer::createLocalSocketServer(){
     running = true;
     return 0;
 }
-void MangmiSocketServer::stop( ){
+void MangmiSocketServerPlus::stop( ){
     running = false;
     close( sockfd);
     return;
 }
-int MangmiSocketServer::startServer( ){
+int MangmiSocketServerPlus::startServer( ){
     char buffer[BUFFER_SIZE] = {0};
     while (running) {
         ALOGD("waiting client");
@@ -129,7 +128,7 @@ int MangmiSocketServer::startServer( ){
     sockfd = -1;
     return sockfd;
 }
-int MangmiSocketServer::dealReceivedData(std::string receivedData) {
+int MangmiSocketServerPlus::dealReceivedData(std::string receivedData) {
     ALOGD("dealReceivedData %s", receivedData.c_str());
     int iRet=0;
     size_t start_pos = 0;
@@ -191,7 +190,7 @@ int MangmiSocketServer::dealReceivedData(std::string receivedData) {
     return iRet;
 }
 
-int MangmiSocketServer::replyData( std::string requestId, std::string data){
+int MangmiSocketServerPlus::replyData(std::string requestId, std::string data){
     ALOGD("replyData ");
     std::string token;
     char delimiter = '$';

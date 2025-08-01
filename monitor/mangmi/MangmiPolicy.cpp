@@ -24,7 +24,7 @@
 #include "../include/EventHub.h"
 #include "utils/MangmiUtils.h"
 #include "InputFilter.h"
-#include "utils/MangmiSocketServer.h"
+#include "utils/MangmiSocketServerPlus.h"
 
 MangmiPolicy *MangmiPolicy::instance= nullptr;
 std::vector<socketReply> MangmiPolicy::vectorReply;//定义
@@ -58,7 +58,7 @@ MangmiPolicy* MangmiPolicy::getInstance( ){
 }
 
 void MangmiPolicy::stop() {
-    MangmiSocketServer::getInstance()->stop();
+    MangmiSocketServerPlus::getInstance()->stop();
     ALOGD("Stop MangmiPolicy");
     return;
 }
@@ -75,7 +75,7 @@ pthread_t MangmiPolicy::startSocketServerThread( ){
 void* MangmiPolicy::startMangmiSocket(void *args) {
     ALOGD("startMangmiSocket");
 //    MangmiPolicy *self = static_cast<MangmiPolicy*>(args);
-    int sockfd =MangmiSocketServer::getInstance()->startServer();
+    int sockfd =MangmiSocketServerPlus::getInstance()->startServer();
     if( sockfd ==-1){ALOGD("StartServer Failed");}
     return NULL;
 }
@@ -520,6 +520,9 @@ void MangmiPolicy::leftJoystick(RawEvent& event){
         switch ( type){// 每一个类型 对应一种处理方式
             case JOYSTICK_CATEGORY_GAMEPAD:
                 break;
+            case JOYSTICK_TYPE_GAMEPAD_LEFT_JOYSTICK://原生模式   摇杆反向
+                leftOriginalJoystick(event, joystickConfigs);
+                break;
             case JOYSTICK_CATEGORY_KEYBOARD:
                 break;
             case JOYSTICK_CATEGORY_MOUSE:
@@ -550,6 +553,9 @@ void MangmiPolicy::rightJoystick(RawEvent event) {
         switch (type){// 每一个类型 对应一种处理方式
             case JOYSTICK_CATEGORY_GAMEPAD:
                 break;
+            case JOYSTICK_TYPE_GAMEPAD_RIGHT_JOYSTICK://原生模式   摇杆反向
+                rightOriginalJoystick(event, joystickConfigs);
+                break;
             case JOYSTICK_CATEGORY_KEYBOARD:
                 break;
             case JOYSTICK_CATEGORY_MOUSE:
@@ -568,8 +574,39 @@ void MangmiPolicy::rightJoystick(RawEvent event) {
     }
     return;
 }
+/* 原生模式， 摇杆反向  */
+void MangmiPolicy::leftOriginalJoystick(RawEvent event, std::vector<JoystickConfig> joystickConfigs){
+    ALOGD("%s, deviceId:%d, type:%d, code:%d, value:%d, joystickConfigs.size:%ld",__func__, event.deviceId, event.type, event.code, event.value, joystickConfigs.size());
+    for( auto config:joystickConfigs){
+        if( config.reverseJoystickX && (ABS_X==event.code) ){
+            event.value = -event.value;
+            InputFilter::getInstance()->pushSoftEvent( event);
+        }
+        if( config.reverseJoystickY && (ABS_Y==event.code) ){
+            event.value = -event.value;
+            InputFilter::getInstance()->pushSoftEvent( event);
+        }
+    }
+    return;
+}
+
+/* 原生模式， 摇杆反向  */
+void MangmiPolicy::rightOriginalJoystick(RawEvent event, std::vector<JoystickConfig> joystickConfigs){
+    ALOGD("%s, deviceId:%d, type:%d, code:%d, value:%d, joystickConfigs.size:%ld",__func__, event.deviceId, event.type, event.code, event.value, joystickConfigs.size());
+    for( auto config:joystickConfigs){
+        if( config.reverseJoystickX && (ABS_Z == event.code) ){
+            event.value = -event.value;
+            InputFilter::getInstance()->pushSoftEvent( event);
 
 
+        }
+        if( config.reverseJoystickY && (ABS_RZ == event.code) ){
+            event.value = -event.value;
+            InputFilter::getInstance()->pushSoftEvent( event);
+        }
+    }
+    return;
+}
 
 #define DEADZONE_CENTERPOINT 5
 /* 左虚拟摇杆 */

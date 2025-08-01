@@ -9,10 +9,10 @@
 #include <netinet/in.h>
 
 #define SOCKET_PATH "/tmp/inputreader"
-class MangmiSocketServer {
+class MangmiSocketServerPlus {
 
 public:
-    static MangmiSocketServer* getInstance();
+    static MangmiSocketServerPlus* getInstance();
 
     bool running;
 
@@ -23,8 +23,8 @@ private:
     int sockfd;
     sockaddr_un addr{};
     sockaddr_in addrIn{};
-    static MangmiSocketServer *instance;
-    MangmiSocketServer();
+    static MangmiSocketServerPlus *instance;
+    MangmiSocketServerPlus();
 
     int createLocalSocketServer();
     int createSocketServer();

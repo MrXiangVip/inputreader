@@ -13,12 +13,12 @@
 #include "utils/MiThreadPool.h"
 #include "MangmiPolicy.h"
 
-class MangmiEvent {
+class MangmiEventPlus {
 
 public:
     pthread_t startEventThread();
     static void* start(void *args);
-    static MangmiEvent* getInstance();
+    static MangmiEventPlus* getInstance();
     void stop();
 protected:
     void handleKeyEvents(std::vector<RawEvent>& events );
@@ -28,8 +28,8 @@ protected:
 
 
 private:
-    MangmiEvent( );
-    static MangmiEvent *instance;//
+    MangmiEventPlus( );
+    static MangmiEventPlus *instance;//
     static std::vector<RawEvent> eventKeys; //
     static std::vector<RawEvent> eventAxis;//
     static bool running;

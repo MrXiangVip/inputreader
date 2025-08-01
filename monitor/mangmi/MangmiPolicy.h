@@ -111,6 +111,8 @@ private:
 
     void removeJoyStickMapByKeyConfig(int associateType, KeyConfig keyConfig);
 
+    void leftOriginalJoystick( RawEvent event, std::vector<JoystickConfig> joystickConfigs);
+    void rightOriginalJoystick( RawEvent event, std::vector<JoystickConfig> joystickConfigs);
     void leftJoystickAdjustView( RawEvent &event, std::vector<JoystickConfig> joystickConfigs);
 
     static void Left_AdjustViewFunc(int ilen, std::vector<JoystickConfig> configs, vector<int> vectorX, vector<int> vectorY);

@@ -5,48 +5,55 @@
  * 职责是 负责事件的拉取和处理
 */
 
-#include "MangmiEvent.h"
+#include "MangmiEventPlus.h"
 #include "MangmiPolicy.h"
 #include "utils/MangmiUtils.h"
 #include "InputFilter.h"
 
 
-MangmiEvent *MangmiEvent::instance= nullptr;
-std::vector<RawEvent> MangmiEvent::eventKeys; //
-std::vector<RawEvent> MangmiEvent::eventAxis;//
-bool MangmiEvent::running=false;
+MangmiEventPlus *MangmiEventPlus::instance= nullptr;
+std::vector<RawEvent> MangmiEventPlus::eventKeys; //
+std::vector<RawEvent> MangmiEventPlus::eventAxis;//
+bool MangmiEventPlus::running=false;
 
-MangmiEvent* MangmiEvent::getInstance() {
+MangmiEventPlus* MangmiEventPlus::getInstance() {
     if( instance == nullptr ){
-        instance = new MangmiEvent();
+        instance = new MangmiEventPlus();
     }
     return  instance;
 }
-MangmiEvent::MangmiEvent( ){
+MangmiEventPlus::MangmiEventPlus( ){
 
     MangmiUtils::initInputIdMaps();
 }
 
-pthread_t MangmiEvent::startEventThread( ){
-    ALOGD("启动 MangmiEvent 线程");
+pthread_t MangmiEventPlus::startEventThread( ){
+    ALOGD("启动 MangmiEventPlus 线程");
 
     pthread_t pthreadId;
 
     pthread_create(&pthreadId, nullptr, start, this);
     return  pthreadId;
 }
-void MangmiEvent::stop(){
-    ALOGD("Stop MangmiEvent");
+void MangmiEventPlus::stop(){
+    ALOGD("Stop MangmiEventPlus");
     running = false;
 }
 
-void* MangmiEvent::start(void *args) {
-    ALOGD("启动 MangmiEvent");
+void* MangmiEventPlus::start(void *args) {
+    ALOGD("启动 MangmiEventPlus");
 
 //    updateInputIdMaps();
-    MangmiEvent *self = static_cast<MangmiEvent*>(args);
-    running = true;
+    MangmiEventPlus *self = static_cast<MangmiEventPlus*>(args);
+    ////  先创建策略线程 收来自客户端的配置投递
+    try {
+        pthread_t policyThread;
+        policyThread= MangmiPolicy::getInstance()->startSocketServerThread();
+    }catch(const std::exception& e){
+        std::cerr<<e.what()<<std::endl;
+    }
 
+    running = true;
     while(running) {
         InputFilter::getInstance()->pullInputEvents(eventKeys, eventAxis, 2000);
 
@@ -62,7 +69,7 @@ void* MangmiEvent::start(void *args) {
     return nullptr;
 }
 
-void MangmiEvent::handleKeyEvents(std::vector<RawEvent>& events){
+void MangmiEventPlus::handleKeyEvents(std::vector<RawEvent>& events){
     ALOGD("keyEvents ");
     unsigned int size = events.size();
     for (unsigned int i = 0; i < size; i++)
@@ -72,13 +79,13 @@ void MangmiEvent::handleKeyEvents(std::vector<RawEvent>& events){
     }
     return;
 }
-void MangmiEvent::handleKeyEvent(RawEvent event) {
+void MangmiEventPlus::handleKeyEvent(RawEvent event) {
     ALOGD("keyEvent deviceId:%d, type:%d,code:%d,value:%d ",event.deviceId, event.type, event.code,event.value);
     MangmiPolicy::getInstance()->handleKeyPlus( event);
     ALOGD("keyEvent over \n\n");
 }
 
-void MangmiEvent::handleAxisEvents(std::vector<RawEvent>& events){
+void MangmiEventPlus::handleAxisEvents(std::vector<RawEvent>& events){
     ALOGD("axisEvents");
     unsigned int size = events.size();
     for (unsigned int i = 0; i < size; i++)
@@ -89,7 +96,7 @@ void MangmiEvent::handleAxisEvents(std::vector<RawEvent>& events){
     return;
 }
 
-void MangmiEvent::handleAxisEvent(RawEvent event) {
+void MangmiEventPlus::handleAxisEvent(RawEvent event) {
     ALOGD("axisEvent");
     MangmiPolicy::getInstance()->handleAxisPlus(event);
     ALOGD("axisEvent over \n\n");
