@@ -15,13 +15,13 @@ set(CMAKE_CXX_FLAGS "$ENV{CXX_FLAGS} -Werror")
 
 add_executable(${PROJECT_NAME} main.cpp
         window/mainwindow.cpp window/mainwindow.ui
-        mangmi/MangmiEvent.cpp mangmi/MangmiPolicy.cpp
+        mangmi/MangmiEventPlus.cpp mangmi/MangmiPolicy.cpp
         mangmi/utils/MiThreadPool.cpp  mangmi/utils/MiThreadPool.h
         mangmi/utils/MangmiSocketClient.cpp mangmi/utils/MangmiSocketClient.h
         mangmi/utils/MangmiUtils.cpp  mangmi/utils/MangmiUtils.h
         mangmi/json/jsoncpp.cpp mangmi/InputFilter.cpp mangmi/InputFilter.h
         mangmi/utils/MangmiConfig.cpp mangmi/utils/MangmiConfig.h
-        mangmi/utils/MangmiSocketServer.cpp mangmi/utils/MangmiSocketServer.h
+        mangmi/utils/MangmiSocketServerPlus.cpp mangmi/utils/MangmiSocketServerPlus.h
         mangmi/utils/MangmiIntercepter.cpp
         )
 

@@ -1,7 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "../mangmi/MangmiPolicy.h"
-#include "../mangmi/MangmiEvent.h"
+#include "../mangmi/MangmiEventPlus.h"
 #include "../mangmi/InputFilter.h"
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -19,7 +19,7 @@ MainWindow::MainWindow(QWidget *parent)
     }
 ////  再启动接收投递 flinger 线程
     try{
-        flingerThread= MangmiEvent::getInstance()->startEventThread();
+        flingerThread= MangmiEventPlus::getInstance()->startEventThread();
     }catch (const std::exception &e){
         std::cerr<<e.what()<<std::endl;
     }
@@ -74,7 +74,7 @@ void MainWindow::handleButtonClick(){
 void MainWindow::closeEvent(QCloseEvent *event) {
     QMainWindow::closeEvent(event);
 
-    MangmiEvent::getInstance()->stop();
+    MangmiEventPlus::getInstance()->stop();
     MangmiPolicy::getInstance()->stop();
 //    pthread_join( policyThread, NULL);
 //    pthread_join( flingerThread, NULL);
